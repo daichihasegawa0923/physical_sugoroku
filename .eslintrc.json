@@ -12,7 +12,8 @@
         "sourceType": "module"
     },
     "plugins": [
-        "react"
+        "react",
+        "unused-imports"
     ],
     "rules": {
         "react/jsx-uses-react": "off",
@@ -21,6 +22,7 @@
         "@typescript-eslint/strict-boolean-expressions": "off",
         "@typescript-eslint/promise-function-async": "off",
         "@typescript-eslint/prefer-nullish-coalescing": "off",
-        "@typescript-eslint/no-unsafe-argument": "off"
+        "@typescript-eslint/no-unsafe-argument": "off",
+         "unused-imports/no-unused-imports": "warn"
     }
 }
