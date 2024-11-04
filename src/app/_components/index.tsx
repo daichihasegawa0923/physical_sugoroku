@@ -1,30 +1,24 @@
-"use client";
+'use client'
 
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { useColorMode } from "@/components/ui/color-mode";
-import { Field } from "@/components/ui/field";
-import { StepperInput } from "@/components/ui/stepper-input";
-import { Box, Center, Heading, Input, Tabs, VStack } from "@chakra-ui/react";
-import { useEffect } from "react";
+import { Button } from '@/chakra/components/ui/button'
+import { Checkbox } from '@/chakra/components/ui/checkbox'
+import { Field } from '@/chakra/components/ui/field'
+import { StepperInput } from '@/chakra/components/ui/stepper-input'
+import { Box, Center, Heading, Input, Tabs, VStack } from '@chakra-ui/react'
 
 const Home = () => {
-  const { setColorMode } = useColorMode();
-  useEffect(() => {
-    setColorMode("light");
-  }, [setColorMode]);
   return (
     <Center h="100svh">
       <VStack w="100%" height="400px" gap={8} justify="start">
         <Heading>バカすごろく</Heading>
-        <Box w={["100%", "50%"]} padding={8}>
+        <Box w={['100%', '50%']} padding={8}>
           <Tabs.Root defaultValue="create_room" variant="outline">
             <Tabs.List>
               <Tabs.Trigger value="create_room">ルームを作成する</Tabs.Trigger>
               <Tabs.Trigger value="search_room">ルームを探す</Tabs.Trigger>
             </Tabs.List>
             <Tabs.Content value="create_room">
-              <VStack gap={8} align={"start"}>
+              <VStack gap={8} align={'start'}>
                 <Field
                   label="ルーム名"
                   required
@@ -45,7 +39,7 @@ const Home = () => {
         </Box>
       </VStack>
     </Center>
-  );
-};
+  )
+}
 
-export default Home;
+export default Home
