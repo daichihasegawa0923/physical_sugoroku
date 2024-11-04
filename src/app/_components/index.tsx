@@ -5,13 +5,21 @@ import { Checkbox } from '@/chakra/components/ui/checkbox'
 import { Field } from '@/chakra/components/ui/field'
 import { StepperInput } from '@/chakra/components/ui/stepper-input'
 import { Box, Center, Heading, Input, Tabs, VStack } from '@chakra-ui/react'
+import Room from './room'
 
 const Home = () => {
   return (
     <Center h="100svh">
-      <VStack w="100%" height="400px" gap={8} justify="start">
+      <VStack w="100%" height="400px" gap={8} justify="start" padding={4}>
         <Heading>バカすごろく</Heading>
-        <Box w={['100%', '50%']} padding={8}>
+        <Box
+          w="100%"
+          maxW="600px"
+          padding={8}
+          borderRadius={8}
+          boxShadow="0px 1px 15px 0.1px"
+          boxShadowColor={{ base: '#aaa', _dark: '#fff' }}
+        >
           <Tabs.Root defaultValue="create_room" variant="outline">
             <Tabs.List>
               <Tabs.Trigger value="create_room">ルームを作成する</Tabs.Trigger>
@@ -34,6 +42,11 @@ const Home = () => {
                   <Button>作成する</Button>
                 </Center>
               </VStack>
+            </Tabs.Content>
+            <Tabs.Content value="search_room">
+              <Room roomName="ああ部屋" createdAt="2024/10/10" />
+              <Room roomName="ああ部屋" createdAt="2024/10/10" />
+              <Room roomName="ああ部屋" createdAt="2024/10/10" />
             </Tabs.Content>
           </Tabs.Root>
         </Box>
