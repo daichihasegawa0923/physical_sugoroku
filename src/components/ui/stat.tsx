@@ -3,18 +3,18 @@ import {
   type BadgeProps,
   Stat as ChakraStat,
   FormatNumber,
-  IconButton,
-} from "@chakra-ui/react"
-import { ToggleTip } from "./toggle-tip"
-import { forwardRef } from "react"
-import { HiOutlineInformationCircle } from "react-icons/hi"
+  IconButton
+} from '@chakra-ui/react'
+import { ToggleTip } from './toggle-tip'
+import { forwardRef } from 'react'
+import { HiOutlineInformationCircle } from 'react-icons/hi'
 
 interface StatLabelProps extends ChakraStat.LabelProps {
   info?: React.ReactNode
 }
 
 export const StatLabel = forwardRef<HTMLDivElement, StatLabelProps>(
-  function StatLabel(props, ref) {
+  function StatLabel (props, ref) {
     const { info, children, ...rest } = props
     return (
       <ChakraStat.Label {...rest} ref={ref}>
@@ -28,7 +28,7 @@ export const StatLabel = forwardRef<HTMLDivElement, StatLabelProps>(
         )}
       </ChakraStat.Label>
     )
-  },
+  }
 )
 
 interface StatValueTextProps extends ChakraStat.ValueTextProps {
@@ -37,7 +37,7 @@ interface StatValueTextProps extends ChakraStat.ValueTextProps {
 }
 
 export const StatValueText = forwardRef<HTMLDivElement, StatValueTextProps>(
-  function StatValueText(props, ref) {
+  function StatValueText (props, ref) {
     const { value, formatOptions, children, ...rest } = props
     return (
       <ChakraStat.ValueText {...rest} ref={ref}>
@@ -45,29 +45,29 @@ export const StatValueText = forwardRef<HTMLDivElement, StatValueTextProps>(
           (value != null && <FormatNumber value={value} {...formatOptions} />)}
       </ChakraStat.ValueText>
     )
-  },
+  }
 )
 
 export const StatUpTrend = forwardRef<HTMLDivElement, BadgeProps>(
-  function StatUpTrend(props, ref) {
+  function StatUpTrend (props, ref) {
     return (
       <Badge colorPalette="green" gap="0" {...props} ref={ref}>
         <ChakraStat.UpIndicator />
         {props.children}
       </Badge>
     )
-  },
+  }
 )
 
 export const StatDownTrend = forwardRef<HTMLDivElement, BadgeProps>(
-  function StatDownTrend(props, ref) {
+  function StatDownTrend (props, ref) {
     return (
       <Badge colorPalette="red" gap="0" {...props} ref={ref}>
         <ChakraStat.DownIndicator />
         {props.children}
       </Badge>
     )
-  },
+  }
 )
 
 export const StatRoot = ChakraStat.Root

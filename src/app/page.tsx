@@ -1,7 +1,6 @@
-import { Box, Center, Text, VStack } from "@chakra-ui/react";
-import Image from "next/image";
+import { Box, Center, Text } from '@chakra-ui/react'
 
-export default function Home() {
+export default function Home () {
   return (
     <Center h="100svh">
       <Box w="300px" h="200px" borderRadius="8px" bgColor="white">
@@ -10,5 +9,5 @@ export default function Home() {
         </Center>
       </Box>
     </Center>
-  );
+  )
 }

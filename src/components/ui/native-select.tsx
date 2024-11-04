@@ -1,16 +1,16 @@
-"use client"
+'use client'
 
-import { NativeSelect as Select } from "@chakra-ui/react"
-import { forwardRef, useMemo } from "react"
+import { NativeSelect as Select } from '@chakra-ui/react'
+import { forwardRef, useMemo } from 'react'
 
 interface NativeSelectRootProps extends Select.RootProps {
   icon?: React.ReactNode
 }
 
 export const NativeSelectRoot = forwardRef<
-  HTMLDivElement,
-  NativeSelectRootProps
->(function NativeSelect(props, ref) {
+HTMLDivElement,
+NativeSelectRootProps
+>(function NativeSelect (props, ref) {
   const { icon, children, ...rest } = props
   return (
     <Select.Root ref={ref} {...rest}>
@@ -26,22 +26,22 @@ interface NativeSelectItem {
   disabled?: boolean
 }
 
-interface NativeSelectField extends Select.FieldProps {
+interface NativeSelectFieldProps extends Select.FieldProps {
   items?: Array<string | NativeSelectItem>
 }
 
 export const NativeSelectField = forwardRef<
-  HTMLSelectElement,
-  NativeSelectField
->(function NativeSelectField(props, ref) {
+HTMLSelectElement,
+NativeSelectFieldProps
+>(function NativeSelectField (props, ref) {
   const { items: itemsProp, children, ...rest } = props
 
   const items = useMemo(
     () =>
       itemsProp?.map((item) =>
-        typeof item === "string" ? { label: item, value: item } : item,
+        typeof item === 'string' ? { label: item, value: item } : item
       ),
-    [itemsProp],
+    [itemsProp]
   )
 
   return (

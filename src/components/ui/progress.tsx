@@ -1,12 +1,12 @@
-import { Progress as ChakraProgress, IconButton } from "@chakra-ui/react"
-import { ToggleTip } from "./toggle-tip"
-import { forwardRef } from "react"
-import { HiOutlineInformationCircle } from "react-icons/hi"
+import { Progress as ChakraProgress, IconButton } from '@chakra-ui/react'
+import { ToggleTip } from './toggle-tip'
+import { forwardRef } from 'react'
+import { HiOutlineInformationCircle } from 'react-icons/hi'
 
 export const ProgressBar = forwardRef<
-  HTMLDivElement,
-  ChakraProgress.TrackProps
->(function ProgressBar(props, ref) {
+HTMLDivElement,
+ChakraProgress.TrackProps
+>(function ProgressBar (props, ref) {
   return (
     <ChakraProgress.Track {...props} ref={ref}>
       <ChakraProgress.Range />
@@ -22,7 +22,7 @@ export interface ProgressLabelProps extends ChakraProgress.LabelProps {
 }
 
 export const ProgressLabel = forwardRef<HTMLDivElement, ProgressLabelProps>(
-  function ProgressLabel(props, ref) {
+  function ProgressLabel (props, ref) {
     const { children, info, ...rest } = props
     return (
       <ChakraProgress.Label {...rest} ref={ref}>
@@ -36,5 +36,5 @@ export const ProgressLabel = forwardRef<HTMLDivElement, ProgressLabelProps>(
         )}
       </ChakraProgress.Label>
     )
-  },
+  }
 )
