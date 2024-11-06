@@ -44,9 +44,11 @@ const Home = () => {
               </VStack>
             </Tabs.Content>
             <Tabs.Content value="search_room">
-              <Room roomName="ああ部屋" createdAt="2024/10/10" />
-              <Room roomName="ああ部屋" createdAt="2024/10/10" />
-              <Room roomName="ああ部屋" createdAt="2024/10/10" />
+              <Box h="300px" w="100%" overflow="scroll">
+                <Room roomName="ああ部屋" createdAt="2024/10/10" />
+                <Room roomName="ああ部屋" createdAt="2024/10/10" />
+                <Room roomName="ああ部屋" createdAt="2024/10/10" />
+              </Box>
             </Tabs.Content>
           </Tabs.Root>
         </Box>
