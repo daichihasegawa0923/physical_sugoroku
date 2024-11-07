@@ -3,6 +3,7 @@ import { type Object3D } from 'three'
 import { Box } from './base/box'
 import { GameScene } from '@/shared/game/game.scene'
 import * as CANNON from 'cannon-es'
+import { Stage1 } from './stage/stage1'
 
 export class MainLogic extends MonoBehaviour {
   public getObject3D (): Object3D | null {
@@ -16,27 +17,32 @@ export class MainLogic extends MonoBehaviour {
     position: new CANNON.Vec3(0, 10, 0)
   })
 
-  private readonly p2: Box = new Box({
-    color: 0x00ff00,
-    size: new CANNON.Vec3(10, 1, 10),
-    mass: 0,
-    position: new CANNON.Vec3(0, 0, 0)
-  })
-
   override start (): void {
-    GameScene.get()?.add(this.p1)
-    GameScene.get()?.add(this.p2)
+    GameScene.add(this.p1)
+    GameScene.add(new Stage1())
     window.addEventListener('click', () => {
       this.p1.rigidBody().velocity.set(2, 0, 0)
     })
   }
 
   override update (): void {
+    this.setCameraPosition()
+    this.reborn()
+  }
+
+  private setCameraPosition () {
     const gameScene = GameScene.get()
     if (!gameScene) return
-
     const mainCamera = gameScene.getMainCamera()
-    mainCamera.position.set(0, 10, -5)
+    const p1Position = this.p1.getObject3D()?.position
+    if (!p1Position) return
+    mainCamera.position.set(p1Position.x, 10, p1Position.z + 5)
     mainCamera.lookAt(this.p1.getObject3D()?.position)
+  }
+
+  private reborn () {
+    if (this.p1.getObject3D()?.position.y < -10) {
+      this.p1.rigidBody().position.set(0, 10, 0)
+    }
   }
 }

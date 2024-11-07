@@ -37,7 +37,9 @@ export class GameScene {
     const animate = () => {
       this.renderer.render(this.scene, this.mainCamera)
       CannonWorld.getWorld().fixedStep()
-      this.monos.forEach((mono) => { mono.update() })
+      this.monos.forEach((mono) => {
+        mono.update()
+      })
     }
     this.renderer.setAnimationLoop(animate)
   }
@@ -48,35 +50,46 @@ export class GameScene {
 
   private monos: MonoBehaviour[] = []
 
-  public onResize (width: number, height: number) {
-    this.mainCamera.aspect = width / height
-    this.mainCamera.updateProjectionMatrix()
-    this.renderer.setSize(width, height)
-    this.renderer.setPixelRatio(window.devicePixelRatio)
+  public static onResize (width: number, height: number) {
+    const gameScene = GameScene.get()
+    if (!gameScene) return
+    gameScene.mainCamera.aspect = width / height
+    gameScene.mainCamera.updateProjectionMatrix()
+    gameScene.renderer.setSize(width, height)
+    gameScene.renderer.setPixelRatio(window.devicePixelRatio)
   }
 
-  public add (mono: MonoBehaviour) {
-    this.monos.push(mono)
+  public static add (mono: MonoBehaviour) {
+    const gameScene = GameScene.get()
+    if (!gameScene) return
+    gameScene.monos.push(mono)
     const obj3d = mono.getObject3D()
     if (obj3d) {
-      this.scene.add(obj3d)
+      gameScene.scene.add(obj3d)
     }
     mono.start()
   }
 
-  public remove (mono: MonoBehaviour) {
+  public static remove (mono: MonoBehaviour) {
+    const gameScene = GameScene.get()
+    if (!gameScene) return
     mono.onRemove()
     const obj3d = mono.getObject3D()
     if (obj3d) {
-      this.scene.remove(obj3d)
+      gameScene.scene.remove(obj3d)
     }
-    this.monos = this.monos.filter((originalMono) => originalMono === mono)
+    gameScene.monos = gameScene.monos.filter(
+      (originalMono) => originalMono === mono
+    )
   }
 
-  public findByType<T extends MonoBehaviour>(
+  public static findByType<T extends MonoBehaviour>(
     type: new (...args: any[]) => T
   ): T[] {
-    return this.monos.filter((m) => m instanceof type) as T[]
+    const gameScene = GameScene.get()
+    if (!gameScene) return []
+
+    return gameScene.monos.filter((m) => m instanceof type) as T[]
   }
 
   public getMainCamera (): THREE.Camera {

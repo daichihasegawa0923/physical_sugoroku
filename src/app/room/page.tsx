@@ -12,12 +12,10 @@ export default function Page () {
     const mainC = document.getElementById('main')
     if (mc && mainC) {
       GameScene.init(mc)
-      const instance = GameScene.get()
-      if (!instance) throw Error()
-      instance.add(new MainLogic())
+      GameScene.add(new MainLogic())
       window.addEventListener('resize', () => {
         const rect = mainC.getBoundingClientRect()
-        instance.onResize(rect.width, rect.height)
+        GameScene.onResize(rect.width, rect.height)
       })
     }
   }, [])
