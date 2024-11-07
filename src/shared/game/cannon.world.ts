@@ -20,6 +20,10 @@ export class CannonWorld {
     return new THREE.Vector3(vec3.x, vec3.y, vec3.z)
   }
 
+  public static parseFrom (vec3: THREE.Vector3): CANNON.Vec3 {
+    return new CANNON.Vec3(vec3.x, vec3.y, vec3.z)
+  }
+
   public static remove (body: CANNON.Body) {
     this.get().world.removeBody(body)
   }

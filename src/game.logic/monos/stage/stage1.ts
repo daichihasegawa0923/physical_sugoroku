@@ -2,7 +2,7 @@ import { GameScene } from '@/shared/game/game.scene'
 import { MonoBehaviour } from '@/shared/game/monobehaviour'
 import type * as THREE from 'three'
 import * as CANNON from 'cannon-es'
-import { Box } from '../base/box'
+import { SimpleBox } from '../base/simple.box'
 
 export class Stage1 extends MonoBehaviour {
   public getObject3D (): THREE.Object3D | null {
@@ -12,7 +12,7 @@ export class Stage1 extends MonoBehaviour {
   private add (array: Array<{ size: CANNON.Vec3, position: CANNON.Vec3 }>) {
     array
       .map((item) => {
-        return new Box({
+        return new SimpleBox({
           color: 0xff00ff,
           size: item.size,
           position: item.position

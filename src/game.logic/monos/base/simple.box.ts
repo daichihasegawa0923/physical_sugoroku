@@ -10,7 +10,7 @@ interface Props {
   mass?: number
 }
 
-export class Box extends RigidBodyMonoBehaviour {
+export class SimpleBox extends RigidBodyMonoBehaviour {
   private readonly rb: CANNON.Body
 
   public rigidBody (): CANNON.Body {
