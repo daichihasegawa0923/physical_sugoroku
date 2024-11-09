@@ -29,7 +29,7 @@ export class SimpleBox extends RigidBodyMonoBehaviour {
       material: material ?? new CANNON.Material({})
     })
     const geometry = new THREE.BoxGeometry(size.x, size.y, size.z)
-    const viewMaterial = new THREE.MeshBasicMaterial({ color })
+    const viewMaterial = new THREE.MeshLambertMaterial({ color })
     this.cube = new THREE.Mesh(geometry, viewMaterial)
     this.cube.receiveShadow = true
     this.cube.castShadow = true

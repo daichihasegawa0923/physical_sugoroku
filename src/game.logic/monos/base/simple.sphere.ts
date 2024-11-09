@@ -27,9 +27,8 @@ export class SimpleSphere extends RigidBodyMonoBehaviour {
       material: material ?? new CANNON.Material({})
     })
     const geometry = new THREE.SphereGeometry(radius)
-    const viewMaterial = new THREE.MeshBasicMaterial({ color })
+    const viewMaterial = new THREE.MeshLambertMaterial({ color })
     this.sphere = new THREE.Mesh(geometry, viewMaterial)
-    this.sphere.receiveShadow = true
     this.sphere.castShadow = true
   }
 

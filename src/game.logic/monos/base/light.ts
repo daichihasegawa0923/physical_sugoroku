@@ -6,11 +6,11 @@ export class Light extends MonoBehaviour {
 
   constructor () {
     super()
-    this.light = new DirectionalLight(0xffffff, 20)
-    this.light.castShadow = true
+    this.light = new DirectionalLight(0xffffff, 1)
+    this.light.position.set(5, 10, 10)
     this.light.shadow.mapSize.width = 2048
     this.light.shadow.mapSize.height = 2048
-    this.light.position.set(0, 20, 0)
+    this.light.castShadow = true
   }
 
   public getObject3D (): Object3D | null {

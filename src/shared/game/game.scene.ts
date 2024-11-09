@@ -30,8 +30,10 @@ export class GameScene {
     this.renderer = new THREE.WebGLRenderer({
       canvas: canvas || undefined,
       antialias: true,
-      alpha: true
+      alpha: false
     })
+
+    this.renderer.setClearColor(0x000000, 1.0)
 
     this.renderer.setSize(rect.width, rect.height)
     this.renderer.shadowMap.enabled = true

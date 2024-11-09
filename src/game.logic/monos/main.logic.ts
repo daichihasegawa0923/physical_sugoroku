@@ -7,6 +7,7 @@ import { Stage1 } from './stage/stage1'
 import { SimpleSphere } from './base/simple.sphere'
 import { CannonWorld } from '@/shared/game/cannon.world'
 import { Light } from './base/light'
+import { SimpleBox } from './base/simple.box'
 
 export class MainLogic extends MonoBehaviour {
   public getObject3D (): Object3D | null {
@@ -20,10 +21,20 @@ export class MainLogic extends MonoBehaviour {
     position: new CANNON.Vec3(0, 10, 0)
   })
 
+  private readonly light: Light = new Light()
+
   override start (): void {
     GameScene.add(this.p1)
     GameScene.add(new Stage1())
-    GameScene.add(new Light())
+    GameScene.add(this.light)
+    GameScene.add(
+      new SimpleBox({
+        color: 0xff0000,
+        size: new CANNON.Vec3(1, 1, 1),
+        position: new CANNON.Vec3(-2, 10, -7),
+        mass: 3
+      })
+    )
   }
 
   override update (): void {
@@ -56,18 +67,16 @@ export class MainLogic extends MonoBehaviour {
     const gameScene = GameScene.get()
     if (!gameScene) return
     const distance = 5
-    const height = 10
+    const height = 5
     const mainCamera = gameScene.getMainCamera()
     const p1Position = this.p1.getObject3D()?.position
     if (!p1Position) return
-
     // 角度に応じてカメラの位置を設定
     mainCamera.position.set(
       p1Position.x + distance * Math.sin(this.cameraAngle),
       p1Position.y + height,
       p1Position.z + distance * Math.cos(this.cameraAngle)
     )
-
     // オブジェクトの方を見続ける
     mainCamera.lookAt(p1Position)
   }

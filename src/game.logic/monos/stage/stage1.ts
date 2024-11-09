@@ -13,7 +13,7 @@ export class Stage1 extends MonoBehaviour {
     array
       .map((item) => {
         return new SimpleBox({
-          color: 0xff00ff,
+          color: 0xffffff,
           size: item.size,
           position: item.position
         })
