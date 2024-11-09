@@ -96,6 +96,10 @@ export class GameScene {
     return gameScene.monos.filter((m) => m instanceof type) as T[]
   }
 
+  public static findById<T extends MonoBehaviour>(id: string): T | null {
+    return GameScene.get()?.monos.find((m) => m.getId() === id) as T
+  }
+
   public getMainCamera (): THREE.Camera {
     return this.mainCamera
   }

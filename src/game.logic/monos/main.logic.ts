@@ -8,6 +8,8 @@ import { SimpleSphere } from './base/simple.sphere'
 import { CannonWorld } from '@/shared/game/cannon.world'
 import { Light } from './base/light'
 import { SimpleBox } from './base/simple.box'
+import type GameEvent from '../events/event'
+import { type RigidBodyMonoBehaviour } from './base/rigid.body.monobehaviour'
 
 export class MainLogic extends MonoBehaviour {
   public getObject3D (): Object3D | null {
@@ -87,5 +89,90 @@ export class MainLogic extends MonoBehaviour {
       this.p1.rigidBody().velocity.set(0, 0, 0)
       this.p1.rigidBody().angularVelocity.set(0, 0, 0)
     }
+  }
+
+  public onEvent (event: GameEvent): void {
+    switch (event.name) {
+      case 'impulse': {
+        const target = GameScene.findById<RigidBodyMonoBehaviour>(event.id)
+        if (!target) return
+        const {
+          direction: { x, y, z }
+        } = event
+        target.rigidBody().applyImpulse(new CANNON.Vec3(x, y, z))
+        break
+      }
+      case 'add': {
+        const {
+          className,
+          status: { id, position, quaternion }
+        } = event
+        const isExist = !!GameScene.findById(id)
+        if (!isExist) return
+        const instance = this.createInstance(
+          className,
+          id,
+          new CANNON.Vec3(position.x, position.y, position.z),
+          new CANNON.Quaternion(
+            quaternion.x,
+            quaternion.y,
+            quaternion.z,
+            quaternion.w
+          )
+        )
+        if (!instance) return
+        GameScene.add(instance)
+        break
+      }
+      case 'remove': {
+        const removeTarget = GameScene.findById(event.id)
+        if (removeTarget) {
+          GameScene.remove(removeTarget)
+        }
+        break
+      }
+      case 'syncRigidBody': {
+        event.statuses.forEach((syncStatus) => {
+          const syncTarget = GameScene.findById<RigidBodyMonoBehaviour>(
+            syncStatus.id
+          )
+          if (!syncTarget) return
+          const { position, quaternion } = syncStatus
+          syncTarget
+            .rigidBody()
+            .position.set(position.x, position.y, position.z)
+          syncTarget
+            .rigidBody()
+            .quaternion.set(
+              quaternion.x,
+              quaternion.y,
+              quaternion.z,
+              quaternion.w
+            )
+        })
+        break
+      }
+      default:
+        break
+    }
+  }
+
+  private createInstance (
+    className: string,
+    id: string,
+    position: CANNON.Vec3,
+    quaternion: CANNON.Quaternion
+  ): RigidBodyMonoBehaviour | null {
+    switch (className) {
+      case 'sphere1':
+        return new SimpleSphere({ color: 0xffffff, radius: 1, position, id })
+      case 'sphere2':
+        return new SimpleSphere({ color: 0x00ffff, radius: 1, position, id })
+      case 'sphere3':
+        return new SimpleSphere({ color: 0xff00ff, radius: 1, position, id })
+      case 'sphere4':
+        return new SimpleSphere({ color: 0xffff00, radius: 1, position, id })
+    }
+    return null
   }
 }
