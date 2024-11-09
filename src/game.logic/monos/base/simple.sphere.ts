@@ -8,6 +8,7 @@ interface Props {
   position?: CANNON.Vec3
   material?: CANNON.Material
   mass?: number
+  id?: string
 }
 
 export class SimpleSphere extends RigidBodyMonoBehaviour {
@@ -17,8 +18,8 @@ export class SimpleSphere extends RigidBodyMonoBehaviour {
     return this.rb
   }
 
-  constructor ({ color, radius, position, material, mass }: Props) {
-    super()
+  constructor ({ color, radius, position, material, mass, id }: Props) {
+    super(id)
     this.rb = new CANNON.Body({
       mass: mass ?? 0,
       shape: new CANNON.Sphere(radius / 2),
@@ -28,6 +29,8 @@ export class SimpleSphere extends RigidBodyMonoBehaviour {
     const geometry = new THREE.SphereGeometry(radius)
     const viewMaterial = new THREE.MeshBasicMaterial({ color })
     this.sphere = new THREE.Mesh(geometry, viewMaterial)
+    this.sphere.receiveShadow = true
+    this.sphere.castShadow = true
   }
 
   private readonly sphere: THREE.Object3D

@@ -34,6 +34,8 @@ export class GameScene {
     })
 
     this.renderer.setSize(rect.width, rect.height)
+    this.renderer.shadowMap.enabled = true
+
     const animate = () => {
       this.renderer.render(this.scene, this.mainCamera)
       CannonWorld.getWorld().fixedStep()

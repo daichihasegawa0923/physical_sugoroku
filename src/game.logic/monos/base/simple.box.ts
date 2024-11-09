@@ -8,6 +8,7 @@ interface Props {
   position?: CANNON.Vec3
   material?: CANNON.Material
   mass?: number
+  id?: string
 }
 
 export class SimpleBox extends RigidBodyMonoBehaviour {
@@ -17,8 +18,8 @@ export class SimpleBox extends RigidBodyMonoBehaviour {
     return this.rb
   }
 
-  constructor ({ color, size, position, material, mass }: Props) {
-    super()
+  constructor ({ color, size, position, material, mass, id }: Props) {
+    super(id)
     this.rb = new CANNON.Body({
       mass: mass ?? 0,
       shape: new CANNON.Box(
@@ -30,6 +31,8 @@ export class SimpleBox extends RigidBodyMonoBehaviour {
     const geometry = new THREE.BoxGeometry(size.x, size.y, size.z)
     const viewMaterial = new THREE.MeshBasicMaterial({ color })
     this.cube = new THREE.Mesh(geometry, viewMaterial)
+    this.cube.receiveShadow = true
+    this.cube.castShadow = true
   }
 
   private readonly cube: THREE.Object3D

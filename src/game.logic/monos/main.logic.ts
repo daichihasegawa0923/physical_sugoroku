@@ -6,6 +6,7 @@ import * as CANNON from 'cannon-es'
 import { Stage1 } from './stage/stage1'
 import { SimpleSphere } from './base/simple.sphere'
 import { CannonWorld } from '@/shared/game/cannon.world'
+import { Light } from './base/light'
 
 export class MainLogic extends MonoBehaviour {
   public getObject3D (): Object3D | null {
@@ -22,11 +23,24 @@ export class MainLogic extends MonoBehaviour {
   override start (): void {
     GameScene.add(this.p1)
     GameScene.add(new Stage1())
+    GameScene.add(new Light())
   }
 
   override update (): void {
     this.setCameraPosition()
     this.reborn()
+  }
+
+  public smash (): void {
+    const mainCamera = GameScene.get()?.getMainCamera()
+    if (!mainCamera) return
+    const direction = new THREE.Vector3(0, 0, 0)
+    mainCamera.getWorldDirection(direction)
+    direction.normalize()
+    direction.setY(0)
+    direction.multiplyScalar(3)
+    direction.add(new THREE.Vector3(0, 2, 0))
+    this.p1.rigidBody().applyImpulse(CannonWorld.parseFrom(direction))
   }
 
   private cameraAngle: number = 0.0
@@ -38,39 +52,24 @@ export class MainLogic extends MonoBehaviour {
     }
   }
 
-  public smash (): void {
-    const mainCamera = GameScene.get()?.getMainCamera()
-    if (!mainCamera) return
-    const direction = new THREE.Vector3(0, 0, 0)
-    mainCamera.getWorldDirection(direction)
-    direction.normalize()
-    direction.multiplyScalar(10)
-    this.p1
-      .rigidBody()
-      .applyImpulse(
-        CannonWorld.parseFrom(direction),
-        CannonWorld.parseFrom(this.p1.getObject3D().position)
-      )
-  }
-
   private setCameraPosition () {
     const gameScene = GameScene.get()
     if (!gameScene) return
-    const distanceZ = 5
-    const distanceY = 5
+    const distance = 5
+    const height = 10
     const mainCamera = gameScene.getMainCamera()
     const p1Position = this.p1.getObject3D()?.position
     if (!p1Position) return
-    mainCamera.position.set(p1Position.x, distanceY, p1Position.z + distanceZ)
 
     // 角度に応じてカメラの位置を設定
-    mainCamera.position.x =
-      p1Position.x + distanceZ * Math.cos(this.cameraAngle)
-    mainCamera.position.z =
-      p1Position.x + distanceZ * Math.sin(this.cameraAngle)
+    mainCamera.position.set(
+      p1Position.x + distance * Math.sin(this.cameraAngle),
+      p1Position.y + height,
+      p1Position.z + distance * Math.cos(this.cameraAngle)
+    )
 
     // オブジェクトの方を見続ける
-    mainCamera.lookAt(this.p1.getObject3D()?.position)
+    mainCamera.lookAt(p1Position)
   }
 
   private reborn () {
