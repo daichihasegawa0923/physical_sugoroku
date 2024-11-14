@@ -23,6 +23,7 @@
         "@typescript-eslint/promise-function-async": "off",
         "@typescript-eslint/prefer-nullish-coalescing": "off",
         "@typescript-eslint/no-unsafe-argument": "off",
-         "unused-imports/no-unused-imports": "warn"
+        "@typescript-eslint/no-misused-promises": "off",
+        "unused-imports/no-unused-imports": "warn"
     }
 }

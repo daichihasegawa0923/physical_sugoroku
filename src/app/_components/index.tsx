@@ -6,8 +6,11 @@ import { Field } from '@/chakra/components/ui/field'
 import { StepperInput } from '@/chakra/components/ui/stepper-input'
 import { Box, Center, Heading, Input, Tabs, VStack } from '@chakra-ui/react'
 import Room from './room'
+import useCreateRoom from '../_hooks/useCreateRoom'
 
 const Home = () => {
+  const { roomInput, setRoomInput, submit } = useCreateRoom()
+
   return (
     <Center h="100svh">
       <VStack w="100%" height="400px" gap={8} justify="start" padding={4}>
@@ -32,14 +35,55 @@ const Home = () => {
                   required
                   helperText="部屋名は他の人が部屋を探す際に使用します"
                 >
-                  <Input placeholder="例：ほげほげ部屋" />
+                  <Input
+                    placeholder="例：ほげほげ部屋"
+                    value={roomInput.roomName}
+                    onChange={(e) => {
+                      setRoomInput({ ...roomInput, roomName: e.target.value })
+                    }}
+                  />
+                </Field>
+                <Field
+                  label="ニックネーム"
+                  required
+                  helperText="あなたは何と呼ばれたい？"
+                >
+                  <Input
+                    placeholder="例：ほげほげ太郎"
+                    value={roomInput.memberName}
+                    onChange={(e) => {
+                      setRoomInput({
+                        ...roomInput,
+                        memberName: e.target.value
+                      })
+                    }}
+                  />
                 </Field>
                 <Field label="参加人数" helperText="最大6人まで参加できます">
-                  <StepperInput defaultValue="1" min={1} max={6} />
+                  <StepperInput
+                    min={1}
+                    max={6}
+                    value={roomInput.memberCount.toString()}
+                    onValueChange={(e) => {
+                      setRoomInput({
+                        ...roomInput,
+                        memberCount: Number(e.value)
+                      })
+                    }}
+                  />
                 </Field>
-                <Checkbox>公開する</Checkbox>
+                <Checkbox
+                  value={roomInput.public ? 'on' : 'off'}
+                  onCheckedChange={(e) => {
+                    const isPublic =
+                      typeof e.checked !== 'boolean' ? false : e.checked
+                    setRoomInput({ ...roomInput, public: isPublic })
+                  }}
+                >
+                  公開する
+                </Checkbox>
                 <Center w="100%">
-                  <Button>作成する</Button>
+                  <Button onClick={submit}>作成する</Button>
                 </Center>
               </VStack>
             </Tabs.Content>
