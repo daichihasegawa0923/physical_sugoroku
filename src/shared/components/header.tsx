@@ -14,7 +14,7 @@ const Header = () => {
       left={0}
       top={0}
       borderBottom={`1px solid ${borderColor}`}
-      marginBottom={8}
+      marginBottom={1}
     >
       <HStack w="100%" h="100%" padding={4}>
         <Box w="100%">

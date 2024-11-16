@@ -24,6 +24,7 @@
         "@typescript-eslint/prefer-nullish-coalescing": "off",
         "@typescript-eslint/no-unsafe-argument": "off",
         "@typescript-eslint/no-misused-promises": "off",
-        "unused-imports/no-unused-imports": "warn"
+        "unused-imports/no-unused-imports": "warn",
+        "@typescript-eslint/no-floating-promises": "warn"
     }
 }

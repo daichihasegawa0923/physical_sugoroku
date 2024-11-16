@@ -1,20 +1,24 @@
 'use client'
 
-import { createContext, type ReactNode, useRef } from 'react'
+import { createContext, type ReactNode, useContext, useRef } from 'react'
 
 interface WebSocketContextStatus {
-  send: (event: { name: string } & any) => Promise<void>
-  addCb: <T>(eventName: string, cb: (data: T) => void) => void
+  send: <T, CbT>(
+    event: T & { name: string },
+    cbName: string,
+    callBack: (data: CbT) => void
+  ) => Promise<void>
 }
 
 const WebSocketContextStatusDefault = {
-  send: async () => {},
-  addCb: () => {}
+  send: async () => {}
 } as const satisfies WebSocketContextStatus
 
-export const WebSocketContext = createContext<WebSocketContextStatus>(
+const WebSocketContext = createContext<WebSocketContextStatus>(
   WebSocketContextStatusDefault
 )
+
+export const useWebSocketContext = () => useContext(WebSocketContext)
 
 export default function WebSocketContextProvider ({
   children
@@ -27,24 +31,18 @@ export default function WebSocketContextProvider ({
   return (
     <WebSocketContext.Provider
       value={{
-        send: async (event) => {
+        send: async (event, cbName, cb) => {
           if (!webSocketRef.current) {
             webSocketRef.current = createWebSocket()
             webSocketRef.current.onmessage = (event) => {
               const parsed = JSON.parse(event.data) as { name: string } & {
                 value: unknown
               }
-              if (onMessageMap.current[parsed.name]) {
-                onMessageMap.current[parsed.name](parsed.value)
-              } else {
-                console.log(parsed)
-              }
+              onMessageMap.current[parsed.name](parsed.value)
             }
           }
+          onMessageMap.current = { ...onMessageMap.current, [cbName]: cb }
           await webSocketSendMiddy(webSocketRef.current, event)
-        },
-        addCb: (eventName, cb) => {
-          onMessageMap.current = { ...onMessageMap.current, [eventName]: cb }
         }
       }}
     >
@@ -63,8 +61,12 @@ async function webSocketSendMiddy (
       return
     }
     if (websocket.readyState === WebSocket.CONNECTING) {
-      websocket.onopen = () => { resolve(websocket) }
-      websocket.onerror = (err) => { reject(err) }
+      websocket.onopen = () => {
+        resolve(websocket)
+      }
+      websocket.onerror = (err) => {
+        reject(err)
+      }
     }
   })
   websocket.send(JSON.stringify(event))

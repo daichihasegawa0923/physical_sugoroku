@@ -1,8 +1,9 @@
 'use client'
 
-import { WebSocketContext } from '@/shared/function/websocket.context'
+import { useWebSocketContext } from '@/shared/function/websocket.context'
+import useLocalRoomInfo from '@/shared/hooks/useLocalRoomInfo'
 import { useRouter } from 'next/navigation'
-import { useContext, useEffect, useState } from 'react'
+import { useState } from 'react'
 
 interface RoomCreateResult {
   roomId: string
@@ -24,19 +25,21 @@ export default function useCreateRoom () {
     memberCount: 1
   })
   const router = useRouter()
-  const { send, addCb } = useContext(WebSocketContext)
-
-  useEffect(() => {
-    addCb<RoomCreateResult>('createRoom', (data) => {
-      router.push(`/room/${data.roomId}`)
-    })
-  }, [])
+  const { send } = useWebSocketContext()
+  const { set } = useLocalRoomInfo()
 
   return {
     roomInput,
     setRoomInput,
     submit: async () => {
-      await send({ name: 'createRoom', ...roomInput })
+      await send<RoomCreateInput, RoomCreateResult>(
+        { name: 'createRoom', ...roomInput },
+        'createRoom',
+        (data) => {
+          router.push(`/room/${data.roomId}`)
+          set(data.roomId, data.memberId, roomInput.memberName)
+        }
+      )
     }
   }
 }
