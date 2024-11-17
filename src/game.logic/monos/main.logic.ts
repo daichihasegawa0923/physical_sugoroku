@@ -4,40 +4,39 @@ import { GameScene } from '@/shared/game/game.scene'
 import * as THREE from 'three'
 import * as CANNON from 'cannon-es'
 import { Stage1 } from './stage/stage1'
-import { SimpleSphere } from './base/simple.sphere'
 import { CannonWorld } from '@/shared/game/cannon.world'
-import { Light } from './base/light'
-import { SimpleBox } from './base/simple.box'
 import type GameEvent from '../events/event'
 import { type RigidBodyMonoBehaviour } from './base/rigid.body.monobehaviour'
+import { type GameObject, MonoContainer } from '@/shared/game/mono.container'
+import { Piece, type PlayerNumber } from '@/game.logic/monos/player/piece'
+import { Light } from '@/game.logic/monos/base/light'
 
 export class MainLogic extends MonoBehaviour {
+  public constructor (
+    roomId: string,
+    memberId: string,
+    objects: GameObject[],
+    addObjCb: (gos: GameObject[]) => void
+  ) {
+    super()
+    this.roomId = roomId
+    this.memberId = memberId
+    this.registerPrefabs()
+    objects.forEach((obj) => {
+      MonoContainer.createInstance(obj.className, obj)
+    })
+    this.addObjCb = addObjCb
+    this.init()
+  }
+
+  private readonly roomId: string
+  private readonly memberId: string
+
   public getObject3D (): Object3D | null {
     return null
   }
 
-  private readonly p1: SimpleSphere = new SimpleSphere({
-    color: 0x00f0f0,
-    radius: 1,
-    mass: 1,
-    position: new CANNON.Vec3(0, 10, 0)
-  })
-
-  private readonly light: Light = new Light()
-
-  override start (): void {
-    GameScene.add(this.p1)
-    GameScene.add(new Stage1())
-    GameScene.add(this.light)
-    GameScene.add(
-      new SimpleBox({
-        color: 0xff0000,
-        size: new CANNON.Vec3(1, 1, 1),
-        position: new CANNON.Vec3(-2, 10, -7),
-        mass: 3
-      })
-    )
-  }
+  private readonly addObjCb: (go: GameObject[]) => void
 
   override update (): void {
     this.setCameraPosition()
@@ -53,7 +52,9 @@ export class MainLogic extends MonoBehaviour {
     direction.setY(0)
     direction.multiplyScalar(3)
     direction.add(new THREE.Vector3(0, 2, 0))
-    this.p1.rigidBody().applyImpulse(CannonWorld.parseFrom(direction))
+    this.getMyObject()
+      ?.rigidBody()
+      .applyImpulse(CannonWorld.parseFrom(direction))
   }
 
   private cameraAngle: number = 0.0
@@ -71,7 +72,7 @@ export class MainLogic extends MonoBehaviour {
     const distance = 5
     const height = 5
     const mainCamera = gameScene.getMainCamera()
-    const p1Position = this.p1.getObject3D()?.position
+    const p1Position = this.getMyObject()?.getObject3D()?.position
     if (!p1Position) return
     // 角度に応じてカメラの位置を設定
     mainCamera.position.set(
@@ -84,11 +85,20 @@ export class MainLogic extends MonoBehaviour {
   }
 
   private reborn () {
-    if (this.p1.getObject3D()?.position.y < -10) {
-      this.p1.rigidBody().position.set(0, 10, 0)
-      this.p1.rigidBody().velocity.set(0, 0, 0)
-      this.p1.rigidBody().angularVelocity.set(0, 0, 0)
+    const obj = this.getMyObject()
+    const obj3d = obj?.getObject3D()
+    if (obj3d == null) return
+    if (obj3d.position.y < -10) {
+      obj?.rigidBody().position.set(0, 10, 0)
+      obj?.rigidBody().velocity.set(0, 0, 0)
+      obj?.rigidBody().angularVelocity.set(0, 0, 0)
     }
+  }
+
+  private getMyObject (): RigidBodyMonoBehaviour | undefined {
+    return GameScene.findByType(Piece).find(
+      (p) => p.getMemberId() === this.memberId
+    )
   }
 
   public onEvent (event: GameEvent): void {
@@ -103,25 +113,10 @@ export class MainLogic extends MonoBehaviour {
         break
       }
       case 'add': {
-        const {
-          className,
-          status: { id, position, quaternion }
-        } = event
-        const isExist = !!GameScene.findById(id)
-        if (!isExist) return
-        const instance = this.createInstance(
-          className,
-          id,
-          new CANNON.Vec3(position.x, position.y, position.z),
-          new CANNON.Quaternion(
-            quaternion.x,
-            quaternion.y,
-            quaternion.z,
-            quaternion.w
-          )
-        )
-        if (!instance) return
-        GameScene.add(instance)
+        const { input } = event
+        input.forEach((i) => {
+          MonoContainer.createInstance(i.className, i)
+        })
         break
       }
       case 'remove': {
@@ -131,48 +126,78 @@ export class MainLogic extends MonoBehaviour {
         }
         break
       }
-      case 'syncRigidBody': {
-        event.statuses.forEach((syncStatus) => {
-          const syncTarget = GameScene.findById<RigidBodyMonoBehaviour>(
-            syncStatus.id
-          )
-          if (!syncTarget) return
-          const { position, quaternion } = syncStatus
-          syncTarget
-            .rigidBody()
-            .position.set(position.x, position.y, position.z)
-          syncTarget
-            .rigidBody()
-            .quaternion.set(
-              quaternion.x,
-              quaternion.y,
-              quaternion.z,
-              quaternion.w
-            )
-        })
-        break
-      }
-      default:
-        break
     }
   }
 
-  private createInstance (
-    className: string,
-    id: string,
-    position: CANNON.Vec3,
-    quaternion: CANNON.Quaternion
-  ): RigidBodyMonoBehaviour | null {
-    switch (className) {
-      case 'sphere1':
-        return new SimpleSphere({ color: 0xffffff, radius: 1, position, id })
-      case 'sphere2':
-        return new SimpleSphere({ color: 0x00ffff, radius: 1, position, id })
-      case 'sphere3':
-        return new SimpleSphere({ color: 0xff00ff, radius: 1, position, id })
-      case 'sphere4':
-        return new SimpleSphere({ color: 0xffff00, radius: 1, position, id })
+  private registerPrefabs () {
+    MonoContainer.registerPrefab('Stage1', (input) => {
+      const stage1 = GameScene.findById(input.id)
+      if (stage1) {
+        return stage1
+      }
+      const created = new Stage1()
+      GameScene.add(created)
+      return created
+    })
+    MonoContainer.registerPrefab('Piece', (input) => {
+      const pieces = GameScene.findByType(Piece)
+      const target = pieces.find((p) => p.getId() === input.id)
+      if (target) {
+        return target
+      }
+      if (!input.other) {
+        throw new Error()
+      }
+      if (!input.other.playerNumber) {
+        throw new Error()
+      }
+      if (!input.other.memberId) {
+        throw new Error()
+      }
+      const created = new Piece({
+        id: input.id,
+        playerNumber: input.other.playerNumber as PlayerNumber,
+        memberId: input.other.memberId as string,
+        position: input.position
+      })
+      GameScene.add(created)
+      return created
+    })
+  }
+
+  private init () {
+    GameScene.add(new Light())
+    const stages = GameScene.findByType(Stage1)
+    const created: GameObject[] = []
+    if (stages.length === 0) {
+      const newStage = new Stage1()
+      GameScene.add(new Stage1())
+      created.push({
+        className: 'Stage1',
+        id: newStage.getId(),
+        position: { x: 0, y: 0, z: 0 },
+        quaternion: { x: 0, y: 0, z: 0, w: 1 },
+        size: { x: 1, y: 1, z: 1 }
+      })
     }
-    return null
+    if (this.getMyObject() == null) {
+      const piece = new Piece({
+        playerNumber: '1',
+        memberId: this.memberId,
+        position: { x: 0, y: 20, z: 0 }
+      })
+      GameScene.add(piece)
+      created.push({
+        ...piece.getGameObject('Piece'),
+        position: { x: 1, y: 20, z: 1 },
+        other: {
+          memberId: this.memberId,
+          playerNumber: '1'
+        }
+      })
+    }
+    if (created.length !== 0) {
+      this.addObjCb(created)
+    }
   }
 }

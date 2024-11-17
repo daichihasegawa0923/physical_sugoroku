@@ -1,17 +1,9 @@
+import { type GameObject } from '@/shared/game/mono.container'
+
 interface Vector3 {
   x: number
   y: number
   z: number
-}
-
-interface Quaternion extends Vector3 {
-  w: number
-}
-
-interface GameObjectStatus {
-  id: string
-  position: Vector3
-  quaternion: Quaternion
 }
 
 type GameEvent =
@@ -21,13 +13,8 @@ type GameEvent =
     direction: Vector3
   }
   | {
-    name: 'syncRigidBody'
-    statuses: GameObjectStatus[]
-  }
-  | {
     name: 'add'
-    className: string
-    status: GameObjectStatus
+    input: GameObject[]
   }
   | {
     name: 'remove'

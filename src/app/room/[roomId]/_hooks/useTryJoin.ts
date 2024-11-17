@@ -1,4 +1,5 @@
 import { useWebSocketContext } from '@/shared/function/websocket.context'
+import { type GameObject } from '@/shared/game/mono.container'
 import useLocalRoomInfo from '@/shared/hooks/useLocalRoomInfo'
 import { useRouter } from 'next/navigation'
 
@@ -8,16 +9,20 @@ interface JoinRoomInput {
   memberId?: string
 }
 
-type JoinRoomResult =
+export type JoinRoomResult =
   | { ok: false, message: string }
   | {
     ok: true
     roomId: string
     memberName: string
     memberId: string
+    objects: GameObject[]
   }
 
-export default function useTryJoin (roomId: string) {
+export default function useTryJoin (
+  roomId: string,
+  onSucceed: (data: JoinRoomResult) => void
+) {
   const { getByRoomId } = useLocalRoomInfo()
   const { send } = useWebSocketContext()
   const router = useRouter()
@@ -38,7 +43,9 @@ export default function useTryJoin (roomId: string) {
       (result) => {
         if (!result.ok) {
           router.push(`/room/${roomId}/join`)
+          return
         }
+        onSucceed(result)
       }
     )
   }
