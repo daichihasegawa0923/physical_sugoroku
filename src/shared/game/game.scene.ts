@@ -1,6 +1,8 @@
 import * as THREE from 'three'
 import { type MonoBehaviour } from './monobehaviour'
 import { CannonWorld } from './cannon.world'
+import { type RigidBodyMonoBehaviour } from '@/game.logic/monos/base/rigid.body.monobehaviour'
+import { type GameObject } from '@/shared/game/mono.container'
 
 export class GameScene {
   private static instance: GameScene | null = null
@@ -53,6 +55,15 @@ export class GameScene {
   private readonly renderer: THREE.WebGLRenderer
 
   private monos: MonoBehaviour[] = []
+  private onlineObjects: GameObject[] = []
+
+  public static all () {
+    return this.instance?.monos ?? []
+  }
+
+  public static allOnline () {
+    return this.instance?.onlineObjects ?? []
+  }
 
   public static onResize (width: number, height: number) {
     const gameScene = GameScene.get()
@@ -63,10 +74,13 @@ export class GameScene {
     gameScene.renderer.setPixelRatio(window.devicePixelRatio)
   }
 
-  public static add (mono: MonoBehaviour) {
+  public static add (mono: MonoBehaviour, online?: GameObject) {
     const gameScene = GameScene.get()
     if (!gameScene) return
     gameScene.monos.push(mono)
+    if (online) {
+      gameScene.onlineObjects.push(online)
+    }
     const obj3d = mono.getObject3D()
     if (obj3d) {
       gameScene.scene.add(obj3d)
@@ -85,6 +99,16 @@ export class GameScene {
     gameScene.monos = gameScene.monos.filter(
       (originalMono) => originalMono === mono
     )
+    // オンラインオブジェクトの削除
+    gameScene.onlineObjects = gameScene.onlineObjects.filter(
+      (online) => online.id !== mono.getId()
+    )
+  }
+
+  public static findRigidBodyType () {
+    return this.all().filter(
+      (m) => (m as RigidBodyMonoBehaviour) != null
+    ) as RigidBodyMonoBehaviour[]
   }
 
   public static findByType<T extends MonoBehaviour>(

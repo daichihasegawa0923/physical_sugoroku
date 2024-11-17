@@ -8,7 +8,7 @@ import { CannonWorld } from '@/shared/game/cannon.world'
 import type GameEvent from '../events/event'
 import { type RigidBodyMonoBehaviour } from './base/rigid.body.monobehaviour'
 import { type GameObject, MonoContainer } from '@/shared/game/mono.container'
-import { Piece, type PlayerNumber } from '@/game.logic/monos/player/piece'
+import { Piece, type MemberNumber } from '@/game.logic/monos/player/piece'
 import { Light } from '@/game.logic/monos/base/light'
 
 export class MainLogic extends MonoBehaviour {
@@ -40,7 +40,6 @@ export class MainLogic extends MonoBehaviour {
 
   override update (): void {
     this.setCameraPosition()
-    this.reborn()
   }
 
   public smash (): void {
@@ -84,17 +83,6 @@ export class MainLogic extends MonoBehaviour {
     mainCamera.lookAt(p1Position)
   }
 
-  private reborn () {
-    const obj = this.getMyObject()
-    const obj3d = obj?.getObject3D()
-    if (obj3d == null) return
-    if (obj3d.position.y < -10) {
-      obj?.rigidBody().position.set(0, 10, 0)
-      obj?.rigidBody().velocity.set(0, 0, 0)
-      obj?.rigidBody().angularVelocity.set(0, 0, 0)
-    }
-  }
-
   private getMyObject (): RigidBodyMonoBehaviour | undefined {
     return GameScene.findByType(Piece).find(
       (p) => p.getMemberId() === this.memberId
@@ -136,7 +124,7 @@ export class MainLogic extends MonoBehaviour {
         return stage1
       }
       const created = new Stage1()
-      GameScene.add(created)
+      GameScene.add(created, input)
       return created
     })
     MonoContainer.registerPrefab('Piece', (input) => {
@@ -148,7 +136,7 @@ export class MainLogic extends MonoBehaviour {
       if (!input.other) {
         throw new Error()
       }
-      if (!input.other.playerNumber) {
+      if (!input.other.number) {
         throw new Error()
       }
       if (!input.other.memberId) {
@@ -156,12 +144,35 @@ export class MainLogic extends MonoBehaviour {
       }
       const created = new Piece({
         id: input.id,
-        playerNumber: input.other.playerNumber as PlayerNumber,
+        number: input.other.number as MemberNumber,
         memberId: input.other.memberId as string,
         position: input.position
       })
-      GameScene.add(created)
+      GameScene.add(created, input)
       return created
+    })
+  }
+
+  public syncAll (gameObjects: GameObject[]) {
+    const addTarget = gameObjects.filter(
+      (go) => GameScene.findById(go.id) == null
+    )
+    const removeTarget = GameScene.allOnline().filter(
+      (local) => gameObjects.find((go) => go.id === local.id) == null
+    )
+    addTarget.forEach((t) => {
+      MonoContainer.createInstance(t.className, t)
+    })
+    removeTarget.forEach((r) => {
+      const target = GameScene.findById(r.id)
+      if (target) {
+        GameScene.remove(target)
+      }
+    })
+    GameScene.findRigidBodyType().forEach((r) => {
+      const targetGo = gameObjects.find((go) => go.id === r.getId())
+      if (!targetGo) return
+      r.sync(targetGo)
     })
   }
 
@@ -178,22 +189,6 @@ export class MainLogic extends MonoBehaviour {
         position: { x: 0, y: 0, z: 0 },
         quaternion: { x: 0, y: 0, z: 0, w: 1 },
         size: { x: 1, y: 1, z: 1 }
-      })
-    }
-    if (this.getMyObject() == null) {
-      const piece = new Piece({
-        playerNumber: '1',
-        memberId: this.memberId,
-        position: { x: 0, y: 20, z: 0 }
-      })
-      GameScene.add(piece)
-      created.push({
-        ...piece.getGameObject('Piece'),
-        position: { x: 1, y: 20, z: 1 },
-        other: {
-          memberId: this.memberId,
-          playerNumber: '1'
-        }
       })
     }
     if (created.length !== 0) {

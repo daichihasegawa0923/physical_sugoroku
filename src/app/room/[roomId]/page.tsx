@@ -16,7 +16,11 @@ export default function Page ({ params }: { params: { roomId: string } }) {
   const { send } = useWebSocketContext()
   const onSucceed = useCallback(
     (data: JoinRoomResult) => {
-      if (!data.ok || mainLogic != null) return
+      if (!data.ok) return
+      if (mainLogic) {
+        mainLogic.syncAll(data.objects)
+        return
+      }
       const mc = document.getElementById('main_canvas')
       const mainC = document.getElementById('main')
       if (!mc || !mainC) return
@@ -29,10 +33,15 @@ export default function Page ({ params }: { params: { roomId: string } }) {
           send<{ roomId: string, gameObjects: GameObject[] }, GameObject[]>(
             'updateGameObjects',
             { roomId: params.roomId, gameObjects: gos },
-            (fetchGameObjects) => {}
+            (fetchGameObjects) => {
+              console.log(fetchGameObjects)
+              createdMainLogic.syncAll(fetchGameObjects)
+            }
           )
             .then(() => {})
-            .catch((e) => { console.log(e) })
+            .catch((e) => {
+              console.log(e)
+            })
         }
       )
       GameScene.add(createdMainLogic)

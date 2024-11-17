@@ -38,7 +38,11 @@ export default function WebSocketContextProvider ({
               const parsed = JSON.parse(event.data) as { name: string } & {
                 value: unknown
               }
-              onMessageMap.current[parsed.name](parsed.value)
+              if (onMessageMap.current[parsed.name]) {
+                onMessageMap.current[parsed.name](parsed.value)
+              } else {
+                console.log(parsed.name, parsed.value)
+              }
             }
           }
           onMessageMap.current = { ...onMessageMap.current, [name]: cb }

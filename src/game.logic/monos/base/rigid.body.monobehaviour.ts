@@ -51,4 +51,26 @@ export abstract class RigidBodyMonoBehaviour extends MonoBehaviour {
       size: { x: size.x, y: size.y, z: size.z }
     }
   }
+
+  public sync (gameObject: GameObject) {
+    this.rigidBody().position.set(
+      gameObject.position.x,
+      gameObject.position.y,
+      gameObject.position.z
+    )
+    this.rigidBody().quaternion.set(
+      gameObject.quaternion.x,
+      gameObject.quaternion.y,
+      gameObject.quaternion.z,
+      gameObject.quaternion.w
+    )
+    const object3D = this.getObject3D()
+    if (object3D) {
+      object3D.scale.set(
+        gameObject.size.x,
+        gameObject.size.y,
+        gameObject.size.z
+      )
+    }
+  }
 }

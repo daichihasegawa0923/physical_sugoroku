@@ -17,6 +17,7 @@ export type JoinRoomResult =
     memberName: string
     memberId: string
     objects: GameObject[]
+    isFull: boolean
   }
 
 export default function useTryJoin (
