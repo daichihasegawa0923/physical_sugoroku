@@ -4,8 +4,8 @@ import { createContext, type ReactNode, useContext, useRef } from 'react'
 
 interface WebSocketContextStatus {
   send: <T, CbT>(
-    event: T & { name: string },
-    cbName: string,
+    name: string,
+    event: T,
     callBack: (data: CbT) => void
   ) => Promise<void>
 }
@@ -31,7 +31,7 @@ export default function WebSocketContextProvider ({
   return (
     <WebSocketContext.Provider
       value={{
-        send: async (event, cbName, cb) => {
+        send: async (name, event, cb) => {
           if (!webSocketRef.current) {
             webSocketRef.current = createWebSocket()
             webSocketRef.current.onmessage = (event) => {
@@ -41,8 +41,8 @@ export default function WebSocketContextProvider ({
               onMessageMap.current[parsed.name](parsed.value)
             }
           }
-          onMessageMap.current = { ...onMessageMap.current, [cbName]: cb }
-          await webSocketSendMiddy(webSocketRef.current, event)
+          onMessageMap.current = { ...onMessageMap.current, [name]: cb }
+          await webSocketSendMiddy(webSocketRef.current, { name, ...event })
         }
       }}
     >
@@ -53,7 +53,7 @@ export default function WebSocketContextProvider ({
 
 async function webSocketSendMiddy (
   websocket: WebSocket,
-  event: any
+  event: { name: string } & any
 ): Promise<WebSocket> {
   await new Promise((resolve, reject) => {
     if (websocket.readyState === WebSocket.OPEN) {

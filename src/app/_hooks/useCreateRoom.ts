@@ -33,8 +33,8 @@ export default function useCreateRoom () {
     setRoomInput,
     submit: async () => {
       await send<RoomCreateInput, RoomCreateResult>(
-        { name: 'createRoom', ...roomInput },
         'createRoom',
+        roomInput,
         (data) => {
           router.push(`/room/${data.roomId}`)
           set(data.roomId, data.memberId, roomInput.memberName)

@@ -1,7 +1,7 @@
 import { Provider } from '@/chakra/components/ui/provider'
 import Header from '@/shared/components/header'
 import WebSocketContextProvider from '@/shared/function/websocket.context'
-import { Box } from '@chakra-ui/react'
+import { Box, Theme } from '@chakra-ui/react'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -16,11 +16,13 @@ export default function RootLayout ({
 }>) {
   return (
     <WebSocketContextProvider>
-      <html>
+      <html suppressHydrationWarning={true}>
         <body style={{ height: '100%' }}>
           <Provider>
-            <Header />
-            <Box h="calc(100svh - 54px)">{children}</Box>
+            <Theme appearance="light">
+              <Header />
+              <Box h="calc(100svh - 54px)">{children}</Box>
+            </Theme>
           </Provider>
         </body>
       </html>
