@@ -1,4 +1,4 @@
-import { type GameObject } from '@/shared/game/mono.container'
+import { type GameObject } from '@/shared/game/type'
 
 interface Vector3 {
   x: number

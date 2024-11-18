@@ -6,12 +6,14 @@ interface WebSocketContextStatus {
   send: <T, CbT>(
     name: string,
     event: T,
-    callBack: (data: CbT) => void
+    callBack?: (data: CbT) => void
   ) => Promise<void>
+  add: <CbT2>(name: string, cb: (data: CbT2) => void) => void
 }
 
 const WebSocketContextStatusDefault = {
-  send: async () => {}
+  send: async () => {},
+  add: () => {}
 } as const satisfies WebSocketContextStatus
 
 const WebSocketContext = createContext<WebSocketContextStatus>(
@@ -45,8 +47,13 @@ export default function WebSocketContextProvider ({
               }
             }
           }
-          onMessageMap.current = { ...onMessageMap.current, [name]: cb }
+          if (cb) {
+            onMessageMap.current = { ...onMessageMap.current, [name]: cb }
+          }
           await webSocketSendMiddy(webSocketRef.current, { name, ...event })
+        },
+        add: (name, cb) => {
+          onMessageMap.current = { ...onMessageMap.current, [name]: cb }
         }
       }}
     >

@@ -18,7 +18,7 @@ const Home = () => {
     <>
       <Center>
         <VStack w="100%" height="400px" gap={8} justify="start" padding={4}>
-          <Heading>バカすごろく</Heading>
+          <Heading>ダイナミックすごろく</Heading>
           <Box
             w="100%"
             maxW="600px"

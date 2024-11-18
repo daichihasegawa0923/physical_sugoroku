@@ -1,3 +1,13 @@
+export type PlaneData = Record<string, string | number>
+export interface GameObject {
+  id: string
+  className: string
+  position: Vector3
+  quaternion: Quaternion
+  size: Vector3
+  other?: PlaneData
+}
+
 export interface Vector3 {
   x: number
   y: number

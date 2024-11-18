@@ -15,7 +15,7 @@ const Header = () => {
       <HStack w="100%" h="100%" padding={4}>
         <Box w="100%">
           <a href="/">
-            <Heading>バカすごろく</Heading>
+            <Heading>ダイナミックすごろく</Heading>
           </a>
         </Box>
       </HStack>

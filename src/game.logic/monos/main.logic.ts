@@ -7,16 +7,17 @@ import { Stage1 } from './stage/stage1'
 import { CannonWorld } from '@/shared/game/cannon.world'
 import type GameEvent from '../events/event'
 import { type RigidBodyMonoBehaviour } from './base/rigid.body.monobehaviour'
-import { type GameObject, MonoContainer } from '@/shared/game/mono.container'
-import { Piece, type MemberNumber } from '@/game.logic/monos/player/piece'
+import { MonoContainer } from '@/shared/game/mono.container'
+import { Piece } from '@/game.logic/monos/player/piece'
 import { Light } from '@/game.logic/monos/base/light'
+import { type GameObject, type Vector3 } from '@/shared/game/type'
 
 export class MainLogic extends MonoBehaviour {
   public constructor (
     roomId: string,
     memberId: string,
     objects: GameObject[],
-    addObjCb: (gos: GameObject[]) => void
+    eventCb: (event: GameEvent) => void
   ) {
     super()
     this.roomId = roomId
@@ -25,7 +26,7 @@ export class MainLogic extends MonoBehaviour {
     objects.forEach((obj) => {
       MonoContainer.createInstance(obj.className, obj)
     })
-    this.addObjCb = addObjCb
+    this.eventCb = eventCb
     this.init()
   }
 
@@ -36,10 +37,18 @@ export class MainLogic extends MonoBehaviour {
     return null
   }
 
-  private readonly addObjCb: (go: GameObject[]) => void
+  private readonly eventCb: (event: GameEvent) => void
 
   override update (): void {
     this.setCameraPosition()
+  }
+
+  public smashById (id: string, direction: Vector3) {
+    const target = GameScene.findById(id);
+
+    (target as RigidBodyMonoBehaviour)
+      ?.rigidBody()
+      .velocity.set(direction.x, direction.y, direction.z)
   }
 
   public smash (): void {
@@ -51,9 +60,15 @@ export class MainLogic extends MonoBehaviour {
     direction.setY(0)
     direction.multiplyScalar(3)
     direction.add(new THREE.Vector3(0, 2, 0))
-    this.getMyObject()
-      ?.rigidBody()
-      .applyImpulse(CannonWorld.parseFrom(direction))
+    const speed = CannonWorld.parseFrom(direction)
+    const myObj = this.getMyObject()
+    if (!myObj) return
+    this.getMyObject()?.rigidBody().velocity.set(speed.x, speed.y, speed.z)
+    this.eventCb({
+      name: 'impulse',
+      id: myObj.getId(),
+      direction: { ...speed }
+    })
   }
 
   private cameraAngle: number = 0.0
@@ -144,7 +159,7 @@ export class MainLogic extends MonoBehaviour {
       }
       const created = new Piece({
         id: input.id,
-        number: input.other.number as MemberNumber,
+        number: input.other.number as string,
         memberId: input.other.memberId as string,
         position: input.position
       })
@@ -192,7 +207,7 @@ export class MainLogic extends MonoBehaviour {
       })
     }
     if (created.length !== 0) {
-      this.addObjCb(created)
+      this.eventCb({ name: 'add', input: created })
     }
   }
 }

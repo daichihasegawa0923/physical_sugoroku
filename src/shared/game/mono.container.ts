@@ -1,16 +1,5 @@
 import { type MonoBehaviour } from '@/shared/game/monobehaviour'
-import { type Quaternion, type Vector3 } from '@/shared/game/type'
-
-type PlaneData = Record<string, string | number>
-
-export interface GameObject {
-  id: string
-  className: string
-  position: Vector3
-  quaternion: Quaternion
-  size: Vector3
-  other?: PlaneData
-}
+import { type GameObject } from '@/shared/game/type'
 
 export class MonoContainer {
   private static readonly INSTANCE: MonoContainer = new MonoContainer()

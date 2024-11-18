@@ -1,5 +1,5 @@
 import { useWebSocketContext } from '@/shared/function/websocket.context'
-import { type GameObject } from '@/shared/game/mono.container'
+import { type GameObject } from '@/shared/game/type'
 import useLocalRoomInfo from '@/shared/hooks/useLocalRoomInfo'
 import { useRouter } from 'next/navigation'
 

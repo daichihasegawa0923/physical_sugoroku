@@ -5,8 +5,8 @@ import { Box, Theme } from '@chakra-ui/react'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'バカすごろく | オンラインで遊べるバカゲー',
-  description: 'バカすごろくは、オンラインですぐに遊べるバカゲーです'
+  title: 'ダイナミックすごろく | オンラインで遊べるバカゲー',
+  description: 'ダイナミックすごろくは、オンラインですぐに遊べるバカゲーです'
 }
 
 export default function RootLayout ({

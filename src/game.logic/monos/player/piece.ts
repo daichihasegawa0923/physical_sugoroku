@@ -1,17 +1,16 @@
 import { SimpleSphere } from '@/game.logic/monos/base/simple.sphere'
-import { type GameObject } from '@/shared/game/mono.container'
-import { type Vector3 } from '@/shared/game/type'
+import { type GameObject, type Vector3 } from '@/shared/game/type'
 import * as CANNON from 'cannon-es'
 
-const color1P = 0xff0000
-const color2P = 0x00ff00
-const color3P = 0x0000ff
-const color4P = 0x0ff000
-
-export type MemberNumber = '1' | '2' | '3' | '4'
+const playerColor: Array<{ memberNumber: string, color: number }> = [
+  { memberNumber: '1', color: 0xff0000 },
+  { memberNumber: '2', color: 0x00ff00 },
+  { memberNumber: '3', color: 0x0000ff },
+  { memberNumber: '4', color: 0x0ff000 }
+]
 
 export interface PieceGenerateProps {
-  number: MemberNumber
+  number: string
   position: Vector3
   memberId: string
   id?: string
@@ -20,7 +19,8 @@ export interface PieceGenerateProps {
 export class Piece extends SimpleSphere {
   public constructor ({ number, position, id, memberId }: PieceGenerateProps) {
     super({
-      color: getPlayerColor(number),
+      color:
+        playerColor.find((p) => p.memberNumber === number)?.color ?? 0x000000,
       radius: 1,
       position: new CANNON.Vec3(position.x, position.y, position.z),
       mass: 1,
@@ -31,7 +31,7 @@ export class Piece extends SimpleSphere {
   }
 
   private memberId: string
-  private readonly number: MemberNumber
+  private readonly number: string
 
   public getMemberId () {
     return this.memberId
@@ -63,18 +63,5 @@ export class Piece extends SimpleSphere {
         number: this.number
       }
     }
-  }
-}
-
-function getPlayerColor (playerNumber: MemberNumber) {
-  switch (playerNumber) {
-    case '1':
-      return color1P
-    case '2':
-      return color2P
-    case '3':
-      return color3P
-    case '4':
-      return color4P
   }
 }

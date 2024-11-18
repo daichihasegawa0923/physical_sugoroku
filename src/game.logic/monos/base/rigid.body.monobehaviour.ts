@@ -1,6 +1,6 @@
 import { CannonWorld } from '@/shared/game/cannon.world'
-import { type GameObject } from '@/shared/game/mono.container'
 import { MonoBehaviour } from '@/shared/game/monobehaviour'
+import { type GameObject } from '@/shared/game/type'
 import type * as CANNON from 'cannon-es'
 import * as THREE from 'three'
 
@@ -34,9 +34,7 @@ export abstract class RigidBodyMonoBehaviour extends MonoBehaviour {
   }
 
   public getGameObject (className: string): GameObject {
-    const position = this.getObject3D()?.position ?? new THREE.Vector3(0, 0, 0)
-    const quaternion =
-      this.getObject3D()?.quaternion ?? new THREE.Quaternion(0, 0, 0, 1)
+    const { position, quaternion } = this.rigidBody()
     const size = this.getObject3D()?.scale ?? new THREE.Vector3(0, 0, 0)
     return {
       className,

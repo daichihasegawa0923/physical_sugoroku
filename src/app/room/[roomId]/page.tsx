@@ -8,12 +8,11 @@ import TryJoin from '@/app/room/[roomId]/_components/try.join'
 import Canvas from '@/app/room/[roomId]/_components/canvas'
 import ButtonController from '@/app/room/[roomId]/_components/button.controller'
 import { type JoinRoomResult } from '@/app/room/[roomId]/_hooks/useTryJoin'
-import { useWebSocketContext } from '@/shared/function/websocket.context'
-import { type GameObject } from '@/shared/game/mono.container'
+import useGameEvent from '@/app/room/[roomId]/_hooks/useGameEvent'
 
 export default function Page ({ params }: { params: { roomId: string } }) {
   const [mainLogic, setMainLogic] = useState<MainLogic | null>(null)
-  const { send } = useWebSocketContext()
+  const { gameEventCb } = useGameEvent(params.roomId, mainLogic)
   const onSucceed = useCallback(
     (data: JoinRoomResult) => {
       if (!data.ok) return
@@ -29,19 +28,8 @@ export default function Page ({ params }: { params: { roomId: string } }) {
         data.roomId,
         data.memberId,
         data.objects,
-        (gos) => {
-          send<{ roomId: string, gameObjects: GameObject[] }, GameObject[]>(
-            'updateGameObjects',
-            { roomId: params.roomId, gameObjects: gos },
-            (fetchGameObjects) => {
-              console.log(fetchGameObjects)
-              createdMainLogic.syncAll(fetchGameObjects)
-            }
-          )
-            .then(() => {})
-            .catch((e) => {
-              console.log(e)
-            })
+        (event) => {
+          gameEventCb(event, createdMainLogic)
         }
       )
       GameScene.add(createdMainLogic)

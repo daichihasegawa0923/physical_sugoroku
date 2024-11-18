@@ -3,7 +3,7 @@
 import useTryJoin, {
   type JoinRoomResult
 } from '@/app/room/[roomId]/_hooks/useTryJoin'
-import { type ReactNode, useEffect } from 'react'
+import { memo, type ReactNode, useEffect } from 'react'
 
 interface Props {
   roomId: string
@@ -11,7 +11,7 @@ interface Props {
   onSucceed: (data: JoinRoomResult) => void
 }
 
-export default function TryJoin ({ roomId, children, onSucceed }: Props) {
+function TryJoin ({ roomId, children, onSucceed }: Props) {
   const { tryReJoin } = useTryJoin(roomId, onSucceed)
   useEffect(() => {
     (async () => {
@@ -20,3 +20,5 @@ export default function TryJoin ({ roomId, children, onSucceed }: Props) {
   }, [tryReJoin])
   return <>{children}</>
 }
+
+export default memo(TryJoin)
