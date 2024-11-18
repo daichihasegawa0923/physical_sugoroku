@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Box } from '@chakra-ui/react'
 import { GameScene } from '@/shared/game/game.scene'
 import { MainLogic } from '@/game.logic/monos/main.logic'
@@ -8,11 +8,14 @@ import TryJoin from '@/app/room/[roomId]/_components/try.join'
 import Canvas from '@/app/room/[roomId]/_components/canvas'
 import ButtonController from '@/app/room/[roomId]/_components/button.controller'
 import { type JoinRoomResult } from '@/app/room/[roomId]/_hooks/useTryJoin'
-import useGameEvent from '@/app/room/[roomId]/_hooks/useGameEvent'
+import { useWebSocketContext } from '@/shared/function/websocket.context'
+import type GameEvent from '@/game.logic/events/event'
+import { type GameObject, type Vector3 } from '@/shared/game/type'
 
 export default function Page ({ params }: { params: { roomId: string } }) {
   const [mainLogic, setMainLogic] = useState<MainLogic | null>(null)
-  const { gameEventCb } = useGameEvent(params.roomId, mainLogic)
+  const { send, add } = useWebSocketContext()
+
   const onSucceed = useCallback(
     (data: JoinRoomResult) => {
       if (!data.ok) return
@@ -28,8 +31,30 @@ export default function Page ({ params }: { params: { roomId: string } }) {
         data.roomId,
         data.memberId,
         data.objects,
-        (event) => {
-          gameEventCb(event, createdMainLogic)
+        (event: GameEvent) => {
+          switch (event.name) {
+            case 'add': {
+              send<{ roomId: string, gameObjects: GameObject[] }, GameObject[]>(
+                'updateGameObjects',
+                { roomId: params.roomId, gameObjects: event.input }
+              )
+                .then(() => {})
+                .catch((e) => {
+                  console.log(e)
+                })
+              return
+            }
+            case 'impulse': {
+              send<
+              { roomId: string, direction: Vector3, id: string },
+              { id: string, direction: Vector3 }
+              >('impulse', {
+                roomId: params.roomId,
+                direction: event.direction,
+                id: event.id
+              })
+            }
+          }
         }
       )
       GameScene.add(createdMainLogic)
@@ -43,6 +68,16 @@ export default function Page ({ params }: { params: { roomId: string } }) {
     },
     [mainLogic]
   )
+
+  useEffect(() => {
+    if (!mainLogic) return
+    add<{ id: string, direction: Vector3 }>('impulse', (data) => {
+      mainLogic.smashById(data.id, data.direction)
+    })
+    add<GameObject[]>('add', (data) => {
+      mainLogic.syncAll(data)
+    })
+  }, [mainLogic])
 
   return (
     <>
