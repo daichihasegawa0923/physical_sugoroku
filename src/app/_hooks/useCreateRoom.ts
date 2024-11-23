@@ -25,14 +25,14 @@ export default function useCreateRoom () {
     memberCount: 1
   })
   const router = useRouter()
-  const { send } = useWebSocketContext()
+  const { sendSync } = useWebSocketContext()
   const { set } = useLocalRoomInfo()
 
   return {
     roomInput,
     setRoomInput,
     submit: async () => {
-      await send<RoomCreateInput, RoomCreateResult>(
+      await sendSync<RoomCreateInput, RoomCreateResult>(
         'createRoom',
         roomInput,
         (data) => {

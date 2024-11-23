@@ -33,11 +33,13 @@ export abstract class RigidBodyMonoBehaviour extends MonoBehaviour {
     )
   }
 
-  public getGameObject (className: string): GameObject {
+  protected abstract getClassName (): string
+
+  public override online (): GameObject | null {
     const { position, quaternion } = this.rigidBody()
     const size = this.getObject3D()?.scale ?? new THREE.Vector3(0, 0, 0)
     return {
-      className,
+      className: this.getClassName(),
       id: this.getId(),
       position: { x: position.x, y: position.y, z: position.z },
       quaternion: {
@@ -50,7 +52,7 @@ export abstract class RigidBodyMonoBehaviour extends MonoBehaviour {
     }
   }
 
-  public sync (gameObject: GameObject) {
+  public override syncFromOnline (gameObject: GameObject) {
     this.rigidBody().position.set(
       gameObject.position.x,
       gameObject.position.y,

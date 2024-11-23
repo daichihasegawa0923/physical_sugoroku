@@ -6,7 +6,7 @@ interface Vector3 {
   z: number
 }
 
-type GameEvent =
+export type GameEvent =
   | {
     name: 'impulse'
     id: string
@@ -20,5 +20,12 @@ type GameEvent =
     name: 'remove'
     id: string
   }
+  | {
+    name: 'turnEnd'
+    roomId: string
+    gameObjects: GameObject[]
+  }
 
-export default GameEvent
+export type GameEventHandlers = {
+  [E in GameEvent as E['name']]: (event: E) => void;
+}

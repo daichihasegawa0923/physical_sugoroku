@@ -12,6 +12,10 @@ interface Props {
 }
 
 export class SimpleBox extends RigidBodyMonoBehaviour {
+  protected getClassName (): string {
+    return 'SimpleBox'
+  }
+
   private readonly rb: CANNON.Body
 
   public rigidBody (): CANNON.Body {

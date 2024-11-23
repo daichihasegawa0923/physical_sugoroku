@@ -1,9 +1,10 @@
 'use client'
 
+import { type GameStatus } from '@/shared/game/type'
 import { createContext, type ReactNode, useContext, useRef } from 'react'
 
 interface WebSocketContextStatus {
-  send: <T, CbT>(
+  sendSync: <T, CbT>(
     name: string,
     event: T,
     callBack?: (data: CbT) => void
@@ -12,7 +13,7 @@ interface WebSocketContextStatus {
 }
 
 const WebSocketContextStatusDefault = {
-  send: async () => {},
+  sendSync: async () => {},
   add: () => {}
 } as const satisfies WebSocketContextStatus
 
@@ -33,12 +34,12 @@ export default function WebSocketContextProvider ({
   return (
     <WebSocketContext.Provider
       value={{
-        send: async (name, event, cb) => {
+        sendSync: async (name, event, cb) => {
           if (!webSocketRef.current) {
             webSocketRef.current = createWebSocket()
             webSocketRef.current.onmessage = (event) => {
               const parsed = JSON.parse(event.data) as { name: string } & {
-                value: unknown
+                value: { status: GameStatus } & unknown
               }
               if (onMessageMap.current[parsed.name]) {
                 onMessageMap.current[parsed.name](parsed.value)

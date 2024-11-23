@@ -17,3 +17,5 @@ export interface Vector3 {
 export interface Quaternion extends Vector3 {
   w: number
 }
+
+export type GameStatus = 'WAITING' | 'DICE' | 'DIRECTION' | 'MOVING' | 'RESULT'

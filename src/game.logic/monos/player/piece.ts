@@ -1,4 +1,4 @@
-import { SimpleSphere } from '@/game.logic/monos/base/simple.sphere'
+import { SimpleBox } from '@/game.logic/monos/base/simple.box'
 import { type GameObject, type Vector3 } from '@/shared/game/type'
 import * as CANNON from 'cannon-es'
 
@@ -16,12 +16,12 @@ export interface PieceGenerateProps {
   id?: string
 }
 
-export class Piece extends SimpleSphere {
+export class Piece extends SimpleBox {
   public constructor ({ number, position, id, memberId }: PieceGenerateProps) {
     super({
       color:
         playerColor.find((p) => p.memberNumber === number)?.color ?? 0x000000,
-      radius: 1,
+      size: new CANNON.Vec3(1, 0.5, 1),
       position: new CANNON.Vec3(position.x, position.y, position.z),
       mass: 1,
       id
@@ -40,22 +40,41 @@ export class Piece extends SimpleSphere {
   override update (): void {
     super.update()
     if (this.getObject3D().position.y < -10) {
-      this.rigidBody().position.set(0, 20, 0)
+      this.rigidBody().position.set(this.getPositionXByNumber(), 1, 0)
       this.rigidBody().velocity.set(0, 0, 0)
       this.rigidBody().angularVelocity.set(0, 0, 0)
     }
   }
 
-  override sync (gameObject: GameObject): void {
-    super.sync(gameObject)
+  private getPositionXByNumber (): number {
+    switch (this.number) {
+      case '1':
+        return -3
+      case '2':
+        return -1
+      case '3':
+        return 1
+      case '4':
+        return 3
+    }
+    return 0
+  }
+
+  override syncFromOnline (gameObject: GameObject): void {
+    super.syncFromOnline(gameObject)
     if (!gameObject.other) throw Error()
     if (!gameObject.other.memberId) throw Error()
 
     this.memberId = gameObject.other.memberId as string
   }
 
-  override getGameObject (className: string): GameObject {
-    const go = super.getGameObject(className)
+  protected override getClassName (): string {
+    return 'Piece'
+  }
+
+  public override online (): GameObject | null {
+    const go = super.online()
+    if (!go) throw Error()
     return {
       ...go,
       other: {

@@ -17,13 +17,13 @@ type JoinRoomResult =
     memberId: string
   }
 export default function useJoin (roomId: string) {
-  const { send } = useWebSocketContext()
+  const { sendSync } = useWebSocketContext()
   const { set } = useLocalRoomInfo()
   const router = useRouter()
   const [name, setName] = useState<string>('')
   const [error, setError] = useState<string | null>(null)
   const onClick = () => {
-    send<JoinRoomInput, JoinRoomResult>(
+    sendSync<JoinRoomInput, JoinRoomResult>(
       'joinRoom',
       { roomId, memberName: name },
       (data) => {

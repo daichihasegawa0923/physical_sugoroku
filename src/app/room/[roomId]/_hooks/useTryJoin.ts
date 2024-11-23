@@ -1,5 +1,5 @@
 import { useWebSocketContext } from '@/shared/function/websocket.context'
-import { type GameObject } from '@/shared/game/type'
+import { type GameStatus, type GameObject } from '@/shared/game/type'
 import useLocalRoomInfo from '@/shared/hooks/useLocalRoomInfo'
 import { useRouter } from 'next/navigation'
 
@@ -17,6 +17,8 @@ export type JoinRoomResult =
     memberName: string
     memberId: string
     objects: GameObject[]
+    status: GameStatus
+    activeMemberId: string
     isFull: boolean
   }
 
@@ -25,7 +27,7 @@ export default function useTryJoin (
   onSucceed: (data: JoinRoomResult) => void
 ) {
   const { getByRoomId } = useLocalRoomInfo()
-  const { send } = useWebSocketContext()
+  const { sendSync } = useWebSocketContext()
   const router = useRouter()
 
   async function tryReJoin (): Promise<void> {
@@ -34,7 +36,7 @@ export default function useTryJoin (
       router.push(`/room/${roomId}/join`)
       return
     }
-    await send<JoinRoomInput, JoinRoomResult>(
+    await sendSync<JoinRoomInput, JoinRoomResult>(
       'joinRoom',
       {
         roomId,

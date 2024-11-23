@@ -62,7 +62,12 @@ export class GameScene {
   }
 
   public static allOnline () {
-    return this.instance?.onlineObjects ?? []
+    if (!this.instance?.monos) return []
+    return (
+      this.instance.monos
+        .map((m) => m.online())
+        .filter((o): o is NonNullable<typeof o> => o != null) ?? []
+    )
   }
 
   public static onResize (width: number, height: number) {
@@ -74,13 +79,10 @@ export class GameScene {
     gameScene.renderer.setPixelRatio(window.devicePixelRatio)
   }
 
-  public static add (mono: MonoBehaviour, online?: GameObject) {
+  public static add (mono: MonoBehaviour) {
     const gameScene = GameScene.get()
-    if (!gameScene) return
+    if (!gameScene || gameScene.monos.find((m) => mono.getId() === m.getId())) { return }
     gameScene.monos.push(mono)
-    if (online) {
-      gameScene.onlineObjects.push(online)
-    }
     const obj3d = mono.getObject3D()
     if (obj3d) {
       gameScene.scene.add(obj3d)

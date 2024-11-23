@@ -2,22 +2,22 @@ import { MonoBehaviour } from '@/shared/game/monobehaviour'
 import { type Object3D } from 'three'
 import { GameScene } from '@/shared/game/game.scene'
 import * as THREE from 'three'
-import * as CANNON from 'cannon-es'
 import { Stage1 } from './stage/stage1'
 import { CannonWorld } from '@/shared/game/cannon.world'
-import type GameEvent from '../events/event'
+import { type GameEventHandlers } from '../events/event'
 import { type RigidBodyMonoBehaviour } from './base/rigid.body.monobehaviour'
 import { MonoContainer } from '@/shared/game/mono.container'
 import { Piece } from '@/game.logic/monos/player/piece'
 import { Light } from '@/game.logic/monos/base/light'
-import { type GameObject, type Vector3 } from '@/shared/game/type'
+import { type GameStatus, type GameObject, type Vector3 } from '@/shared/game/type'
 
 export class MainLogic extends MonoBehaviour {
   public constructor (
     roomId: string,
     memberId: string,
     objects: GameObject[],
-    eventCb: (event: GameEvent) => void
+    status: GameStatus,
+    handler: GameEventHandlers
   ) {
     super()
     this.roomId = roomId
@@ -26,21 +26,46 @@ export class MainLogic extends MonoBehaviour {
     objects.forEach((obj) => {
       MonoContainer.createInstance(obj.className, obj)
     })
-    this.eventCb = eventCb
-    this.init()
+    this.eventHandler = handler
+    this.status = status
   }
 
   private readonly roomId: string
   private readonly memberId: string
+  private status: GameStatus
+  private activeMemberId: string | null = null
+
+  public getStatus () {
+    return this.status
+  }
+
+  public updateStats (
+    status: GameStatus,
+    activeMemberId: string,
+    onChange: (gs: GameStatus, activeMemberId: string) => void
+  ) {
+    onChange(status, activeMemberId)
+    this.status = status
+    this.activeMemberId = activeMemberId
+  }
 
   public getObject3D (): Object3D | null {
     return null
   }
 
-  private readonly eventCb: (event: GameEvent) => void
+  public isMyTurn () {
+    return this.memberId === this.activeMemberId
+  }
+
+  private readonly eventHandler: GameEventHandlers
+
+  override start (): void {
+    this.init()
+  }
 
   override update (): void {
     this.setCameraPosition()
+    this.judgeTurnEnd()
   }
 
   public smashById (id: string, direction: Vector3) {
@@ -52,6 +77,7 @@ export class MainLogic extends MonoBehaviour {
   }
 
   public smash (): void {
+    if (!this.isMyTurn()) return
     const mainCamera = GameScene.get()?.getMainCamera()
     if (!mainCamera) return
     const direction = new THREE.Vector3(0, 0, 0)
@@ -64,7 +90,7 @@ export class MainLogic extends MonoBehaviour {
     const myObj = this.getMyObject()
     if (!myObj) return
     this.getMyObject()?.rigidBody().velocity.set(speed.x, speed.y, speed.z)
-    this.eventCb({
+    this.eventHandler.impulse({
       name: 'impulse',
       id: myObj.getId(),
       direction: { ...speed }
@@ -74,6 +100,7 @@ export class MainLogic extends MonoBehaviour {
   private cameraAngle: number = 0.0
 
   public changeAngle (dt: number): void {
+    if (!this.isMyTurn()) return
     this.cameraAngle += dt
     if (this.cameraAngle > 360 || this.cameraAngle < -360) {
       this.cameraAngle = 0
@@ -86,6 +113,14 @@ export class MainLogic extends MonoBehaviour {
     const distance = 5
     const height = 5
     const mainCamera = gameScene.getMainCamera()
+    if (this.activeMemberId !== this.memberId) {
+      mainCamera.lookAt(
+        GameScene.findByType(Piece)
+          .find((p) => p.getMemberId() === this.activeMemberId)
+          ?.getObject3D()?.position ?? new THREE.Vector3(0, 0, 0)
+      )
+      return
+    }
     const p1Position = this.getMyObject()?.getObject3D()?.position
     if (!p1Position) return
     // 角度に応じてカメラの位置を設定
@@ -104,31 +139,25 @@ export class MainLogic extends MonoBehaviour {
     )
   }
 
-  public onEvent (event: GameEvent): void {
-    switch (event.name) {
-      case 'impulse': {
-        const target = GameScene.findById<RigidBodyMonoBehaviour>(event.id)
-        if (!target) return
-        const {
-          direction: { x, y, z }
-        } = event
-        target.rigidBody().applyImpulse(new CANNON.Vec3(x, y, z))
-        break
-      }
-      case 'add': {
-        const { input } = event
-        input.forEach((i) => {
-          MonoContainer.createInstance(i.className, i)
-        })
-        break
-      }
-      case 'remove': {
-        const removeTarget = GameScene.findById(event.id)
-        if (removeTarget) {
-          GameScene.remove(removeTarget)
-        }
-        break
-      }
+  private judgeTurnEnd (): void {
+    if (!this.isMyTurn()) return
+    if (this.getStatus() !== 'MOVING') return
+    const pieces = GameScene.findByType(Piece) as RigidBodyMonoBehaviour[]
+    const mass = pieces
+      .map(
+        (piece) =>
+          piece.rigidBody().velocity.lengthSquared() +
+          piece.rigidBody().angularVelocity.lengthSquared()
+      )
+      .reduce((prev, current) => {
+        return prev + current
+      })
+    if (mass < 0.01) {
+      this.eventHandler.turnEnd({
+        name: 'turnEnd',
+        roomId: this.roomId,
+        gameObjects: GameScene.allOnline()
+      })
     }
   }
 
@@ -139,7 +168,7 @@ export class MainLogic extends MonoBehaviour {
         return stage1
       }
       const created = new Stage1()
-      GameScene.add(created, input)
+      GameScene.add(created)
       return created
     })
     MonoContainer.registerPrefab('Piece', (input) => {
@@ -163,7 +192,7 @@ export class MainLogic extends MonoBehaviour {
         memberId: input.other.memberId as string,
         position: input.position
       })
-      GameScene.add(created, input)
+      GameScene.add(created)
       return created
     })
   }
@@ -172,42 +201,31 @@ export class MainLogic extends MonoBehaviour {
     const addTarget = gameObjects.filter(
       (go) => GameScene.findById(go.id) == null
     )
-    const removeTarget = GameScene.allOnline().filter(
-      (local) => gameObjects.find((go) => go.id === local.id) == null
-    )
+    // const removeTarget = GameScene.allOnline().filter(
+    //   (local) => gameObjects.find((go) => go.id === local.id) == null
+    // );
     addTarget.forEach((t) => {
       MonoContainer.createInstance(t.className, t)
     })
-    removeTarget.forEach((r) => {
-      const target = GameScene.findById(r.id)
-      if (target) {
-        GameScene.remove(target)
-      }
-    })
+    // removeTarget.forEach((r) => {
+    //   const target = GameScene.findById(r.id);
+    //   if (target) {
+    //     GameScene.remove(target);
+    //   }
+    // });
     GameScene.findRigidBodyType().forEach((r) => {
       const targetGo = gameObjects.find((go) => go.id === r.getId())
       if (!targetGo) return
-      r.sync(targetGo)
+      r.syncFromOnline(targetGo)
     })
   }
 
   private init () {
     GameScene.add(new Light())
     const stages = GameScene.findByType(Stage1)
-    const created: GameObject[] = []
     if (stages.length === 0) {
-      const newStage = new Stage1()
       GameScene.add(new Stage1())
-      created.push({
-        className: 'Stage1',
-        id: newStage.getId(),
-        position: { x: 0, y: 0, z: 0 },
-        quaternion: { x: 0, y: 0, z: 0, w: 1 },
-        size: { x: 1, y: 1, z: 1 }
-      })
-    }
-    if (created.length !== 0) {
-      this.eventCb({ name: 'add', input: created })
+      this.eventHandler.add({ name: 'add', input: GameScene.allOnline() })
     }
   }
 }
