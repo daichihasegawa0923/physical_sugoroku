@@ -1,4 +1,4 @@
-import { SimpleBox } from '@/game.logic/monos/base/simple.box'
+import { SimpleBoxOnline } from '@/game.logic/monos/base/simple.box.online'
 import { type GameObject, type Vector3 } from '@/shared/game/type'
 import * as CANNON from 'cannon-es'
 
@@ -16,7 +16,7 @@ export interface PieceGenerateProps {
   id?: string
 }
 
-export class Piece extends SimpleBox {
+export class Piece extends SimpleBoxOnline {
   public constructor ({ number, position, id, memberId }: PieceGenerateProps) {
     super({
       color:
@@ -72,7 +72,7 @@ export class Piece extends SimpleBox {
     return 'Piece'
   }
 
-  public override online (): GameObject | null {
+  public override online (): GameObject {
     const go = super.online()
     if (!go) throw Error()
     return {

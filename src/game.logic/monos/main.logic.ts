@@ -9,7 +9,12 @@ import { type RigidBodyMonoBehaviour } from './base/rigid.body.monobehaviour'
 import { MonoContainer } from '@/shared/game/mono.container'
 import { Piece } from '@/game.logic/monos/player/piece'
 import { Light } from '@/game.logic/monos/base/light'
-import { type GameStatus, type GameObject, type Vector3 } from '@/shared/game/type'
+import {
+  type GameStatus,
+  type GameObject,
+  type Vector3
+} from '@/shared/game/type'
+import type IOnline from '@/shared/game/i.online'
 
 export class MainLogic extends MonoBehaviour {
   public constructor (
@@ -167,7 +172,7 @@ export class MainLogic extends MonoBehaviour {
       if (stage1) {
         return stage1
       }
-      const created = new Stage1()
+      const created = new Stage1(input.id)
       GameScene.add(created)
       return created
     })
@@ -213,19 +218,17 @@ export class MainLogic extends MonoBehaviour {
     //     GameScene.remove(target);
     //   }
     // });
-    GameScene.findRigidBodyType().forEach((r) => {
+    GameScene.all().forEach((r) => {
       const targetGo = gameObjects.find((go) => go.id === r.getId())
       if (!targetGo) return
-      r.syncFromOnline(targetGo)
+      const iOnline = r as unknown as IOnline
+      iOnline.syncFromOnline(targetGo)
     })
   }
 
+  private readonly light = new Light()
+
   private init () {
-    GameScene.add(new Light())
-    const stages = GameScene.findByType(Stage1)
-    if (stages.length === 0) {
-      GameScene.add(new Stage1())
-      this.eventHandler.add({ name: 'add', input: GameScene.allOnline() })
-    }
+    GameScene.add(this.light)
   }
 }

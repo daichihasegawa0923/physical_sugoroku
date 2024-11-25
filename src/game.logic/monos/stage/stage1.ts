@@ -4,8 +4,9 @@ import type * as THREE from 'three'
 import * as CANNON from 'cannon-es'
 import { SimpleBox } from '../base/simple.box'
 import { type GameObject } from '@/shared/game/type'
+import type IOnline from '@/shared/game/i.online'
 
-export class Stage1 extends MonoBehaviour {
+export class Stage1 extends MonoBehaviour implements IOnline {
   public getObject3D (): THREE.Object3D | null {
     return null
   }
@@ -50,7 +51,7 @@ export class Stage1 extends MonoBehaviour {
     ])
   }
 
-  override online (): GameObject | null {
+  public online (): GameObject {
     return {
       id: this.getId(),
       className: 'Stage1',
@@ -59,4 +60,6 @@ export class Stage1 extends MonoBehaviour {
       size: { x: 1, y: 1, z: 1 }
     }
   }
+
+  syncFromOnline (_gameObject: GameObject): void {}
 }

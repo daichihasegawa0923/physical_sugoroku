@@ -4,7 +4,11 @@ import useTryJoin, {
 import { MainLogic } from '@/game.logic/monos/main.logic'
 import { useWebSocketContext } from '@/shared/function/websocket.context'
 import { GameScene } from '@/shared/game/game.scene'
-import { type GameObject, type GameStatus, type Vector3 } from '@/shared/game/type'
+import {
+  type GameObject,
+  type GameStatus,
+  type Vector3
+} from '@/shared/game/type'
 import useLocalRoomInfo from '@/shared/hooks/useLocalRoomInfo'
 import { useCallback, useEffect, useState } from 'react'
 
@@ -30,7 +34,9 @@ export default function useMainLogic (
   function send<T> (name: string, ev: T) {
     sendSync(name, ev)
       .then(() => {})
-      .catch((e) => { console.log(e) })
+      .catch((e) => {
+        console.log(e, { name, event: ev })
+      })
   }
   const onSucceed = useCallback(
     (data: JoinRoomResult) => {

@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import * as CANNON from 'cannon-es'
-import { RigidBodyMonoBehaviour } from './rigid.body.monobehaviour'
+import { RigidBodyOnlineMonoBehaviour } from '@/game.logic/monos/base/rigid.body.monobehaviour.onine.ts'
 
 interface Props {
   color: THREE.ColorRepresentation
@@ -11,7 +11,11 @@ interface Props {
   id?: string
 }
 
-export class SimpleBox extends RigidBodyMonoBehaviour {
+export class SimpleBoxOnline extends RigidBodyOnlineMonoBehaviour {
+  protected getClassName (): string {
+    return 'SimpleBox'
+  }
+
   private readonly rb: CANNON.Body
 
   public rigidBody (): CANNON.Body {

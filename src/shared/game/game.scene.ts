@@ -3,6 +3,7 @@ import { type MonoBehaviour } from './monobehaviour'
 import { CannonWorld } from './cannon.world'
 import { type RigidBodyMonoBehaviour } from '@/game.logic/monos/base/rigid.body.monobehaviour'
 import { type GameObject } from '@/shared/game/type'
+import type IOnline from '@/shared/game/i.online'
 
 export class GameScene {
   private static instance: GameScene | null = null
@@ -63,11 +64,13 @@ export class GameScene {
 
   public static allOnline () {
     if (!this.instance?.monos) return []
-    return (
-      this.instance.monos
-        .map((m) => m.online())
-        .filter((o): o is NonNullable<typeof o> => o != null) ?? []
-    )
+    return this.instance.monos
+      .filter((m) => {
+        const parsed = m as unknown as IOnline
+        return typeof parsed.online === 'function'
+      })
+      .map((m) => m as unknown as IOnline)
+      .map((io) => io.online())
   }
 
   public static onResize (width: number, height: number) {
@@ -81,7 +84,9 @@ export class GameScene {
 
   public static add (mono: MonoBehaviour) {
     const gameScene = GameScene.get()
-    if (!gameScene || gameScene.monos.find((m) => mono.getId() === m.getId())) { return }
+    if (!gameScene || gameScene.monos.find((m) => mono.getId() === m.getId())) {
+      return
+    }
     gameScene.monos.push(mono)
     const obj3d = mono.getObject3D()
     if (obj3d) {
