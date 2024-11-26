@@ -88,17 +88,14 @@ export class MainLogic extends MonoBehaviour {
     const direction = new THREE.Vector3(0, 0, 0)
     mainCamera.getWorldDirection(direction)
     direction.normalize()
-    direction.setY(0)
-    direction.multiplyScalar(3)
-    direction.add(new THREE.Vector3(0, 2, 0))
-    const speed = CannonWorld.parseFrom(direction)
+    direction.setY(1)
+    const directionResult = CannonWorld.parseFrom(direction)
     const myObj = this.getMyObject()
     if (!myObj) return
-    this.getMyObject()?.rigidBody().velocity.set(speed.x, speed.y, speed.z)
     this.eventHandler.impulse({
       name: 'impulse',
       id: myObj.getId(),
-      direction: { ...speed }
+      direction: { ...directionResult }
     })
   }
 
@@ -158,6 +155,7 @@ export class MainLogic extends MonoBehaviour {
         return prev + current
       })
     if (mass < 0.01) {
+      this.status = 'WAITING'
       this.eventHandler.turnEnd({
         name: 'turnEnd',
         roomId: this.roomId,

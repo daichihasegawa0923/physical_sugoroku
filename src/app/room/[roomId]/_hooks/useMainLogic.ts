@@ -15,7 +15,8 @@ import { useCallback, useEffect, useState } from 'react'
 export default function useMainLogic (
   roomId: string,
   mainCanvasName: string,
-  mainContainerName: string
+  mainContainerName: string,
+  onLoading: (isLoading: boolean) => void
 ) {
   const [mainLogic, setMainLogic] = useState<MainLogic | null>(null)
   const [status, setStatus] = useState<GameStatus>(
@@ -32,10 +33,14 @@ export default function useMainLogic (
   const { getByRoomId } = useLocalRoomInfo()
   const { sendSync, add } = useWebSocketContext()
   function send<T> (name: string, ev: T) {
+    onLoading(true)
     sendSync(name, ev)
       .then(() => {})
       .catch((e) => {
         console.log(e, { name, event: ev })
+      })
+      .finally(() => {
+        onLoading(false)
       })
   }
   const onSucceed = useCallback(
@@ -145,7 +150,12 @@ export default function useMainLogic (
             return prev
           })
         })
-
+        newMainLogic.syncAll(data.objects)
+        newMainLogic.updateStats(
+          data.status,
+          data.activeMemberId,
+          setStatusAndActiveMemberId
+        )
         return newMainLogic
       })
     },

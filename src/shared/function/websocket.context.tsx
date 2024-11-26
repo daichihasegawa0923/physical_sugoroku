@@ -44,7 +44,7 @@ export default function WebSocketContextProvider ({
               if (onMessageMap.current[parsed.name]) {
                 onMessageMap.current[parsed.name](parsed.value)
               } else {
-                console.log(parsed.name, parsed.value)
+                console.error(name, event.data)
               }
             }
           }
