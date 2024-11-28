@@ -37,11 +37,15 @@ export class Piece extends SimpleBoxOnline {
     return this.memberId
   }
 
+  override start (): void {
+    super.start()
+  }
+
   override update (): void {
     super.update()
-    if (this.getObject3D().position.y < -10) {
-      this.rigidBody().position.set(this.getPositionXByNumber(), 1, 0)
-      this.rigidBody().velocity.set(0, 0, 0)
+    if (this.getObject3D().position.y < -20) {
+      this.rigidBody().position.set(this.getPositionXByNumber(), 5, 0)
+      this.rigidBody().velocity.set(0, this.rigidBody().velocity.y, 0)
       this.rigidBody().angularVelocity.set(0, 0, 0)
     }
   }

@@ -62,6 +62,15 @@ export class GameScene {
     return this.instance?.monos ?? []
   }
 
+  public static allRigidBodies () {
+    return this.all()
+      .filter((mono) => {
+        const rig = mono as RigidBodyMonoBehaviour
+        return rig != null && typeof rig.rigidBody === 'function'
+      })
+      .map((rig) => rig as RigidBodyMonoBehaviour)
+  }
+
   public static allOnline () {
     if (!this.instance?.monos) return []
     return this.instance.monos

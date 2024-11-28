@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import * as CANNON from 'cannon-es'
 import { RigidBodyOnlineMonoBehaviour } from '@/game.logic/monos/base/rigid.body.monobehaviour.onine.ts'
 
-interface Props {
+export interface SimpleBoxProps {
   color: THREE.ColorRepresentation
   size: CANNON.Vec3
   position?: CANNON.Vec3
@@ -22,7 +22,7 @@ export class SimpleBoxOnline extends RigidBodyOnlineMonoBehaviour {
     return this.rb
   }
 
-  constructor ({ color, size, position, material, mass, id }: Props) {
+  constructor ({ color, size, position, material, mass, id }: SimpleBoxProps) {
     super(id)
     this.rb = new CANNON.Body({
       mass: mass ?? 0,

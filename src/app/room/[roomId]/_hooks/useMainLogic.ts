@@ -86,6 +86,15 @@ export default function useMainLogic (
               )
             },
             remove: (_event) => {},
+            goal: (event) => {
+              const { goalMemberId, roomId, gameObjects } = event
+              send<typeof event>('goal', {
+                name: 'goal',
+                goalMemberId,
+                roomId,
+                gameObjects
+              })
+            },
             turnEnd: (event) => {
               send<{ roomId: string, gameObjects: GameObject[] }>('turnEnd', {
                 roomId,
@@ -145,6 +154,22 @@ export default function useMainLogic (
             prev?.updateStats(
               data.status,
               data.activeMemberId,
+              setStatusAndActiveMemberId
+            )
+            return prev
+          })
+        })
+        add<{
+          goalMemberId: string
+          goalMemberName: string
+          status: GameStatus
+          objects: GameObject[]
+        }>('goal', (data) => {
+          setMainLogic((prev) => {
+            prev?.syncAll(data.objects)
+            prev?.updateStats(
+              data.status,
+              data.goalMemberId,
               setStatusAndActiveMemberId
             )
             return prev

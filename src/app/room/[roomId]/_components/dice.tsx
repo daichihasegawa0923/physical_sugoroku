@@ -4,28 +4,28 @@ import { Box, HStack } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
 
 interface Props {
-  result: { forward: number, height: number }
-  onStop: (result: { forward: number, height: number }) => void
+  result: number
+  onStop: (result: number) => void
   status: GameStatus
 }
+
+const basePower = 3
 
 export default function Dice ({
   result: defaultResult,
   onStop,
   status
 }: Props): JSX.Element {
-  const [result, setResult] = useState<{ forward: number, height: number }>(
-    defaultResult
+  const [result, setResult] = useState(
+    defaultResult ? defaultResult - basePower : 0
   )
   const [rolling, setRolling] = useState(true)
 
   useEffect(() => {
     const interval = setInterval(() => {
       if (!rolling || status !== 'DICE') return
-      setResult({
-        forward: Math.floor(1 + Math.random() * 20),
-        height: Math.floor(1 + Math.random() * 20)
-      })
+      const rand = Math.floor(1 + Math.random() * 10)
+      setResult(rand)
 
       return () => {
         clearInterval(interval)
@@ -42,14 +42,13 @@ export default function Dice ({
       top="100px"
     >
       <HStack>
-        <Box>高さ：{result.height}</Box>
-        <Box>前方：{result.forward}</Box>
+        <Box>威力：{result}</Box>
       </HStack>
       {status === 'DICE' && (
         <Button
           onClick={() => {
             setRolling(false)
-            onStop(result)
+            onStop(result + basePower)
           }}
         >
           stop

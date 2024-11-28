@@ -25,6 +25,12 @@ export type GameEvent =
     roomId: string
     gameObjects: GameObject[]
   }
+  | {
+    name: 'goal'
+    goalMemberId: string
+    roomId: string
+    gameObjects: GameObject[]
+  }
 
 export type GameEventHandlers = {
   [E in GameEvent as E['name']]: (event: E) => void;

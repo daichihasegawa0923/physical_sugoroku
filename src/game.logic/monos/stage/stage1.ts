@@ -5,6 +5,7 @@ import * as CANNON from 'cannon-es'
 import { SimpleBox } from '../base/simple.box'
 import { type GameObject } from '@/shared/game/type'
 import type IOnline from '@/shared/game/i.online'
+import { Goal } from '@/game.logic/monos/stage/goal'
 
 export class Stage1 extends MonoBehaviour implements IOnline {
   public getObject3D (): THREE.Object3D | null {
@@ -33,22 +34,24 @@ export class Stage1 extends MonoBehaviour implements IOnline {
         position: new CANNON.Vec3(0, 0, 0)
       },
       {
-        size: new CANNON.Vec3(2, 1, 6),
-        position: new CANNON.Vec3(-4, 0, -5.5)
+        size: new CANNON.Vec3(0.75, 1, 8),
+        position: new CANNON.Vec3(-3, 0, -6.5)
       },
       {
-        size: new CANNON.Vec3(2, 1, 6),
-        position: new CANNON.Vec3(4, 0, -5.5)
+        size: new CANNON.Vec3(0.75, 1, 8),
+        position: new CANNON.Vec3(3, 0, -6.5)
       },
       {
         size: new CANNON.Vec3(10, 1, 6),
-        position: new CANNON.Vec3(0, 0, -11.5)
+        position: new CANNON.Vec3(0, 0, -13.5)
       },
       {
         size: new CANNON.Vec3(2, 1, 6),
-        position: new CANNON.Vec3(0, 0, -17.5)
+        position: new CANNON.Vec3(0, 0, -19.5)
       }
     ])
+    const goal = new Goal({ position: new CANNON.Vec3(0, 2.5, -20.5) })
+    GameScene.add(goal)
   }
 
   public online (): GameObject {

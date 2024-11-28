@@ -33,10 +33,10 @@ export default function Page ({ params }: { params: { roomId: string } }) {
         return (
           <>
             <Dice
-              result={result}
+              result={result.forward}
               onStop={(result) => {
-                rollDice(result.height, result.forward)
-                setResult(result)
+                rollDice(result, result)
+                setResult({ forward: result, height: result })
               }}
               status={status}
             />
@@ -57,6 +57,19 @@ export default function Page ({ params }: { params: { roomId: string } }) {
         )
       case 'MOVING':
         return null
+      case 'RESULT':
+        return (
+          <Box
+            bgColor="white"
+            w="100px"
+            h="100px"
+            position="absolute"
+            top="100px"
+            left="100px"
+          >
+            ゴール
+          </Box>
+        )
     }
     return <Loading open />
   }, [status])

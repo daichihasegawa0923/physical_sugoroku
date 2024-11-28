@@ -112,9 +112,22 @@ export class MainLogic extends MonoBehaviour {
   private setCameraPosition () {
     const gameScene = GameScene.get()
     if (!gameScene) return
+    const mainCamera = gameScene.getMainCamera()
+    const p1Position = this.getMyObject()?.getObject3D()?.position
+    if (!p1Position) {
+      mainCamera.position.set(0, 5, 0)
+      mainCamera.rotation.set(0, mainCamera.rotation.y + 0.01, 0)
+      return
+    }
+    // 角度に応じてカメラの位置を設定
     const distance = 5
     const height = 5
-    const mainCamera = gameScene.getMainCamera()
+    mainCamera.position.set(
+      p1Position.x + distance * Math.sin(this.cameraAngle),
+      p1Position.y + height,
+      p1Position.z + distance * Math.cos(this.cameraAngle)
+    )
+    // 自分のターンでない時は、敵の駒を見る
     if (this.activeMemberId !== this.memberId) {
       mainCamera.lookAt(
         GameScene.findByType(Piece)
@@ -123,14 +136,6 @@ export class MainLogic extends MonoBehaviour {
       )
       return
     }
-    const p1Position = this.getMyObject()?.getObject3D()?.position
-    if (!p1Position) return
-    // 角度に応じてカメラの位置を設定
-    mainCamera.position.set(
-      p1Position.x + distance * Math.sin(this.cameraAngle),
-      p1Position.y + height,
-      p1Position.z + distance * Math.cos(this.cameraAngle)
-    )
     // オブジェクトの方を見続ける
     mainCamera.lookAt(p1Position)
   }
@@ -162,6 +167,15 @@ export class MainLogic extends MonoBehaviour {
         gameObjects: GameScene.allOnline()
       })
     }
+  }
+
+  public goal (goalMemberId: string) {
+    this.eventHandler.goal({
+      name: 'goal',
+      goalMemberId,
+      roomId: this.roomId,
+      gameObjects: GameScene.allOnline()
+    })
   }
 
   private registerPrefabs () {
