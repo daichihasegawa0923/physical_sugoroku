@@ -8,6 +8,7 @@ import Loading from '@/shared/components/loading'
 import { useCallback, useState } from 'react'
 import useLocalRoomInfo from '@/shared/hooks/useLocalRoomInfo'
 import Dice from '@/app/room/[roomId]/_components/dice'
+import Goal from '@/app/room/[roomId]/_components/goal'
 
 export default function Page ({ params }: { params: { roomId: string } }) {
   const [loading, setLoading] = useState(false)
@@ -58,18 +59,7 @@ export default function Page ({ params }: { params: { roomId: string } }) {
       case 'MOVING':
         return null
       case 'RESULT':
-        return (
-          <Box
-            bgColor="white"
-            w="100px"
-            h="100px"
-            position="absolute"
-            top="100px"
-            left="100px"
-          >
-            ゴール
-          </Box>
-        )
+        return <Goal />
     }
     return <Loading open />
   }, [status])

@@ -15,6 +15,7 @@ import {
   type Vector3
 } from '@/shared/game/type'
 import type IOnline from '@/shared/game/i.online'
+import { LightHemisphere } from '@/game.logic/monos/base/light.hemisphere'
 
 export class MainLogic extends MonoBehaviour {
   public constructor (
@@ -239,8 +240,10 @@ export class MainLogic extends MonoBehaviour {
   }
 
   private readonly light = new Light()
+  private readonly lightHemisphere = new LightHemisphere()
 
   private init () {
     GameScene.add(this.light)
+    GameScene.add(this.lightHemisphere)
   }
 }

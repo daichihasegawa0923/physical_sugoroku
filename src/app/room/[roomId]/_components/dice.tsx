@@ -1,6 +1,6 @@
 import { Button } from '@/chakra/components/ui/button'
 import { type GameStatus } from '@/shared/game/type'
-import { Box, HStack } from '@chakra-ui/react'
+import { Box, Center, HStack, VStack } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
 
 interface Props {
@@ -10,6 +10,7 @@ interface Props {
 }
 
 const basePower = 3
+const maxPower = 10
 
 export default function Dice ({
   result: defaultResult,
@@ -24,7 +25,7 @@ export default function Dice ({
   useEffect(() => {
     const interval = setInterval(() => {
       if (!rolling || status !== 'DICE') return
-      const rand = Math.floor(1 + Math.random() * 10)
+      const rand = Math.floor(1 + Math.random() * maxPower)
       setResult(rand)
 
       return () => {
@@ -34,26 +35,48 @@ export default function Dice ({
   }, [rolling])
 
   return (
-    <Box
+    <VStack
       bgColor="white"
       position="absolute"
       w="300px"
-      left="calc(50%-300px)"
+      left="50%"
+      transform="translateX(-50%)"
       top="100px"
+      padding="16px"
+      borderRadius="8px"
+      gap="16px"
     >
-      <HStack>
-        <Box>威力：{result}</Box>
+      <HStack w="100%">
+        <Box>power</Box>
+        <Box w="100%">
+          <Box
+            position="relative"
+            h="20px"
+            w="100%"
+            borderRadius="10px"
+            border="solid 1px #666"
+          >
+            <Box
+              h="100%"
+              w={`${(result / maxPower) * 100}%`}
+              bgColor="#00ff00"
+              borderRadius="10px"
+            />
+          </Box>
+        </Box>
       </HStack>
       {status === 'DICE' && (
-        <Button
-          onClick={() => {
-            setRolling(false)
-            onStop(result + basePower)
-          }}
-        >
-          stop
-        </Button>
+        <Center>
+          <Button
+            onClick={() => {
+              setRolling(false)
+              onStop(result + basePower)
+            }}
+          >
+            stop
+          </Button>
+        </Center>
       )}
-    </Box>
+    </VStack>
   )
 }
