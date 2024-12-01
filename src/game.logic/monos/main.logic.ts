@@ -125,7 +125,6 @@ export class MainLogic extends MonoBehaviour {
         new THREE.Vector3(0, 1, 0),
         mainCamera.quaternion.y + this.rotateOnDirection.vertical
       )
-      console.log(mainCamera.rotation)
       mainCamera.rotateX(
         mainCamera.quaternion.x + this.rotateOnDirection.horizontal
       )
