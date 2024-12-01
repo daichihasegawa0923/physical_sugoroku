@@ -8,7 +8,12 @@ import type IOnline from '@/shared/game/i.online'
 export class GameScene {
   private static instance: GameScene | null = null
 
+  public static isPresent () {
+    return !!GameScene.instance
+  }
+
   public static get () {
+    if (!GameScene.instance) throw Error('GameScene is not initialized')
     return GameScene.instance
   }
 
@@ -93,7 +98,14 @@ export class GameScene {
 
   public static add (mono: MonoBehaviour) {
     const gameScene = GameScene.get()
-    if (!gameScene || gameScene.monos.find((m) => mono.getId() === m.getId())) {
+    if (gameScene.monos.find((m) => mono.getId() === m.getId())) {
+      return
+    }
+    // シングルトンmonoの場合、すでに存在する場合は追加しない。
+    if (
+      mono.isSingleton() &&
+      this.all().find((m) => m.getClass() === mono.getClass())
+    ) {
       return
     }
     gameScene.monos.push(mono)
@@ -137,7 +149,7 @@ export class GameScene {
   }
 
   public static findById<T extends MonoBehaviour>(id: string): T | null {
-    return GameScene.get()?.monos.find((m) => m.getId() === id) as T
+    return GameScene.get().monos.find((m) => m.getId() === id) as T
   }
 
   public getMainCamera (): THREE.Camera {

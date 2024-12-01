@@ -16,6 +16,7 @@ import {
 } from '@/shared/game/type'
 import type IOnline from '@/shared/game/i.online'
 import { LightHemisphere } from '@/game.logic/monos/base/light.hemisphere'
+import { Goal } from '@/game.logic/monos/stage/goal'
 
 export class MainLogic extends MonoBehaviour {
   public constructor (
@@ -40,6 +41,8 @@ export class MainLogic extends MonoBehaviour {
   private readonly memberId: string
   private status: GameStatus
   private activeMemberId: string | null = null
+
+  private rotateOnDirection = { vertical: 0, horizontal: 0 }
 
   public getStatus () {
     return this.status
@@ -84,12 +87,10 @@ export class MainLogic extends MonoBehaviour {
 
   public smash (): void {
     if (!this.isMyTurn()) return
-    const mainCamera = GameScene.get()?.getMainCamera()
-    if (!mainCamera) return
+    const mainCamera = GameScene.get().getMainCamera()
     const direction = new THREE.Vector3(0, 0, 0)
     mainCamera.getWorldDirection(direction)
     direction.normalize()
-    direction.setY(1)
     const directionResult = CannonWorld.parseFrom(direction)
     const myObj = this.getMyObject()
     if (!myObj) return
@@ -98,23 +99,39 @@ export class MainLogic extends MonoBehaviour {
       id: myObj.getId(),
       direction: { ...directionResult }
     })
+    this.rotateOnDirection = { horizontal: 0, vertical: 0 }
   }
 
-  private cameraAngle: number = 0.0
-
-  public changeAngle (dt: number): void {
-    if (!this.isMyTurn()) return
-    this.cameraAngle += dt
-    if (this.cameraAngle > 360 || this.cameraAngle < -360) {
-      this.cameraAngle = 0
+  public changeAngle (x: number, y: number) {
+    const { vertical, horizontal } = this.rotateOnDirection
+    const newVertical = vertical + y * 0.0005
+    const newHorizontal = horizontal + x * 0.0005
+    this.rotateOnDirection = {
+      vertical: newVertical,
+      horizontal: newHorizontal
     }
   }
 
   private setCameraPosition () {
-    const gameScene = GameScene.get()
-    if (!gameScene) return
-    const mainCamera = gameScene.getMainCamera()
+    const mainCamera = GameScene.get().getMainCamera()
     const p1Position = this.getMyObject()?.getObject3D()?.position
+    const goal = GameScene.findByType(Goal)[0]
+    if (this.isMyTurn() && this.status === 'DIRECTION') {
+      if (!p1Position || !goal) return
+      const { x, y, z } = p1Position
+      mainCamera.position.set(x, y, z)
+      mainCamera.lookAt(goal.getObject3D().position)
+      mainCamera.rotateOnWorldAxis(
+        new THREE.Vector3(0, 1, 0),
+        mainCamera.quaternion.y + this.rotateOnDirection.vertical
+      )
+      console.log(mainCamera.rotation)
+      mainCamera.rotateX(
+        mainCamera.quaternion.x + this.rotateOnDirection.horizontal
+      )
+      return
+    }
+
     if (!p1Position) {
       mainCamera.position.set(0, 5, 0)
       mainCamera.rotation.set(0, mainCamera.rotation.y + 0.01, 0)
@@ -124,9 +141,9 @@ export class MainLogic extends MonoBehaviour {
     const distance = 5
     const height = 5
     mainCamera.position.set(
-      p1Position.x + distance * Math.sin(this.cameraAngle),
+      p1Position.x + distance * Math.sin(this.rotateOnDirection.vertical),
       p1Position.y + height,
-      p1Position.z + distance * Math.cos(this.cameraAngle)
+      p1Position.z - distance * Math.cos(this.rotateOnDirection.vertical)
     )
     // 自分のターンでない時は、敵の駒を見る
     if (this.activeMemberId !== this.memberId) {
@@ -147,11 +164,9 @@ export class MainLogic extends MonoBehaviour {
     )
   }
 
-  private judgeTurnEnd (): void {
-    if (!this.isMyTurn()) return
-    if (this.getStatus() !== 'MOVING') return
+  private calculatePieceMotionMass () {
     const pieces = GameScene.findByType(Piece) as RigidBodyMonoBehaviour[]
-    const mass = pieces
+    return pieces
       .map(
         (piece) =>
           piece.rigidBody().velocity.lengthSquared() +
@@ -160,13 +175,29 @@ export class MainLogic extends MonoBehaviour {
       .reduce((prev, current) => {
         return prev + current
       })
-    if (mass < 0.01) {
+  }
+
+  private isMoveSomePieces () {
+    return this.calculatePieceMotionMass() >= 0.01
+  }
+
+  private judgeTurnEnd (): void {
+    if (!this.isMyTurn()) return
+    if (this.getStatus() !== 'MOVING') return
+    if (!this.isMoveSomePieces()) {
       this.status = 'WAITING'
-      this.eventHandler.turnEnd({
-        name: 'turnEnd',
-        roomId: this.roomId,
-        gameObjects: GameScene.allOnline()
-      })
+      setTimeout(() => {
+        if (this.isMoveSomePieces()) {
+          this.status = 'MOVING'
+          return
+        }
+        this.eventHandler.turnEnd({
+          name: 'turnEnd',
+          roomId: this.roomId,
+          gameObjects: GameScene.allOnline()
+        })
+        // 遅延させる
+      }, 1500)
     }
   }
 

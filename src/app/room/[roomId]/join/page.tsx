@@ -14,7 +14,7 @@ export default function Page ({
 
   return (
     <VStack padding={8} gap={8}>
-      <Field label="ニックネーム" w={64}>
+      <Field label="ニックネーム" w={64} required>
         {error && <Text color="red">{error}</Text>}
         <Input
           value={name}

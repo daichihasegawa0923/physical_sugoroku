@@ -44,7 +44,7 @@ export class Piece extends SimpleBoxOnline {
   override update (): void {
     super.update()
     if (this.getObject3D().position.y < -20) {
-      this.rigidBody().position.set(this.getPositionXByNumber(), 5, 0)
+      this.rigidBody().position.set(this.getPositionXByNumber(), 2, 1)
       this.rigidBody().velocity.set(0, this.rigidBody().velocity.y, 0)
       this.rigidBody().angularVelocity.set(0, 0, 0)
     }
@@ -53,13 +53,13 @@ export class Piece extends SimpleBoxOnline {
   private getPositionXByNumber (): number {
     switch (this.number) {
       case '1':
-        return -3
-      case '2':
-        return -1
-      case '3':
         return 1
-      case '4':
+      case '2':
         return 3
+      case '3':
+        return 5
+      case '4':
+        return 7
     }
     return 0
   }
@@ -70,10 +70,6 @@ export class Piece extends SimpleBoxOnline {
     if (!gameObject.other.memberId) throw Error()
 
     this.memberId = gameObject.other.memberId as string
-  }
-
-  protected override getClassName (): string {
-    return 'Piece'
   }
 
   public override online (): GameObject {

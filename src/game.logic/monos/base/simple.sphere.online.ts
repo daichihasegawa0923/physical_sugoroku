@@ -12,10 +12,6 @@ interface Props {
 }
 
 export class SimpleSphereOnline extends RigidBodyOnlineMonoBehaviour {
-  protected getClassName (): string {
-    return 'SimpleSphere'
-  }
-
   private readonly rb: CANNON.Body
 
   public rigidBody (): CANNON.Body {

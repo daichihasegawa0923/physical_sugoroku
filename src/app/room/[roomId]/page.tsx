@@ -9,20 +9,22 @@ import { useCallback, useState } from 'react'
 import useLocalRoomInfo from '@/shared/hooks/useLocalRoomInfo'
 import Dice from '@/app/room/[roomId]/_components/dice'
 import Goal from '@/app/room/[roomId]/_components/goal'
+import useCanvasSwipeEvent from '@/app/room/[roomId]/_hooks/useSwipeEvent'
 
 export default function Page ({ params }: { params: { roomId: string } }) {
   const [loading, setLoading] = useState(false)
   const { mainLogic, status, activeMemberId, rollDice } = useMainLogic(
     params.roomId,
-    'main_canvas',
-    'main',
     setLoading
   )
   const { getByRoomId } = useLocalRoomInfo()
-
   const [result, setResult] = useState<{ height: number, forward: number }>({
     height: 0,
     forward: 0
+  })
+
+  useCanvasSwipeEvent('main_canvas', (x, y) => {
+    mainLogic?.changeAngle(y, x)
   })
 
   const ComponentByStatus = useCallback((): JSX.Element | null => {
@@ -43,12 +45,6 @@ export default function Page ({ params }: { params: { roomId: string } }) {
             />
             {status === 'DIRECTION' && (
               <ButtonController
-                rightButtonEvent={() => {
-                  mainLogic?.changeAngle(-0.01)
-                }}
-                leftButtonEvent={() => {
-                  mainLogic?.changeAngle(0.01)
-                }}
                 submitEvent={() => {
                   mainLogic?.smash()
                 }}

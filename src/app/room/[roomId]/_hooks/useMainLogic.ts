@@ -1,3 +1,4 @@
+import useGameSceneInitializer from '@/app/room/[roomId]/_hooks/useGameScene'
 import useTryJoin, {
   type JoinRoomResult
 } from '@/app/room/[roomId]/_hooks/useTryJoin'
@@ -10,17 +11,15 @@ import {
   type Vector3
 } from '@/shared/game/type'
 import useLocalRoomInfo from '@/shared/hooks/useLocalRoomInfo'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 export default function useMainLogic (
   roomId: string,
-  mainCanvasName: string,
-  mainContainerName: string,
   onLoading: (isLoading: boolean) => void
 ) {
-  const [mainLogic, setMainLogic] = useState<MainLogic | null>(null)
+  const mainLogic = useRef<MainLogic | null>(null)
   const [status, setStatus] = useState<GameStatus>(
-    mainLogic?.getStatus() ?? 'WAITING'
+    mainLogic.current?.getStatus() ?? 'WAITING'
   )
   const [activeMemberId, setActiveMemberId] = useState<string | null>(null)
   const setStatusAndActiveMemberId = (
@@ -30,8 +29,10 @@ export default function useMainLogic (
     setStatus(() => status)
     setActiveMemberId(() => activeMemberId)
   }
+
   const { getByRoomId } = useLocalRoomInfo()
   const { sendSync, add } = useWebSocketContext()
+
   function send<T> (name: string, ev: T) {
     onLoading(true)
     sendSync(name, ev)
@@ -43,149 +44,114 @@ export default function useMainLogic (
         onLoading(false)
       })
   }
-  const onSucceed = useCallback(
-    (data: JoinRoomResult) => {
-      if (!data.ok) return
-      setMainLogic((prev) => {
-        if (prev != null) {
-          prev.syncAll(data.objects)
-          prev.updateStats(
-            data.status,
-            data.activeMemberId,
-            setStatusAndActiveMemberId
-          )
-          return prev
-        }
-        if (GameScene.get() !== null) return prev
-        const mc = document.getElementById(mainCanvasName)
-        const mainC = document.getElementById(mainContainerName)
-        if (!mc || !mainC) throw Error()
-        const myId = getByRoomId(data.roomId)?.myMemberId
-        if (!myId) throw Error()
-        GameScene.init(mc)
-        const newMainLogic = new MainLogic(
-          data.roomId,
-          myId,
-          data.objects,
-          data.status,
-          {
-            add: (event) => {
-              send<{ roomId: string, gameObjects: GameObject[] }>(
-                'updateGameObjects',
-                { roomId, gameObjects: event.input }
-              )
-            },
-            impulse: (event) => {
-              send<{ roomId: string, direction: Vector3, id: string }>(
-                'impulse',
-                {
-                  roomId,
-                  direction: event.direction,
-                  id: event.id
-                }
-              )
-            },
-            remove: (_event) => {},
-            goal: (event) => {
-              const { goalMemberId, roomId, gameObjects } = event
-              send<typeof event>('goal', {
-                name: 'goal',
-                goalMemberId,
-                roomId,
-                gameObjects
-              })
-            },
-            turnEnd: (event) => {
-              send<{ roomId: string, gameObjects: GameObject[] }>('turnEnd', {
-                roomId,
-                gameObjects: event.gameObjects
-              })
-            }
-          }
-        )
-        GameScene.add(newMainLogic)
-        window.addEventListener('resize', () => {
-          const rect = mainC.getBoundingClientRect()
-          GameScene.onResize(rect.width, rect.height)
-        })
-
-        // websocketから通信を受けた時の処理
-        add<{
-          id: string
-          direction: Vector3
-          status: GameStatus
-          activeMemberId: string
-        }>('impulse', (data) => {
-          newMainLogic.smashById(data.id, data.direction)
-          setMainLogic((prev) => {
-            prev?.updateStats(
-              data.status,
-              data.activeMemberId,
-              setStatusAndActiveMemberId
+  const onSucceed = (data: JoinRoomResult) => {
+    if (!data.ok) return
+    if (!mainLogic.current) {
+      const memberId = getByRoomId(data.roomId)?.myMemberId
+      if (!memberId) throw Error('cannot find local memberId')
+      mainLogic.current = new MainLogic(
+        data.roomId,
+        memberId,
+        data.objects,
+        data.status,
+        {
+          add: (event) => {
+            send<{ roomId: string, gameObjects: GameObject[] }>(
+              'updateGameObjects',
+              { roomId, gameObjects: event.input }
             )
-            return prev
-          })
-        })
-
-        add<{ status: GameStatus, activeMemberId: string }>(
-          'rollDice',
-          (data) => {
-            setMainLogic((prev) => {
-              prev?.updateStats(
-                data.status,
-                data.activeMemberId,
-                setStatusAndActiveMemberId
-              )
-              return prev
+          },
+          impulse: (event) => {
+            send<{ roomId: string, direction: Vector3, id: string }>(
+              'impulse',
+              {
+                roomId,
+                direction: event.direction,
+                id: event.id
+              }
+            )
+          },
+          remove: (_event) => {},
+          goal: (event) => {
+            const { goalMemberId, roomId, gameObjects } = event
+            send<typeof event>('goal', {
+              name: 'goal',
+              goalMemberId,
+              roomId,
+              gameObjects
+            })
+          },
+          turnEnd: (event) => {
+            send<{ roomId: string, gameObjects: GameObject[] }>('turnEnd', {
+              roomId,
+              gameObjects: event.gameObjects
             })
           }
-        )
-
-        add<{ objects: GameObject[] }>('updateGameObjects', (data) => {
-          newMainLogic.syncAll(data.objects)
-        })
-        add<{
-          objects: GameObject[]
-          status: GameStatus
-          activeMemberId: string
-        }>('turnEnd', (data) => {
-          setMainLogic((prev) => {
-            prev?.syncAll(data.objects)
-            prev?.updateStats(
-              data.status,
-              data.activeMemberId,
-              setStatusAndActiveMemberId
-            )
-            return prev
-          })
-        })
-        add<{
-          goalMemberId: string
-          goalMemberName: string
-          status: GameStatus
-          objects: GameObject[]
-        }>('goal', (data) => {
-          setMainLogic((prev) => {
-            prev?.syncAll(data.objects)
-            prev?.updateStats(
-              data.status,
-              data.goalMemberId,
-              setStatusAndActiveMemberId
-            )
-            return prev
-          })
-        })
-        newMainLogic.syncAll(data.objects)
-        newMainLogic.updateStats(
+        }
+      )
+      GameScene.add(mainLogic.current)
+      // websocketから通信を受けた時の処理
+      add<{
+        id: string
+        direction: Vector3
+        status: GameStatus
+        activeMemberId: string
+      }>('impulse', (data) => {
+        mainLogic.current?.smashById(data.id, data.direction)
+        mainLogic.current?.updateStats(
           data.status,
           data.activeMemberId,
           setStatusAndActiveMemberId
         )
-        return newMainLogic
       })
-    },
-    [roomId, mainCanvasName, mainContainerName, getByRoomId, send, add]
-  )
+
+      add<{ status: GameStatus, activeMemberId: string }>(
+        'rollDice',
+        (data) => {
+          mainLogic.current?.updateStats(
+            data.status,
+            data.activeMemberId,
+            setStatusAndActiveMemberId
+          )
+        }
+      )
+
+      add<{ objects: GameObject[] }>('updateGameObjects', (data) => {
+        mainLogic.current?.syncAll(data.objects)
+      })
+      add<{
+        objects: GameObject[]
+        status: GameStatus
+        activeMemberId: string
+      }>('turnEnd', (data) => {
+        mainLogic.current?.syncAll(data.objects)
+        mainLogic.current?.updateStats(
+          data.status,
+          data.activeMemberId,
+          setStatusAndActiveMemberId
+        )
+      })
+      add<{
+        goalMemberId: string
+        goalMemberName: string
+        status: GameStatus
+        objects: GameObject[]
+      }>('goal', (data) => {
+        mainLogic.current?.syncAll(data.objects)
+        mainLogic.current?.updateStats(
+          data.status,
+          data.goalMemberId,
+          setStatusAndActiveMemberId
+        )
+      })
+    }
+    mainLogic.current?.syncAll(data.objects)
+    mainLogic.current?.updateStats(
+      data.status,
+      data.activeMemberId,
+      setStatusAndActiveMemberId
+    )
+  }
 
   const { tryReJoin } = useTryJoin(roomId, onSucceed)
   const rollDice = useCallback(
@@ -196,13 +162,17 @@ export default function useMainLogic (
   )
 
   useEffect(() => {
+    useGameSceneInitializer({
+      canvasName: 'main_canvas',
+      containerName: 'main'
+    });
     (async () => {
       await tryReJoin()
     })()
   }, [])
 
   return {
-    mainLogic,
+    mainLogic: mainLogic.current,
     status,
     activeMemberId,
     rollDice

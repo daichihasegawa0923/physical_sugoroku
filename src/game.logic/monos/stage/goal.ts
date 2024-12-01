@@ -11,7 +11,7 @@ export class Goal extends SimpleBox {
       ...props,
       mass: 0,
       color: 0xff00ff,
-      size: new CANNON.Vec3(1, 5, 1)
+      size: new CANNON.Vec3(1, 1, 1)
     })
   }
 

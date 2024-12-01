@@ -6,13 +6,11 @@ import * as THREE from 'three'
 export abstract class RigidBodyOnlineMonoBehaviour
   extends RigidBodyMonoBehaviour
   implements IOnline {
-  protected abstract getClassName (): string
-
   public online (): GameObject {
     const { position, quaternion } = this.rigidBody()
     const size = this.getObject3D()?.scale ?? new THREE.Vector3(0, 0, 0)
     return {
-      className: this.getClassName(),
+      className: this.getClass(),
       id: this.getId(),
       position: { x: position.x, y: position.y, z: position.z },
       quaternion: {

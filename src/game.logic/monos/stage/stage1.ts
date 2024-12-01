@@ -1,63 +1,49 @@
-import { GameScene } from '@/shared/game/game.scene'
-import { MonoBehaviour } from '@/shared/game/monobehaviour'
-import type * as THREE from 'three'
-import * as CANNON from 'cannon-es'
-import { SimpleBox } from '../base/simple.box'
 import { type GameObject } from '@/shared/game/type'
 import type IOnline from '@/shared/game/i.online'
+import { StageBuilder } from '@/game.logic/monos/stage/stage.builder'
 import { Goal } from '@/game.logic/monos/stage/goal'
+import { Vec3 } from 'cannon-es'
 
-export class Stage1 extends MonoBehaviour implements IOnline {
-  public getObject3D (): THREE.Object3D | null {
-    return null
+export class Stage1 extends StageBuilder implements IOnline {
+  protected mapInfo (): Array<Array<number | { height: number }>> {
+    return [
+      [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+      [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+      [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+      [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+      [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+      [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+      [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+      [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+      [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+      [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+      [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+      [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+      [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+      [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+      [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+      [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+      [1, 2, 2, 2, 1, 1, 1, 2, 2, 2, 1],
+      [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+      [1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1],
+      [1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1],
+      [1, 4, 4, 4, 4, 5, 4, 4, 4, 4, 1],
+      [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+      [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+    ]
   }
 
-  private add (array: Array<{ size: CANNON.Vec3, position: CANNON.Vec3 }>) {
-    array
-      .map((item, index) => {
-        const color = index % 2 === 0 ? 0x0f700f : 0x000ff0
-        return new SimpleBox({
-          color,
-          size: item.size,
-          position: item.position
-        })
-      })
-      .forEach((box) => {
-        GameScene.add(box)
-      })
-  }
-
-  override start (): void {
-    this.add([
-      {
-        size: new CANNON.Vec3(10, 1, 5),
-        position: new CANNON.Vec3(0, 0, 0)
-      },
-      {
-        size: new CANNON.Vec3(0.75, 1, 8),
-        position: new CANNON.Vec3(-3, 0, -6.5)
-      },
-      {
-        size: new CANNON.Vec3(0.75, 1, 8),
-        position: new CANNON.Vec3(3, 0, -6.5)
-      },
-      {
-        size: new CANNON.Vec3(10, 1, 6),
-        position: new CANNON.Vec3(0, 0, -13.5)
-      },
-      {
-        size: new CANNON.Vec3(2, 1, 6),
-        position: new CANNON.Vec3(0, 0, -19.5)
-      }
-    ])
-    const goal = new Goal({ position: new CANNON.Vec3(0, 2.5, -20.5) })
-    GameScene.add(goal)
+  protected getGoal (): Goal {
+    const goal = new Goal({
+      position: new Vec3(5.5, 7, 21)
+    })
+    return goal
   }
 
   public online (): GameObject {
     return {
       id: this.getId(),
-      className: 'Stage1',
+      className: this.getClass(),
       position: { x: 0, y: 0, z: 0 },
       quaternion: { x: 0, y: 0, z: 0, w: 1 },
       size: { x: 1, y: 1, z: 1 }
@@ -65,4 +51,8 @@ export class Stage1 extends MonoBehaviour implements IOnline {
   }
 
   syncFromOnline (_gameObject: GameObject): void {}
+
+  override isSingleton (): boolean {
+    return true
+  }
 }
