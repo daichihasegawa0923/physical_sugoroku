@@ -3,6 +3,7 @@ import { type SimpleBoxProps } from '@/game.logic/monos/base/simple.box.online'
 import { MainLogic } from '@/game.logic/monos/main.logic'
 import { type Piece } from '@/game.logic/monos/player/piece'
 import { GameScene } from '@/shared/game/game.scene'
+import { type Vector3 } from '@/shared/game/type'
 import * as CANNON from 'cannon-es'
 
 export class Goal extends SimpleBox {
@@ -34,6 +35,11 @@ export class Goal extends SimpleBox {
         mainLogic.goal(piece.getMemberId())
       }
     )
+  }
+
+  public setPosition (position: Vector3) {
+    const { x, y, z } = position
+    this.rigidBody().position.set(x, y, z)
   }
 
   update (): void {

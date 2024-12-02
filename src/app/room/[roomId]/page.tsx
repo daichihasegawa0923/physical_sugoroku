@@ -24,7 +24,7 @@ export default function Page ({ params }: { params: { roomId: string } }) {
   })
 
   useCanvasSwipeEvent('main_canvas', (x, y) => {
-    mainLogic?.changeAngle(y, x)
+    mainLogic?.changeAngle(x, y)
   })
 
   const ComponentByStatus = useCallback((): JSX.Element | null => {

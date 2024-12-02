@@ -1,43 +1,20 @@
 import { type GameObject } from '@/shared/game/type'
 import type IOnline from '@/shared/game/i.online'
 import { StageBuilder } from '@/game.logic/monos/stage/stage.builder'
-import { Goal } from '@/game.logic/monos/stage/goal'
-import { Vec3 } from 'cannon-es'
 
 export class Stage1 extends StageBuilder implements IOnline {
-  protected mapInfo (): Array<Array<number | { height: number }>> {
+  protected mapInfo (): number[][] {
     return [
-      [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
-      [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
-      [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
-      [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
-      [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
-      [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
-      [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
-      [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
-      [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
-      [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
-      [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      [1, 2, 2, 2, 1, 1, 1, 2, 2, 2, 1],
-      [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
-      [1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1],
-      [1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1],
-      [1, 4, 4, 4, 4, 5, 4, 4, 4, 4, 1],
-      [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
-      [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+      [1, 1, 1, 0, 0, 0, 0, 0, 1],
+      [0, 0, 1, 0, 0, 0, 0, 0, 1],
+      [0, 0, 2, 1, 1, 0, 2, 1, 1],
+      [0, 0, 0, 0, 2, 0, 1, 0, 0],
+      [0, 0, 1, 2, 3, 2, 1, 0, 0],
+      [0, 0, 1, 0, 2, 0, 0, 0, 0],
+      [0, 2, 1, 0, 1, 1, 2, 0, 0],
+      [0, 1, 0, 0, 0, 0, 1, 0, 0],
+      [1, 1, 0, 0, 0, 0, 1, 1, 1]
     ]
-  }
-
-  protected getGoal (): Goal {
-    const goal = new Goal({
-      position: new Vec3(5.5, 7, 21)
-    })
-    return goal
   }
 
   public online (): GameObject {
@@ -54,5 +31,29 @@ export class Stage1 extends StageBuilder implements IOnline {
 
   override isSingleton (): boolean {
     return true
+  }
+
+  protected override getRate (): { w: number, h: number } {
+    return { w: 2, h: 1 }
+  }
+
+  getPiece1Position (): { x: number, y: number } {
+    return { x: 0, y: 0 }
+  }
+
+  getPiece2Position (): { x: number, y: number } {
+    return { x: this.mapInfo()[0].length - 1, y: this.mapInfo().length - 1 }
+  }
+
+  getPiece3Position (): { x: number, y: number } {
+    return { x: 0, y: this.mapInfo().length - 1 }
+  }
+
+  getPiece4Position (): { x: number, y: number } {
+    return { x: this.mapInfo()[0].length - 1, y: 0 }
+  }
+
+  getGoalPosition (): { x: number, y: number, height: number } {
+    return { x: 4, y: 4, height: 4 }
   }
 }

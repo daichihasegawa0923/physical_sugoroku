@@ -16,7 +16,6 @@ import {
 } from '@/shared/game/type'
 import type IOnline from '@/shared/game/i.online'
 import { LightHemisphere } from '@/game.logic/monos/base/light.hemisphere'
-import { Goal } from '@/game.logic/monos/stage/goal'
 
 export class MainLogic extends MonoBehaviour {
   public constructor (
@@ -43,6 +42,8 @@ export class MainLogic extends MonoBehaviour {
   private activeMemberId: string | null = null
 
   private rotateOnDirection = { vertical: 0, horizontal: 0 }
+  private readonly maxVertical = THREE.MathUtils.degToRad(60)
+  private readonly minVertical = THREE.MathUtils.degToRad(-60)
 
   public getStatus () {
     return this.status
@@ -104,33 +105,35 @@ export class MainLogic extends MonoBehaviour {
 
   public changeAngle (x: number, y: number) {
     const { vertical, horizontal } = this.rotateOnDirection
-    const newVertical = vertical + y * 0.0005
     const newHorizontal = horizontal + x * 0.0005
+    const newVertical = THREE.MathUtils.clamp(
+      vertical + y * 0.0005,
+      this.minVertical,
+      this.maxVertical
+    )
     this.rotateOnDirection = {
       vertical: newVertical,
       horizontal: newHorizontal
+    }
+    if (this.status === 'DIRECTION' && this.isMyTurn()) {
+      const mainCamera = GameScene.get().getMainCamera()
+      const directionX =
+        Math.cos(this.rotateOnDirection.vertical) *
+        Math.sin(this.rotateOnDirection.horizontal)
+      const directionY = Math.sin(this.rotateOnDirection.vertical)
+      const directionZ =
+        Math.cos(this.rotateOnDirection.vertical) *
+        Math.cos(this.rotateOnDirection.horizontal)
+      const lookAtPosition = mainCamera.position
+        .clone()
+        .add(new THREE.Vector3(directionX, directionY, directionZ))
+      mainCamera.lookAt(lookAtPosition)
     }
   }
 
   private setCameraPosition () {
     const mainCamera = GameScene.get().getMainCamera()
     const p1Position = this.getMyObject()?.getObject3D()?.position
-    const goal = GameScene.findByType(Goal)[0]
-    if (this.isMyTurn() && this.status === 'DIRECTION') {
-      if (!p1Position || !goal) return
-      const { x, y, z } = p1Position
-      mainCamera.position.set(x, y, z)
-      mainCamera.lookAt(goal.getObject3D().position)
-      mainCamera.rotateOnWorldAxis(
-        new THREE.Vector3(0, 1, 0),
-        mainCamera.quaternion.y + this.rotateOnDirection.vertical
-      )
-      mainCamera.rotateX(
-        mainCamera.quaternion.x + this.rotateOnDirection.horizontal
-      )
-      return
-    }
-
     if (!p1Position) {
       mainCamera.position.set(0, 5, 0)
       mainCamera.rotation.set(0, mainCamera.rotation.y + 0.01, 0)
@@ -140,12 +143,12 @@ export class MainLogic extends MonoBehaviour {
     const distance = 5
     const height = 5
     mainCamera.position.set(
-      p1Position.x + distance * Math.sin(this.rotateOnDirection.vertical),
+      p1Position.x + distance * Math.sin(this.rotateOnDirection.horizontal),
       p1Position.y + height,
-      p1Position.z - distance * Math.cos(this.rotateOnDirection.vertical)
+      p1Position.z - distance * Math.cos(this.rotateOnDirection.horizontal)
     )
     // 自分のターンでない時は、敵の駒を見る
-    if (this.activeMemberId !== this.memberId) {
+    if (!this.isMyTurn()) {
       mainCamera.lookAt(
         GameScene.findByType(Piece)
           .find((p) => p.getMemberId() === this.activeMemberId)
@@ -153,7 +156,12 @@ export class MainLogic extends MonoBehaviour {
       )
       return
     }
-    // オブジェクトの方を見続ける
+    // 発射位置を決める時は、駒の位置にカメラを移動する
+    if (this.status === 'DIRECTION') {
+      const { x, y, z } = p1Position
+      mainCamera.position.set(x, y, z)
+      return
+    }
     mainCamera.lookAt(p1Position)
   }
 

@@ -1,6 +1,8 @@
 export default function useLocalData () {
   function get<T> (key: string): T | null {
-    const json = localStorage.getItem(key)
+    if (typeof window === 'undefined') return null
+
+    const json = localStorage?.getItem(key)
     if (!json) return null
     return JSON.parse(json) as T
   }

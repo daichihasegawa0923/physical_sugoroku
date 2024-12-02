@@ -33,6 +33,10 @@ export class Piece extends SimpleBoxOnline {
   private memberId: string
   private readonly number: string
 
+  public getNumber () {
+    return this.number
+  }
+
   public getMemberId () {
     return this.memberId
   }
@@ -43,25 +47,6 @@ export class Piece extends SimpleBoxOnline {
 
   override update (): void {
     super.update()
-    if (this.getObject3D().position.y < -20) {
-      this.rigidBody().position.set(this.getPositionXByNumber(), 2, 1)
-      this.rigidBody().velocity.set(0, this.rigidBody().velocity.y, 0)
-      this.rigidBody().angularVelocity.set(0, 0, 0)
-    }
-  }
-
-  private getPositionXByNumber (): number {
-    switch (this.number) {
-      case '1':
-        return 1
-      case '2':
-        return 3
-      case '3':
-        return 5
-      case '4':
-        return 7
-    }
-    return 0
   }
 
   override syncFromOnline (gameObject: GameObject): void {

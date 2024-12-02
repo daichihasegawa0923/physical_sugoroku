@@ -8,13 +8,13 @@ export class Light extends MonoBehaviour {
     super()
     this.light = new DirectionalLight(0xffffff, 1)
     this.light.position.set(5, 10, 10)
-    this.light.shadow.mapSize.width = 2048
-    this.light.shadow.mapSize.height = 2048
+    this.light.shadow.mapSize.width = 4096
+    this.light.shadow.mapSize.height = 4096
     this.light.castShadow = true
-    this.light.shadow.camera.top = 50
-    this.light.shadow.camera.bottom = -50
-    this.light.shadow.camera.right = 50
-    this.light.shadow.camera.left = -50
+    this.light.shadow.camera.top = 25
+    this.light.shadow.camera.bottom = -25
+    this.light.shadow.camera.right = 25
+    this.light.shadow.camera.left = -25
   }
 
   public getObject3D (): Object3D | null {

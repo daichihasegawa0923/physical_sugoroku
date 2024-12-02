@@ -1,5 +1,7 @@
 import { SimpleBox } from '@/game.logic/monos/base/simple.box'
-import { type Goal } from '@/game.logic/monos/stage/goal'
+import { Piece } from '@/game.logic/monos/player/piece'
+import { Goal } from '@/game.logic/monos/stage/goal'
+import { StageBuilderHelper } from '@/game.logic/monos/stage/stage.builder.helper'
 import { GameScene } from '@/shared/game/game.scene'
 import { MonoBehaviour } from '@/shared/game/monobehaviour'
 import { type Vector3 } from '@/shared/game/type'
@@ -16,24 +18,69 @@ export abstract class StageBuilder extends MonoBehaviour {
     this.build()
   }
 
+  override update (): void {
+    super.update()
+    GameScene.findByType(Piece).forEach((p) => {
+      if (p.getObject3D().position.y < -20) {
+        const getPosition = () => {
+          switch (p.getNumber()) {
+            case '1':
+              return this.getPiece1Position()
+            case '2':
+              return this.getPiece2Position()
+            case '3':
+              return this.getPiece3Position()
+            case '4':
+              return this.getPiece4Position()
+          }
+          throw Error()
+        }
+        const { x, y } = getPosition()
+        const position = this.getPositionFromMapPoint(x, y, 10)
+        p.rigidBody().position.set(position.x, position.y, position.z)
+        p.rigidBody().velocity.set(0, p.rigidBody().velocity.y, 0)
+      }
+    })
+  }
+
+  protected getGoal () {
+    const { x, y, height } = this.getGoalPosition()
+    const position = this.getPositionFromMapPoint(x, y, height)
+    return new Goal({ position: new Vec3(position.x, position.y, position.z) })
+  }
+
+  protected getPositionFromMapPoint (
+    x: number,
+    y: number,
+    height: number
+  ): Vector3 {
+    return {
+      x: x * this.getRate().w + this.getRate().w / 2,
+      y: height,
+      z: y * this.getRate().w + this.getRate().w / 2
+    }
+  }
+
   private readonly boxes: MonoBehaviour[] = []
 
-  protected abstract mapInfo (): Array<Array<number | { height: number }>>
+  protected abstract mapInfo (): number[][]
 
-  protected abstract getGoal (): Goal
+  protected getRate (): { w: number, h: number } {
+    return { w: 1, h: 1 }
+  }
 
   protected build () {
     const mapInfo = this.mapInfo()
-    for (let i = 0; i < mapInfo.length; i++) {
-      for (let j = 0; j < mapInfo[i].length; j++) {
-        const height = mapInfo[i][j]
-        if (typeof height === 'number' && height > 0) {
-          this.createFloor({ x: 1, y: height, z: 1 }, { x: j, y: 0, z: i })
-          continue
-        }
-      }
-    }
-    this.boxes.forEach((box) => { GameScene.add(box) })
+    const helper = new StageBuilderHelper()
+    const createInfo = helper.create(mapInfo, this.getRate())
+    createInfo.forEach((c) => {
+      this.createFloor(c.size, c.position)
+    })
+    this.boxes.forEach((box) => {
+      GameScene.add(box)
+    })
+    const { x, y, height } = this.getGoalPosition()
+    this.getGoal().setPosition(this.getPositionFromMapPoint(x, y, height))
     GameScene.add(this.getGoal())
   }
 
@@ -61,4 +108,11 @@ export abstract class StageBuilder extends MonoBehaviour {
   override isSingleton (): boolean {
     return true
   }
+
+  abstract getPiece1Position (): { x: number, y: number }
+  abstract getPiece2Position (): { x: number, y: number }
+  abstract getPiece3Position (): { x: number, y: number }
+  abstract getPiece4Position (): { x: number, y: number }
+
+  abstract getGoalPosition (): { x: number, y: number, height: number }
 }
