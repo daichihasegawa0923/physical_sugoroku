@@ -21,7 +21,9 @@ export abstract class StageBuilder extends MonoBehaviour {
   override update (): void {
     super.update()
     GameScene.findByType(Piece).forEach((p) => {
-      if (p.getObject3D().position.y < -20) {
+      const obj = p.getObject3D()
+      if (!obj) return
+      if (obj.position.y < -20) {
         const getPosition = () => {
           switch (p.getNumber()) {
             case '1':

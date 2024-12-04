@@ -160,7 +160,7 @@ export class MainLogic extends MonoBehaviour {
     // 発射位置を決める時は、駒の位置にカメラを移動する
     if (this.status === 'DIRECTION') {
       const { x, y, z } = p1Position
-      mainCamera.position.set(x, y, z)
+      mainCamera.position.set(x, y + 0.5, z)
       return
     }
     mainCamera.lookAt(p1Position)

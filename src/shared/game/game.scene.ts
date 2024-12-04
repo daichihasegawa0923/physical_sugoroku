@@ -62,6 +62,13 @@ export class GameScene {
   private monos: MonoBehaviour[] = []
   private onlineObjects: GameObject[] = []
 
+  /**
+   * 動作確認とかだけで使ってください。
+   */
+  public static getScene () {
+    return GameScene.get().scene
+  }
+
   public static all () {
     return this.instance?.monos ?? []
   }

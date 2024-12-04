@@ -1,13 +1,9 @@
-import { SimpleBoxOnline } from '@/game.logic/monos/base/simple.box.online'
+import { RigidBodyOnlineMonoBehaviour } from '@/game.logic/monos/base/rigid.body.monobehaviour.onine.ts'
+import { GameScene } from '@/shared/game/game.scene'
 import { type GameObject, type Vector3 } from '@/shared/game/type'
 import * as CANNON from 'cannon-es'
-
-const playerColor: Array<{ memberNumber: string, color: number }> = [
-  { memberNumber: '1', color: 0xff0000 },
-  { memberNumber: '2', color: 0x00ff00 },
-  { memberNumber: '3', color: 0x0000ff },
-  { memberNumber: '4', color: 0x0ff000 }
-]
+import type * as THREE from 'three'
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 
 export interface PieceGenerateProps {
   number: string
@@ -16,19 +12,50 @@ export interface PieceGenerateProps {
   id?: string
 }
 
-export class Piece extends SimpleBoxOnline {
+export class Piece extends RigidBodyOnlineMonoBehaviour {
   public constructor ({ number, position, id, memberId }: PieceGenerateProps) {
-    super({
-      color:
-        playerColor.find((p) => p.memberNumber === number)?.color ?? 0x000000,
-      size: new CANNON.Vec3(1, 0.5, 1),
-      position: new CANNON.Vec3(position.x, position.y, position.z),
+    super(id)
+    this.rb = new CANNON.Body({
       mass: 1,
-      id
+      shape: new CANNON.Box(new CANNON.Vec3(0.5, 0.25, 0.75)),
+      position: new CANNON.Vec3(position.x, position.y, position.z),
+      material: new CANNON.Material({})
     })
     this.memberId = memberId
     this.number = number
+    this.modelLoader.load(this.getModelPath(number), (data) => {
+      this.model = data.scene
+      GameScene.getScene().add(this.model)
+    })
   }
+
+  private getModelPath (number: string) {
+    switch (number) {
+      case '1':
+        return '/piece_keima.gltf'
+      case '2':
+        return '/piece_fu.gltf'
+      case '3':
+        return '/piece_kakugyo.gltf'
+      case '4':
+        return '/piece_hisha.gltf'
+    }
+    return ''
+  }
+
+  public rigidBody (): CANNON.Body {
+    return this.rb
+  }
+
+  public getObject3D (): THREE.Object3D | null {
+    return this.model
+  }
+
+  private readonly rb: CANNON.Body
+
+  private model: THREE.Object3D | null = null
+
+  private readonly modelLoader: GLTFLoader = new GLTFLoader()
 
   private memberId: string
   private readonly number: string
