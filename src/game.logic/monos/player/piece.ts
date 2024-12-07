@@ -1,4 +1,5 @@
 import { RigidBodyOnlineMonoBehaviour } from '@/game.logic/monos/base/rigid.body.monobehaviour.onine.ts'
+import { ShougiPieceRigidBodyMesh } from '@/game.logic/monos/player/shougi.piece'
 import { GameScene } from '@/shared/game/game.scene'
 import { type GameObject, type Vector3 } from '@/shared/game/type'
 import * as CANNON from 'cannon-es'
@@ -15,32 +16,34 @@ export interface PieceGenerateProps {
 export class Piece extends RigidBodyOnlineMonoBehaviour {
   public constructor ({ number, position, id, memberId }: PieceGenerateProps) {
     super(id)
+    const shougiPiece = new ShougiPieceRigidBodyMesh(this.getModelPath(number))
     this.rb = new CANNON.Body({
       mass: 1,
-      shape: new CANNON.Box(new CANNON.Vec3(0.5, 0.25, 0.75)),
+      shape: shougiPiece.getConvex(),
       position: new CANNON.Vec3(position.x, position.y, position.z),
       material: new CANNON.Material({})
     })
     this.memberId = memberId
     this.number = number
-    this.modelLoader.load(this.getModelPath(number), (data) => {
+    shougiPiece.onLoad((data) => {
       this.model = data.scene
-      GameScene.getScene().add(this.model)
+      GameScene.addModel(this.model)
     })
   }
 
   private getModelPath (number: string) {
     switch (number) {
       case '1':
-        return '/piece_keima.gltf'
+        return '/piece_red.gltf'
       case '2':
-        return '/piece_fu.gltf'
+        return '/piece_blue.gltf'
       case '3':
-        return '/piece_kakugyo.gltf'
+        return '/piece_green.gltf'
       case '4':
-        return '/piece_hisha.gltf'
+        return '/piece_purple.gltf'
+      default:
+        throw Error()
     }
-    return ''
   }
 
   public rigidBody (): CANNON.Body {

@@ -186,7 +186,7 @@ export class MainLogic extends MonoBehaviour {
   }
 
   private isMoveSomePieces () {
-    return this.calculatePieceMotionMass() >= 0.01
+    return this.calculatePieceMotionMass() >= 0.1
   }
 
   private judgeTurnEnd (): void {

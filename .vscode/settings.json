@@ -6,7 +6,8 @@
         "Behaviour",
         "GLTF",
         "keima",
-        "monobehaviour"
+        "monobehaviour",
+        "Shougi"
     ],
   "typescript.preferences.importModuleSpecifier": "non-relative"
 }

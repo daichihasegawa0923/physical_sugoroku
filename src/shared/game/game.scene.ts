@@ -104,9 +104,6 @@ export class GameScene {
 
   public static add (mono: MonoBehaviour) {
     const gameScene = GameScene.get()
-    if (gameScene.monos.find((m) => mono.getId() === m.getId())) {
-      return
-    }
     // シングルトンmonoの場合、すでに存在する場合は追加しない。
     if (
       mono.isSingleton() &&
@@ -120,6 +117,13 @@ export class GameScene {
       gameScene.scene.add(obj3d)
     }
     mono.start()
+  }
+
+  /**
+   * GLTFLoaderとかで遅延読み込みが必要な時だけ使う
+   */
+  public static addModel (model: THREE.Object3D) {
+    GameScene.get().scene.add(model)
   }
 
   public static remove (mono: MonoBehaviour) {

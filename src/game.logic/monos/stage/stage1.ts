@@ -5,15 +5,16 @@ import { StageBuilder } from '@/game.logic/monos/stage/stage.builder'
 export class Stage1 extends StageBuilder implements IOnline {
   protected mapInfo (): number[][] {
     return [
-      [1, 1, 1, 0, 0, 0, 0, 0, 1],
-      [0, 0, 1, 0, 0, 0, 0, 0, 1],
-      [0, 0, 2, 1, 1, 0, 2, 1, 1],
-      [0, 0, 0, 0, 2, 0, 1, 0, 0],
-      [0, 0, 1, 2, 3, 2, 1, 0, 0],
-      [0, 0, 1, 0, 2, 0, 0, 0, 0],
-      [0, 2, 1, 0, 1, 1, 2, 0, 0],
-      [0, 1, 0, 0, 0, 0, 1, 0, 0],
-      [1, 1, 0, 0, 0, 0, 1, 1, 1]
+      [1, 1, 1, 1, 1, 1, 1, 1, 1],
+      [0, 0, 1, 0, 0, 0, 1, 0, 0],
+      [0, 0, 1, 0, 0, 0, 1, 0, 0],
+      [0, 0, 1, 1, 1, 1, 1, 0, 0],
+      [0, 0, 1, 0, 0, 0, 1, 0, 0],
+      [0, 0, 1, 0, 0, 0, 1, 0, 0],
+      [2, 2, 2, 2, 2, 2, 2, 2, 2],
+      [0, 0, 3, 3, 3, 3, 3, 0, 0],
+      [0, 0, 0, 4, 4, 4, 0, 0, 0],
+      [0, 0, 0, 4, 5, 4, 0, 0, 0]
     ]
   }
 
@@ -34,7 +35,7 @@ export class Stage1 extends StageBuilder implements IOnline {
   }
 
   protected override getRate (): { w: number, h: number } {
-    return { w: 2, h: 1 }
+    return { w: 1.5, h: 1 }
   }
 
   getPiece1Position (): { x: number, y: number } {
@@ -42,18 +43,18 @@ export class Stage1 extends StageBuilder implements IOnline {
   }
 
   getPiece2Position (): { x: number, y: number } {
-    return { x: this.mapInfo()[0].length - 1, y: this.mapInfo().length - 1 }
+    return { x: 2, y: 0 }
   }
 
   getPiece3Position (): { x: number, y: number } {
-    return { x: 0, y: this.mapInfo().length - 1 }
+    return { x: 4, y: 0 }
   }
 
   getPiece4Position (): { x: number, y: number } {
-    return { x: this.mapInfo()[0].length - 1, y: 0 }
+    return { x: 6, y: 0 }
   }
 
   getGoalPosition (): { x: number, y: number, height: number } {
-    return { x: 4, y: 4, height: 4 }
+    return { x: 4, y: 9, height: 5 }
   }
 }

@@ -40,15 +40,11 @@ export abstract class StageBuilder extends MonoBehaviour {
         const { x, y } = getPosition()
         const position = this.getPositionFromMapPoint(x, y, 10)
         p.rigidBody().position.set(position.x, position.y, position.z)
+        p.rigidBody().angularVelocity.set(0, 0, 0)
+        p.rigidBody().quaternion.set(0, 0, 0, 1)
         p.rigidBody().velocity.set(0, p.rigidBody().velocity.y, 0)
       }
     })
-  }
-
-  protected getGoal () {
-    const { x, y, height } = this.getGoalPosition()
-    const position = this.getPositionFromMapPoint(x, y, height)
-    return new Goal({ position: new Vec3(position.x, position.y, position.z) })
   }
 
   protected getPositionFromMapPoint (
@@ -82,8 +78,9 @@ export abstract class StageBuilder extends MonoBehaviour {
       GameScene.add(box)
     })
     const { x, y, height } = this.getGoalPosition()
-    this.getGoal().setPosition(this.getPositionFromMapPoint(x, y, height))
-    GameScene.add(this.getGoal())
+    const goal = new Goal()
+    goal.setPosition(this.getPositionFromMapPoint(x, y, height))
+    GameScene.add(goal)
   }
 
   protected createFloor (size: Vector3, position: Vector3) {
