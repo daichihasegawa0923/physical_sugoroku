@@ -89,7 +89,7 @@ export class MainLogic extends MonoBehaviour {
   }
 
   public smash (): void {
-    if (!this.isMyTurn() && this.getStatus() !== 'DIRECTION') return
+    if (!this.isMyTurn() || this.getStatus() !== 'DIRECTION') return
     const direction = this.calcSmashDirection()
     // あまりにも小さい場合は処理しない
     if (direction.y < 0.1) return
