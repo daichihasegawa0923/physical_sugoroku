@@ -3,6 +3,7 @@ import useTryJoin, {
   type JoinRoomResult
 } from '@/app/room/[roomId]/_hooks/useTryJoin'
 import { MainLogic } from '@/game.logic/monos/main.logic'
+import { useCommandContext } from '@/shared/components/command.provider'
 import { useWebSocketContext } from '@/shared/function/websocket.context'
 import { GameScene } from '@/shared/game/game.scene'
 import {
@@ -18,6 +19,7 @@ export default function useMainLogic (
   onLoading: (isLoading: boolean) => void
 ) {
   const mainLogic = useRef<MainLogic | null>(null)
+  const { setCommandText } = useCommandContext()
   const [status, setStatus] = useState<GameStatus>(
     mainLogic.current?.getStatus() ?? 'WAITING'
   )
@@ -143,6 +145,7 @@ export default function useMainLogic (
           data.goalMemberId,
           setStatusAndActiveMemberId
         )
+        setCommandText(data.goalMemberName + 'が王手！！')
       })
     }
     mainLogic.current?.syncAll(data.objects)
@@ -153,7 +156,10 @@ export default function useMainLogic (
     )
   }
 
-  const { tryReJoin } = useTryJoin(roomId, onSucceed)
+  const { tryReJoin } = useTryJoin(roomId, onSucceed, (data) => {
+    if (!data.ok) return
+    setCommandText(data.memberName + 'が参加しました！')
+  })
   const rollDice = useCallback(
     (height: number, forward: number) => {
       send<DiceInput>('rollDice', { roomId, input: { height, forward } })

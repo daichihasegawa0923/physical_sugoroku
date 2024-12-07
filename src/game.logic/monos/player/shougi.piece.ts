@@ -1,6 +1,9 @@
 import { ConvexPolyhedronHelper } from '@/shared/game/convex.polyhedron.helper'
 import { type Vector3 } from '@/shared/game/type'
-import { type GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import {
+  type GLTF,
+  GLTFLoader
+} from 'three/examples/jsm/loaders/GLTFLoader.js'
 
 export type ModelPath =
   | '/piece_red.gltf'
@@ -39,10 +42,10 @@ export class ShougiPieceRigidBodyMesh {
   private getConvexHelper () {
     const vertices: Array<[string, Vector3]> = [
       ['top', { x: 0, y: 0, z: -0.7 }], // 頂点 0
-      ['left_up_pos', { x: -0.32, y: 0.125, z: -0.3 }], // 左上（表）
-      ['right_up_pos', { x: 0.32, y: 0.125, z: -0.3 }], // 右上（表）
-      ['left_up_neg', { x: -0.32, y: -0.125, z: -0.3 }], // 左下（裏）
-      ['right_up_neg', { x: 0.32, y: -0.125, z: -0.3 }], // 右下（裏）
+      ['left_up_pos', { x: -0.32, y: 0.1, z: -0.3 }], // 左上（表）
+      ['right_up_pos', { x: 0.32, y: 0.1, z: -0.3 }], // 右上（表）
+      ['left_up_neg', { x: -0.32, y: -0.1, z: -0.3 }], // 左下（裏）
+      ['right_up_neg', { x: 0.32, y: -0.1, z: -0.3 }], // 右下（裏）
       ['left_pos', { x: -0.35, y: 0.125, z: 0.3 }], // 左下（表）
       ['right_pos', { x: 0.35, y: 0.125, z: 0.3 }], // 右下（表）
       ['left_neg', { x: -0.35, y: -0.125, z: 0.3 }], // 左下（裏）

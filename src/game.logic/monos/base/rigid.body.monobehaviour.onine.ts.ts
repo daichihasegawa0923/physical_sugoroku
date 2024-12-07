@@ -14,7 +14,7 @@ export abstract class RigidBodyOnlineMonoBehaviour
       id: this.getId(),
       position: { x: position.x, y: position.y, z: position.z },
       quaternion: {
-        x: quaternion.z,
+        x: quaternion.x,
         y: quaternion.y,
         z: quaternion.z,
         w: quaternion.w

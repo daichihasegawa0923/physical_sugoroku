@@ -24,7 +24,8 @@ export type JoinRoomResult =
 
 export default function useTryJoin (
   roomId: string,
-  onSucceed: (data: JoinRoomResult) => void
+  onSucceed: (data: JoinRoomResult) => void,
+  onOtherMemberSucceed: (data: JoinRoomResult) => void
 ) {
   const { getByRoomId } = useLocalRoomInfo()
   const { sendSync } = useWebSocketContext()
@@ -49,6 +50,9 @@ export default function useTryJoin (
           return
         }
         onSucceed(result)
+        if (result.memberId !== data.myMemberId) {
+          onOtherMemberSucceed(result)
+        }
       }
     )
   }

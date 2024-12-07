@@ -66,6 +66,14 @@ export class Goal extends RigidBodyMonoBehaviour {
     this.rigidBody().quaternion.set(1, 0, 0, 1)
   }
 
+  override update (): void {
+    super.update()
+    if (this.rigidBody().position.y < -10) {
+      this.rigidBody().mass = 0
+      this.rigidBody().velocity.set(0, 0, 0)
+    }
+  }
+
   override isSingleton (): boolean {
     return true
   }

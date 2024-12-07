@@ -1,4 +1,5 @@
 import { Provider } from '@/chakra/components/ui/provider'
+import { CommandContextProvider } from '@/shared/components/command.provider'
 import Header from '@/shared/components/header'
 import WebSocketContextProvider from '@/shared/function/websocket.context'
 import { Box, Theme } from '@chakra-ui/react'
@@ -20,8 +21,10 @@ export default function RootLayout ({
         <body style={{ height: '100%' }}>
           <Provider>
             <Theme appearance="light">
-              <Header />
-              <Box h="calc(100svh - 54px)">{children}</Box>
+              <CommandContextProvider>
+                <Header />
+                <Box h="calc(100svh - 54px)">{children}</Box>
+              </CommandContextProvider>
             </Theme>
           </Provider>
         </body>

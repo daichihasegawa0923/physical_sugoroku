@@ -8,7 +8,6 @@ import Loading from '@/shared/components/loading'
 import { useCallback, useState } from 'react'
 import useLocalRoomInfo from '@/shared/hooks/useLocalRoomInfo'
 import Dice from '@/app/room/[roomId]/_components/dice'
-import Goal from '@/app/room/[roomId]/_components/goal'
 import useCanvasSwipeEvent from '@/app/room/[roomId]/_hooks/useSwipeEvent'
 
 export default function Page ({ params }: { params: { roomId: string } }) {
@@ -52,12 +51,10 @@ export default function Page ({ params }: { params: { roomId: string } }) {
             )}
           </>
         )
-      case 'MOVING':
-        return null
-      case 'RESULT':
-        return <Goal />
+      case 'WAITING':
+        return <Loading open />
     }
-    return <Loading open />
+    return null
   }, [status])
 
   return (
