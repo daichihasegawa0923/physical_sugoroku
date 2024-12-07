@@ -48,6 +48,12 @@ export default function useMainLogic (
   }
   const onSucceed = (data: JoinRoomResult) => {
     if (!data.ok) return
+    if (
+      data.isFull &&
+      data.activeMemberId === getByRoomId(roomId)?.myMemberId
+    ) {
+      setCommandText('画面をスワイプして駒を飛ばす方向を決めよう！')
+    }
     if (!mainLogic.current) {
       const memberId = getByRoomId(data.roomId)?.myMemberId
       if (!memberId) throw Error('cannot find local memberId')
@@ -132,6 +138,9 @@ export default function useMainLogic (
           data.activeMemberId,
           setStatusAndActiveMemberId
         )
+        if (data.activeMemberId === getByRoomId(roomId)?.myMemberId) {
+          setCommandText('画面をスワイプして駒を飛ばす方向を決めよう！')
+        }
       })
       add<{
         goalMemberId: string

@@ -135,7 +135,7 @@ export class GameScene {
       gameScene.scene.remove(obj3d)
     }
     gameScene.monos = gameScene.monos.filter(
-      (originalMono) => originalMono === mono
+      (originalMono) => originalMono !== mono
     )
     // オンラインオブジェクトの削除
     gameScene.onlineObjects = gameScene.onlineObjects.filter(

@@ -22,7 +22,7 @@ export function CommandContextProvider ({ children }: { children: ReactNode }) {
 
   return (
     <CommandContext.Provider value={{ text, setCommandText: setText }}>
-      <Command text={text} />
+      <Command text={text} clearText={() => { setText('') }} />
       {children}
     </CommandContext.Provider>
   )

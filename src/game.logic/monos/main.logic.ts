@@ -3,7 +3,6 @@ import { type Object3D } from 'three'
 import { GameScene } from '@/shared/game/game.scene'
 import * as THREE from 'three'
 import { Stage1 } from './stage/stage1'
-import { CannonWorld } from '@/shared/game/cannon.world'
 import { type GameEventHandlers } from '../events/event'
 import { type RigidBodyMonoBehaviour } from './base/rigid.body.monobehaviour'
 import { MonoContainer } from '@/shared/game/mono.container'
@@ -16,6 +15,7 @@ import {
 } from '@/shared/game/type'
 import type IOnline from '@/shared/game/i.online'
 import { LightHemisphere } from '@/game.logic/monos/base/light.hemisphere'
+import { LineDrawer } from '@/game.logic/monos/base/line.drawer'
 
 export class MainLogic extends MonoBehaviour {
   public constructor (
@@ -77,6 +77,7 @@ export class MainLogic extends MonoBehaviour {
   override update (): void {
     this.setCameraPosition()
     this.judgeTurnEnd()
+    this.drawSmashDirection()
   }
 
   public smashById (id: string, direction: Vector3) {
@@ -88,23 +89,28 @@ export class MainLogic extends MonoBehaviour {
   }
 
   public smash (): void {
-    if (!this.isMyTurn()) return
-    const mainCamera = GameScene.get().getMainCamera()
-    const direction = new THREE.Vector3(0, 0, 0)
-    mainCamera.getWorldDirection(direction)
-    direction.normalize()
-    const directionResult = CannonWorld.parseFrom(direction)
+    if (!this.isMyTurn() && this.getStatus() !== 'DIRECTION') return
+    const direction = this.calcSmashDirection()
+    // あまりにも小さい場合は処理しない
+    if (direction.y < 0.1) return
     const myObj = this.getMyObject()
     if (!myObj) return
     this.eventHandler.impulse({
       name: 'impulse',
       id: myObj.getId(),
-      direction: { ...directionResult }
+      direction
     })
     this.rotateOnDirection = { horizontal: 0, vertical: 0 }
+    this.status = 'MOVING'
+    if (this.arrowModel != null) {
+      GameScene.remove(this.arrowModel)
+    }
   }
 
   public changeAngle (x: number, y: number) {
+    if (this.getStatus() === 'DIRECTION') {
+      return
+    }
     const { vertical, horizontal } = this.rotateOnDirection
     const newHorizontal = horizontal + x * 0.0005
     const newVertical = THREE.MathUtils.clamp(
@@ -132,10 +138,15 @@ export class MainLogic extends MonoBehaviour {
     }
   }
 
+  public onMoveOnDirection (x: number, y: number) {
+    this.directionPower.dX = x
+    this.directionPower.dY = y
+  }
+
   private setCameraPosition () {
     const mainCamera = GameScene.get().getMainCamera()
-    const p1Position = this.getMyObject()?.getObject3D()?.position
-    if (!p1Position) {
+    const myObjPosition = this.getMyObject()?.getObject3D()?.position
+    if (!myObjPosition) {
       mainCamera.position.set(0, 5, 0)
       mainCamera.rotation.set(0, mainCamera.rotation.y + 0.01, 0)
       return
@@ -144,9 +155,9 @@ export class MainLogic extends MonoBehaviour {
     const distance = 5
     const height = 5
     mainCamera.position.set(
-      p1Position.x + distance * Math.sin(this.rotateOnDirection.horizontal),
-      p1Position.y + height,
-      p1Position.z - distance * Math.cos(this.rotateOnDirection.horizontal)
+      myObjPosition.x + distance * Math.sin(this.rotateOnDirection.horizontal),
+      myObjPosition.y + height,
+      myObjPosition.z - distance * Math.cos(this.rotateOnDirection.horizontal)
     )
     // 自分のターンでない時は、敵の駒を見る
     if (!this.isMyTurn()) {
@@ -159,11 +170,12 @@ export class MainLogic extends MonoBehaviour {
     }
     // 発射位置を決める時は、駒の位置にカメラを移動する
     if (this.status === 'DIRECTION') {
-      const { x, y, z } = p1Position
-      mainCamera.position.set(x, y + 0.5, z)
+      const { x, y, z } = myObjPosition
+      mainCamera.position.set(x, y + 10, z - 2)
+      mainCamera.lookAt(myObjPosition)
       return
     }
-    mainCamera.lookAt(p1Position)
+    mainCamera.lookAt(myObjPosition)
   }
 
   private getMyObject (): RigidBodyMonoBehaviour | undefined {
@@ -284,5 +296,50 @@ export class MainLogic extends MonoBehaviour {
   private init () {
     GameScene.add(this.light)
     GameScene.add(this.lightHemisphere)
+  }
+
+  private readonly directionPower: {
+    dX: number
+    dY: number
+  } = {
+      dX: 0,
+      dY: 0
+    }
+
+  private arrowModel: LineDrawer | null = null
+
+  private drawSmashDirection (): void {
+    if (this.status !== 'DIRECTION') return
+    if (this.arrowModel != null) {
+      GameScene.remove(this.arrowModel)
+    }
+
+    const currentPosition = this.getMyObject()?.rigidBody()?.position
+    if (!currentPosition) return
+
+    const calc = this.calcSmashDirection()
+    const { x, y, z } = currentPosition
+    this.arrowModel = new LineDrawer(
+      [
+        new THREE.Vector3(x, y, z),
+        new THREE.Vector3(x + calc.x / 2, y + calc.y / 2, z + calc.z / 2)
+      ],
+      0xff00cc
+    )
+    GameScene.add(this.arrowModel)
+  }
+
+  private calcSmashDirection (): Vector3 {
+    const currentPosition = this.getMyObject()?.rigidBody()
+    if (!currentPosition) return { x: 0, y: 0, z: 0 }
+    const { dX, dY } = this.directionPower
+    const diffX = Math.min(dX * 0.1, 10)
+    const diffY = Math.min(dY * 0.1, 10)
+
+    return {
+      x: diffX,
+      y: Math.sqrt(Math.pow(diffX, 2) + Math.pow(diffY, 2)),
+      z: diffY
+    }
   }
 }

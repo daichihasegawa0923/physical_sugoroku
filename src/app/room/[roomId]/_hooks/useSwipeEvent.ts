@@ -1,9 +1,11 @@
 import { useEffect, useRef } from 'react'
 
-export default function useCanvasSwipeEvent (
-  canvasName: string,
-  callBack: (dx: number, dy: number) => void
-) {
+export default function useCanvasSwipeEvent (props: {
+  canvasName: string
+  onMoveCb: (dx: number, dy: number) => void
+  onReleaseCb: () => void
+}) {
+  const { canvasName, onMoveCb, onReleaseCb } = props
   const isEventAdded = useRef(false)
 
   useEffect(() => {
@@ -17,6 +19,7 @@ export default function useCanvasSwipeEvent (
 
     const endEvent = () => {
       isDown = false
+      onReleaseCb()
     }
 
     // SP
@@ -29,7 +32,7 @@ export default function useCanvasSwipeEvent (
     const touchMoveEvent = (event: TouchEvent) => {
       if (!isDown) return
       const { clientX, clientY } = event.touches[0]
-      callBack(clientX - startPoint.x, clientY - startPoint.y)
+      onMoveCb(clientX - startPoint.x, clientY - startPoint.y)
     }
     canvas.addEventListener('touchstart', touchStartEvent)
     canvas.addEventListener('touchmove', touchMoveEvent)
@@ -44,7 +47,7 @@ export default function useCanvasSwipeEvent (
     const mouseMoveEvent = (event: MouseEvent) => {
       event.preventDefault()
       if (!isDown) return
-      callBack(event.clientX - startPoint.x, event.clientY - startPoint.y)
+      onMoveCb(event.clientX - startPoint.x, event.clientY - startPoint.y)
     }
     canvas.addEventListener('mousedown', mouseOnEvent)
     canvas.addEventListener('mousemove', mouseMoveEvent)
@@ -61,5 +64,5 @@ export default function useCanvasSwipeEvent (
 
       isEventAdded.current = false
     }
-  }, [callBack])
+  }, [onMoveCb])
 }

@@ -1,21 +1,24 @@
 'use client'
 
 import { Box, VStack } from '@chakra-ui/react'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 
 interface Props {
   text: string
+  clearText: VoidFunction
 }
 
-function Command ({ text }: Props) {
-  const [textDisplay, setTextDisplay] = useState('')
+function Command ({ text, clearText }: Props) {
   useEffect(() => {
-    setTextDisplay(text)
-    const x = setTimeout(() => { setTextDisplay('') }, 2000)
-    return () => { clearTimeout(x) }
+    const x = setTimeout(() => {
+      clearText()
+    }, 5000)
+    return () => {
+      clearTimeout(x)
+    }
   }, [text])
 
-  if (!textDisplay) return null
+  if (!text) return null
 
   return (
     <VStack
@@ -32,7 +35,7 @@ function Command ({ text }: Props) {
       padding="8px"
       alignItems="start"
     >
-      <Box>{textDisplay}</Box>
+      <Box>{text}</Box>
     </VStack>
   )
 }
