@@ -73,8 +73,4 @@ export class Goal extends RigidBodyMonoBehaviour {
       this.rigidBody().velocity.set(0, 0, 0)
     }
   }
-
-  override isSingleton (): boolean {
-    return true
-  }
 }

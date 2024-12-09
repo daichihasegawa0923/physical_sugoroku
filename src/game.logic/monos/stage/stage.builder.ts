@@ -104,10 +104,6 @@ export abstract class StageBuilder extends MonoBehaviour {
     return new Vec3(position.x + x / 2, position.y + y / 2, position.z + z / 2)
   }
 
-  override isSingleton (): boolean {
-    return true
-  }
-
   abstract getPiece1Position (): { x: number, y: number }
   abstract getPiece2Position (): { x: number, y: number }
   abstract getPiece3Position (): { x: number, y: number }

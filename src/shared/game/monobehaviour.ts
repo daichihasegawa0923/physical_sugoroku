@@ -16,12 +16,4 @@ export abstract class MonoBehaviour {
   public update (): void {}
   public onRemove (): void {}
   public abstract getObject3D (): THREE.Object3D | null
-
-  public isSingleton (): boolean {
-    return false
-  }
-
-  public getClass () {
-    return this.constructor.name
-  }
 }

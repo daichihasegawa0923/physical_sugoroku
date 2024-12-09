@@ -104,13 +104,6 @@ export class GameScene {
 
   public static add (mono: MonoBehaviour) {
     const gameScene = GameScene.get()
-    // シングルトンmonoの場合、すでに存在する場合は追加しない。
-    if (
-      mono.isSingleton() &&
-      this.all().find((m) => m.getClass() === mono.getClass())
-    ) {
-      return
-    }
     gameScene.monos.push(mono)
     const obj3d = mono.getObject3D()
     if (obj3d) {

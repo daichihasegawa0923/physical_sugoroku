@@ -14,6 +14,10 @@ export interface PieceGenerateProps {
 }
 
 export class Piece extends RigidBodyOnlineMonoBehaviour {
+  getClass (): string {
+    return 'Piece'
+  }
+
   public constructor ({ number, position, id, memberId }: PieceGenerateProps) {
     super(id)
     const shougiPiece = new ShougiPieceRigidBodyMesh(this.getModelPath(number))
@@ -73,6 +77,7 @@ export class Piece extends RigidBodyOnlineMonoBehaviour {
 
   override start (): void {
     super.start()
+    console.log(this.online())
   }
 
   override update (): void {

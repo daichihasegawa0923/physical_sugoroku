@@ -30,10 +30,6 @@ export class Stage1 extends StageBuilder implements IOnline {
 
   syncFromOnline (_gameObject: GameObject): void {}
 
-  override isSingleton (): boolean {
-    return true
-  }
-
   protected override getRate (): { w: number, h: number } {
     return { w: 1.5, h: 1 }
   }
@@ -56,5 +52,9 @@ export class Stage1 extends StageBuilder implements IOnline {
 
   getGoalPosition (): { x: number, y: number, height: number } {
     return { x: 4, y: 9, height: 5 }
+  }
+
+  getClass (): string {
+    return 'Stage1'
   }
 }
