@@ -15,7 +15,7 @@ import {
 } from '@/shared/game/type'
 import type IOnline from '@/shared/game/i.online'
 import { LightHemisphere } from '@/game.logic/monos/base/light.hemisphere'
-import { LineDrawer } from '@/game.logic/monos/base/line.drawer'
+import { ArrowDrawer } from '@/game.logic/monos/base/arrow.drawer'
 
 export class MainLogic extends MonoBehaviour {
   public constructor (
@@ -306,27 +306,38 @@ export class MainLogic extends MonoBehaviour {
       dY: 0
     }
 
-  private arrowModel: LineDrawer | null = null
+  private arrowModel: ArrowDrawer | null = null
 
   private drawSmashDirection (): void {
-    if (this.status !== 'DIRECTION') return
-    if (this.arrowModel != null) {
-      GameScene.remove(this.arrowModel)
+    if (this.status !== 'DIRECTION' || !this.isMyTurn()) {
+      if (this.arrowModel != null) {
+        GameScene.remove(this.arrowModel)
+        this.arrowModel = null
+      }
+      return
     }
-
     const currentPosition = this.getMyObject()?.rigidBody()?.position
     if (!currentPosition) return
 
     const calc = this.calcSmashDirection()
     const { x, y, z } = currentPosition
-    this.arrowModel = new LineDrawer(
-      [
-        new THREE.Vector3(x, y, z),
-        new THREE.Vector3(x + calc.x / 2, y + calc.y / 2, z + calc.z / 2)
-      ],
-      0xff00cc
+    const from = new THREE.Vector3(x, y, z)
+    const to = new THREE.Vector3(
+      x + calc.x / 2,
+      y + calc.y / 2,
+      z + calc.z / 2
     )
-    GameScene.add(this.arrowModel)
+    if (this.arrowModel == null) {
+      this.arrowModel = new ArrowDrawer(
+        {
+          from,
+          to
+        },
+        0xff00cc
+      )
+      GameScene.add(this.arrowModel)
+    }
+    this.arrowModel.updatePoints(from, to)
   }
 
   private calcSmashDirection (): Vector3 {
