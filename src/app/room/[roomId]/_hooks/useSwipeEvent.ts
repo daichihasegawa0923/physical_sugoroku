@@ -11,29 +11,30 @@ export default function useCanvasSwipeEvent (props: {
   useEffect(() => {
     if (isEventAdded.current) return
 
-    let startPoint = { x: 0, y: 0 }
-    let isDown = false
-
     const canvas = document.getElementById(canvasName)
     if (!canvas) throw Error()
 
     const endEvent = () => {
-      isDown = false
+      MousePointProvider.up()
       onReleaseCb()
     }
 
     // SP
     const touchStartEvent = (event: TouchEvent) => {
-      isDown = true
+      MousePointProvider.down()
       const { clientX, clientY } = event.touches[0]
-      startPoint = { x: clientX, y: clientY }
+      MousePointProvider.setStartPoint(clientX, clientY)
     }
 
     const touchMoveEvent = (event: TouchEvent) => {
-      if (!isDown) return
+      if (!MousePointProvider.isDown()) return
       const { clientX, clientY } = event.touches[0]
-      onMoveCb(clientX - startPoint.x, clientY - startPoint.y)
+      onMoveCb(
+        clientX - MousePointProvider.getStartPoint().x,
+        clientY - MousePointProvider.getStartPoint().y
+      )
     }
+
     canvas.addEventListener('touchstart', touchStartEvent)
     canvas.addEventListener('touchmove', touchMoveEvent)
     canvas.addEventListener('touchend', endEvent)
@@ -41,13 +42,16 @@ export default function useCanvasSwipeEvent (props: {
     // PC
 
     const mouseOnEvent = (event: MouseEvent) => {
-      isDown = true
-      startPoint = { x: event.clientX, y: event.clientY }
+      MousePointProvider.down()
+      MousePointProvider.setStartPoint(event.clientX, event.clientY)
     }
     const mouseMoveEvent = (event: MouseEvent) => {
       event.preventDefault()
-      if (!isDown) return
-      onMoveCb(event.clientX - startPoint.x, event.clientY - startPoint.y)
+      if (!MousePointProvider.isDown()) return
+      onMoveCb(
+        event.clientX - MousePointProvider.getStartPoint().x,
+        event.clientY - MousePointProvider.getStartPoint().y
+      )
     }
     canvas.addEventListener('mousedown', mouseOnEvent)
     canvas.addEventListener('mousemove', mouseMoveEvent)
@@ -65,4 +69,34 @@ export default function useCanvasSwipeEvent (props: {
       isEventAdded.current = false
     }
   }, [onMoveCb])
+}
+
+class MousePointProvider {
+  private constructor (
+    private readonly startPoint: { x: number, y: number } = { x: 0, y: 0 },
+    private down: boolean = false
+  ) {}
+
+  private static readonly instance: MousePointProvider = new MousePointProvider()
+
+  public static setStartPoint (x: number, y: number) {
+    MousePointProvider.instance.startPoint.x = x
+    MousePointProvider.instance.startPoint.y = y
+  }
+
+  public static down (): void {
+    MousePointProvider.instance.down = true
+  }
+
+  public static up (): void {
+    MousePointProvider.instance.down = false
+  }
+
+  public static isDown () {
+    return MousePointProvider.instance.down
+  }
+
+  public static getStartPoint () {
+    return MousePointProvider.instance.startPoint
+  }
 }

@@ -104,6 +104,7 @@ export class MainLogic extends MonoBehaviour {
     this.status = 'MOVING'
     if (this.arrowModel != null) {
       GameScene.remove(this.arrowModel)
+      this.directionPower = { dX: 0, dY: 0 }
     }
   }
 
@@ -298,7 +299,7 @@ export class MainLogic extends MonoBehaviour {
     GameScene.add(this.lightHemisphere)
   }
 
-  private readonly directionPower: {
+  private directionPower: {
     dX: number
     dY: number
   } = {
