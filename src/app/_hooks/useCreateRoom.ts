@@ -15,6 +15,7 @@ interface RoomCreateInput {
   memberName: string
   public: boolean
   memberCount: number
+  stageClassName: string
 }
 
 export default function useCreateRoom () {
@@ -22,7 +23,8 @@ export default function useCreateRoom () {
     roomName: '',
     memberName: '',
     public: false,
-    memberCount: 1
+    memberCount: 1,
+    stageClassName: 'Stage1'
   })
   const router = useRouter()
   const { sendSync } = useWebSocketContext()

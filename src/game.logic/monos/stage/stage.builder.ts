@@ -3,12 +3,27 @@ import { Piece } from '@/game.logic/monos/player/piece'
 import { Goal } from '@/game.logic/monos/stage/goal'
 import { StageBuilderHelper } from '@/game.logic/monos/stage/stage.builder.helper'
 import { GameScene } from '@/shared/game/game.scene'
+import type IOnline from '@/shared/game/i.online'
 import { MonoBehaviour } from '@/shared/game/monobehaviour'
-import { type Vector3 } from '@/shared/game/type'
+import { type GameObject, type Vector3 } from '@/shared/game/type'
 import { Vec3 } from 'cannon-es'
 import { type Object3D } from 'three'
 
-export abstract class StageBuilder extends MonoBehaviour {
+export abstract class StageBuilder extends MonoBehaviour implements IOnline {
+  syncFromOnline (_gameObject: GameObject): void {}
+
+  public abstract getClass (): string
+
+  public online (): GameObject {
+    return {
+      id: this.getId(),
+      className: this.getClass(),
+      position: { x: 0, y: 0, z: 0 },
+      quaternion: { x: 0, y: 0, z: 0, w: 1 },
+      size: { x: 1, y: 1, z: 1 }
+    }
+  }
+
   public getObject3D (): Object3D | null {
     return null
   }

@@ -11,10 +11,10 @@ export class Light extends MonoBehaviour {
     this.light.shadow.mapSize.width = 4096
     this.light.shadow.mapSize.height = 4096
     this.light.castShadow = true
-    this.light.shadow.camera.top = 25
-    this.light.shadow.camera.bottom = -25
-    this.light.shadow.camera.right = 25
-    this.light.shadow.camera.left = -25
+    this.light.shadow.camera.top = 50
+    this.light.shadow.camera.bottom = -50
+    this.light.shadow.camera.right = 50
+    this.light.shadow.camera.left = -50
   }
 
   public getObject3D (): Object3D | null {

@@ -16,6 +16,7 @@ import {
 import type IOnline from '@/shared/game/i.online'
 import { LightHemisphere } from '@/game.logic/monos/base/light.hemisphere'
 import { ArrowDrawer } from '@/game.logic/monos/base/arrow.drawer'
+import { Stage2 } from '@/game.logic/monos/stage/stage2'
 
 export class MainLogic extends MonoBehaviour {
   public constructor (
@@ -238,6 +239,15 @@ export class MainLogic extends MonoBehaviour {
         return stage1
       }
       const created = new Stage1(input.id)
+      GameScene.add(created)
+      return created
+    })
+    MonoContainer.registerPrefab('Stage2', (input) => {
+      const stage2 = GameScene.findById(input.id)
+      if (stage2) {
+        return stage2
+      }
+      const created = new Stage2(input.id)
       GameScene.add(created)
       return created
     })
