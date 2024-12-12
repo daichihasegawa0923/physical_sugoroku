@@ -13,15 +13,11 @@ export default function Page ({ params }: { params: { roomId: string } }) {
   useCanvasSwipeEvent({
     canvasName: 'main_canvas',
     onMoveCb: (x, y) => {
-      mainLogic?.changeAngle(x, y)
-      if (mainLogic?.getStatus() === 'DIRECTION') {
-        mainLogic?.onMoveOnDirection(x, y)
-      }
+      mainLogic?.changeAngle(x)
+      mainLogic?.updateSmashDirection(x, y)
     },
     onReleaseCb: function (): void {
-      if (mainLogic?.getStatus() === 'DIRECTION') {
-        mainLogic?.smash()
-      }
+      mainLogic?.smash()
     }
   })
 

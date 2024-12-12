@@ -25,7 +25,9 @@ export class Piece extends RigidBodyOnlineMonoBehaviour {
       mass: 1,
       shape: shougiPiece.getConvex(),
       position: new CANNON.Vec3(position.x, position.y, position.z),
-      material: new CANNON.Material({})
+      material: new CANNON.Material({
+        friction: 0.1
+      })
     })
     this.memberId = memberId
     this.number = number
@@ -77,7 +79,6 @@ export class Piece extends RigidBodyOnlineMonoBehaviour {
 
   override start (): void {
     super.start()
-    console.log(this.online())
   }
 
   override update (): void {

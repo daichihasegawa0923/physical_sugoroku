@@ -5,14 +5,14 @@ export class Stage1 extends StageBuilder {
     return [
       [1, 1, 1, 1, 1],
       [1, 1, 1, 1, 1],
+      [1, 0, 1, 0, 1],
+      [1, 0, 1, 0, 1],
+      [1, 0, 1, 0, 1],
       [1, 1, 1, 1, 1],
+      [0, 1, 0, 1, 0],
+      [0, 1, 0, 1, 0],
+      [0, 1, 1, 1, 0],
       [1, 1, 1, 1, 1],
-      [1, 1, 1, 1, 1],
-      [1, 1, 1, 1, 1],
-      [1, 1, 1, 1, 1],
-      [1, 1, 1, 1, 1],
-      [1, 1, 1, 1, 1],
-      [1, 1, 2, 1, 1],
       [1, 1, 1, 1, 1]
     ]
   }
@@ -22,23 +22,23 @@ export class Stage1 extends StageBuilder {
   }
 
   getPiece1Position (): { x: number, y: number } {
-    return { x: 0, y: 0 }
-  }
-
-  getPiece2Position (): { x: number, y: number } {
     return { x: 1, y: 0 }
   }
 
-  getPiece3Position (): { x: number, y: number } {
+  getPiece2Position (): { x: number, y: number } {
     return { x: 3, y: 0 }
   }
 
+  getPiece3Position (): { x: number, y: number } {
+    return { x: 1, y: 1 }
+  }
+
   getPiece4Position (): { x: number, y: number } {
-    return { x: 4, y: 0 }
+    return { x: 3, y: 1 }
   }
 
   getGoalPosition (): { x: number, y: number, height: number } {
-    return { x: 2, y: 9, height: 3 }
+    return { x: 2, y: 10, height: 1.5 }
   }
 
   getClass (): string {

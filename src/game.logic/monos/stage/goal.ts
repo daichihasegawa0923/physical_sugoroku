@@ -1,6 +1,6 @@
 import { RigidBodyMonoBehaviour } from '@/game.logic/monos/base/rigid.body.monobehaviour'
 import type * as THREE from 'three'
-import { MainLogic } from '@/game.logic/monos/main.logic'
+import { MainLogic } from '@/game.logic/monos/main/main.logic'
 import { type Piece } from '@/game.logic/monos/player/piece'
 import { ShougiPieceRigidBodyMesh } from '@/game.logic/monos/player/shougi.piece'
 import { GameScene } from '@/shared/game/game.scene'

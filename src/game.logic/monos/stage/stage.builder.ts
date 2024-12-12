@@ -6,8 +6,8 @@ import { GameScene } from '@/shared/game/game.scene'
 import type IOnline from '@/shared/game/i.online'
 import { MonoBehaviour } from '@/shared/game/monobehaviour'
 import { type GameObject, type Vector3 } from '@/shared/game/type'
-import { Vec3 } from 'cannon-es'
-import { type Object3D } from 'three'
+import * as CANNON from 'cannon-es'
+import type * as THREE from 'three'
 
 export abstract class StageBuilder extends MonoBehaviour implements IOnline {
   syncFromOnline (_gameObject: GameObject): void {}
@@ -24,7 +24,7 @@ export abstract class StageBuilder extends MonoBehaviour implements IOnline {
     }
   }
 
-  public getObject3D (): Object3D | null {
+  public getObject3D (): THREE.Object3D | null {
     return null
   }
 
@@ -100,23 +100,30 @@ export abstract class StageBuilder extends MonoBehaviour implements IOnline {
 
   protected createFloor (size: Vector3, position: Vector3) {
     this.createSimpleBoxFloor(
-      new Vec3(size.x, size.y, size.z),
-      new Vec3(position.x, position.y, position.z)
+      new CANNON.Vec3(size.x, size.y, size.z),
+      new CANNON.Vec3(position.x, position.y, position.z)
     )
   }
 
-  private createSimpleBoxFloor (size: Vec3, position: Vec3) {
+  private createSimpleBoxFloor (size: CANNON.Vec3, position: CANNON.Vec3) {
     const box = new SimpleBox({
       color: 0xcccccc,
       size,
-      position: this.getPivotPosition(size, position)
+      position: this.getPivotPosition(size, position),
+      material: new CANNON.Material({
+        friction: 0.1
+      })
     })
     this.boxes.push(box)
   }
 
-  getPivotPosition (size: Vec3, position: Vec3) {
+  getPivotPosition (size: CANNON.Vec3, position: CANNON.Vec3) {
     const { x, y, z } = size
-    return new Vec3(position.x + x / 2, position.y + y / 2, position.z + z / 2)
+    return new CANNON.Vec3(
+      position.x + x / 2,
+      position.y + y / 2,
+      position.z + z / 2
+    )
   }
 
   abstract getPiece1Position (): { x: number, y: number }

@@ -2,7 +2,7 @@ import useGameSceneInitializer from '@/app/room/[roomId]/_hooks/useGameScene'
 import useTryJoin, {
   type JoinRoomResult
 } from '@/app/room/[roomId]/_hooks/useTryJoin'
-import { MainLogic } from '@/game.logic/monos/main.logic'
+import { MainLogic } from '@/game.logic/monos/main/main.logic'
 import { useCommandContext } from '@/shared/components/command.provider'
 import { useWebSocketContext } from '@/shared/function/websocket.context'
 import { GameScene } from '@/shared/game/game.scene'
@@ -60,7 +60,6 @@ export default function useMainLogic (
       mainLogic.current = new MainLogic(
         data.roomId,
         memberId,
-        data.objects,
         data.status,
         {
           add: (event) => {
@@ -95,7 +94,8 @@ export default function useMainLogic (
               gameObjects: event.gameObjects
             })
           }
-        }
+        },
+        data.objects
       )
       GameScene.add(mainLogic.current)
       // websocketから通信を受けた時の処理
