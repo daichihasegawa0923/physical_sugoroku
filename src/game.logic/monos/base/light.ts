@@ -25,7 +25,6 @@ export class Light extends MonoBehaviour {
   public update (): void {
     super.update()
     const { x, y, z } = GameScene.get().getMainCamera().position
-
-    this.light.position.set(x, y, z)
+    this.light.position.set(x + 5, y + 10, z + 10)
   }
 }

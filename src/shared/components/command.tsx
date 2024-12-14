@@ -1,31 +1,32 @@
 'use client'
 
+import { useCommandContext } from '@/shared/components/command.provider'
 import { Box, VStack } from '@chakra-ui/react'
-import React, { useEffect } from 'react'
+import React from 'react'
 
-interface Props {
-  text: string
-  clearText: VoidFunction
-}
+function Command () {
+  const { text, status } = useCommandContext()
 
-function Command ({ text, clearText }: Props) {
-  useEffect(() => {
-    const x = setTimeout(() => {
-      clearText()
-    }, 5000)
-    return () => {
-      clearTimeout(x)
-    }
-  }, [text])
-
+  // 初期表示時のための調整
   if (!text) return null
 
   return (
     <VStack
+      data-state={status === 'DISPLAY' ? 'open' : 'closed'}
+      _open={{
+        animationName: 'fade-in, slide-from-top',
+        animationDuration: '400ms'
+      }}
+      _closed={{
+        animationName: 'fade-out, slide-from-bottom',
+        animationDuration: '400ms'
+      }}
       position="absolute"
-      right="0"
+      left="50%"
+      top="0%"
       minH="80px"
-      minW="160px"
+      w="max-content"
+      maxW="80%"
       bgColor="#000000cc"
       color="#fff"
       borderRadius="24px"
@@ -33,7 +34,8 @@ function Command ({ text, clearText }: Props) {
       borderColor="#fff"
       zIndex={999}
       padding="8px"
-      alignItems="start"
+      transform="translate(-50%, 100%)"
+      justifyContent="center"
     >
       <Box>{text}</Box>
     </VStack>

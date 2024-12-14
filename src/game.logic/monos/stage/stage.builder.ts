@@ -107,7 +107,7 @@ export abstract class StageBuilder extends MonoBehaviour implements IOnline {
 
   private createSimpleBoxFloor (size: CANNON.Vec3, position: CANNON.Vec3) {
     const box = new SimpleBox({
-      color: 0xcccccc,
+      color: 0xe6cd8a,
       size,
       position: this.getPivotPosition(size, position),
       material: new CANNON.Material({

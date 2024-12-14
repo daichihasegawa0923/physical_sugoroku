@@ -50,7 +50,8 @@ export default function useMainLogic (
     if (!data.ok) return
     if (
       data.isFull &&
-      data.activeMemberId === getByRoomId(roomId)?.myMemberId
+      data.activeMemberId === getByRoomId(roomId)?.myMemberId &&
+      data.status === 'DIRECTION'
     ) {
       setCommandText('画面をスワイプして駒を飛ばす方向を決めよう！')
     }

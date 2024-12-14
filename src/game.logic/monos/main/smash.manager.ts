@@ -5,8 +5,6 @@ import { GameScene } from '@/shared/game/game.scene'
 import { type GameStatus, type Vector3 } from '@/shared/game/type'
 import * as THREE from 'three'
 
-const MAX_POWER = 20
-
 export class SmashManager {
   public constructor (
     private readonly myMemberId: string,
@@ -35,7 +33,7 @@ export class SmashManager {
     const from = new THREE.Vector3(x, y, z)
     const to = new THREE.Vector3(
       x + calc.x / 10,
-      y + calc.y / 10,
+      currentPosition.y + 2,
       z + calc.z / 10
     )
     if (this.arrowModel == null) {
@@ -45,16 +43,25 @@ export class SmashManager {
   }
 
   public calcSmashDirection (): Vector3 {
-    const currentPosition = findMyPiece(this.myMemberId)?.rigidBody()
-    if (!currentPosition) return { x: 0, y: 0, z: 0 }
+    const MAX_SPEED = 25
     const { dX, dY } = this.directionPower
-    const diffX = Math.max(-MAX_POWER, Math.min(dX * 0.1, MAX_POWER))
-    const diffY = Math.max(-MAX_POWER, Math.min(dY * 0.1, MAX_POWER))
-
+    const length = Math.sqrt(Math.pow(dX, 2) + Math.pow(dY, 2))
+    if (length > 0) {
+      const normalizeX = dX / length
+      const normalizeY = dY / length
+      const speed = Math.min(MAX_SPEED, length * 0.1)
+      const diffX = normalizeX * speed
+      const diffY = normalizeY * speed
+      return {
+        x: diffX,
+        y: 0,
+        z: diffY
+      }
+    }
     return {
-      x: diffX,
+      x: 0,
       y: 0,
-      z: diffY
+      z: 0
     }
   }
 
@@ -81,7 +88,7 @@ export class SmashManager {
 
   public isTooSmall () {
     const { x, y, z } = this.calcSmashDirection()
-    return Math.abs(x) + Math.abs(y) + Math.abs(z) < 0.2
+    return Math.abs(x) + Math.abs(y) + Math.abs(z) < 1
   }
 
   public reset () {
@@ -98,7 +105,7 @@ export class SmashManager {
     const arrow = new ArrowDrawer(
       {
         from: from ?? new THREE.Vector3(0, 0, 0),
-        to: to ?? new THREE.Vector3(0, 0)
+        to: to ?? new THREE.Vector3(0, 0, 0)
       },
       0xff00cc
     )

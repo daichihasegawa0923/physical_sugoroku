@@ -31,7 +31,9 @@ export class MainLogic extends MonoBehaviour {
     this.roomId = roomId
     this.memberId = memberId
     this.gameObjectResolver.registerPrefabs()
-    objects.forEach((obj) => { this.gameObjectResolver.createInstance(obj) })
+    objects.forEach((obj) => {
+      this.gameObjectResolver.createInstance(obj)
+    })
     this.status = status
     GameScene.setBackgroundColor(0x006644, 1.0)
   }
@@ -110,6 +112,9 @@ export class MainLogic extends MonoBehaviour {
 
     this.status = 'WAITING'
     setTimeout(() => {
+      // ゲーム終了時は何もしない
+      if (this.status === 'RESULT') return
+
       if (this.turnEndManager.isMoveSomePieces()) {
         this.status = 'MOVING'
         return
@@ -130,6 +135,7 @@ export class MainLogic extends MonoBehaviour {
       roomId: this.roomId,
       gameObjects: GameScene.allOnline()
     })
+    this.status = 'RESULT'
   }
 
   public syncAll (gameObjects: GameObject[]) {
