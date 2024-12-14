@@ -6,10 +6,14 @@ import useMainLogic from '@/app/room/[roomId]/_hooks/useMainLogic'
 import Loading from '@/shared/components/loading'
 import { useState } from 'react'
 import useCanvasSwipeEvent from '@/app/room/[roomId]/_hooks/useSwipeEvent'
+import Sequence from '@/app/room/[roomId]/_components/sequence'
 
 export default function Page ({ params }: { params: { roomId: string } }) {
   const [loading, setLoading] = useState(false)
-  const { mainLogic, status } = useMainLogic(params.roomId, setLoading)
+  const { mainLogic, status, sequence } = useMainLogic(
+    params.roomId,
+    setLoading
+  )
   useCanvasSwipeEvent({
     canvasName: 'main_canvas',
     onMoveCb: (x, y) => {
@@ -24,6 +28,7 @@ export default function Page ({ params }: { params: { roomId: string } }) {
   return (
     <>
       <Loading open={loading || status === 'WAITING'} />
+      <Sequence sequence={sequence.sequence} />
       <Box id="main" w="100%" height="100%" position="relative">
         <Canvas id="main_canvas" />
       </Box>

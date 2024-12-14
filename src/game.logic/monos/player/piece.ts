@@ -40,13 +40,13 @@ export class Piece extends RigidBodyOnlineMonoBehaviour {
   private getModelPath (number: string) {
     switch (number) {
       case '1':
-        return '/piece_red.gltf'
+        return '/resources/piece_red.gltf'
       case '2':
-        return '/piece_blue.gltf'
+        return '/resources/piece_blue.gltf'
       case '3':
-        return '/piece_green.gltf'
+        return '/resources/piece_green.gltf'
       case '4':
-        return '/piece_purple.gltf'
+        return '/resources/piece_purple.gltf'
       default:
         throw Error()
     }

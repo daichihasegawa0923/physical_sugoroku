@@ -6,11 +6,11 @@ import {
 } from 'three/examples/jsm/loaders/GLTFLoader.js'
 
 export type ModelPath =
-  | '/piece_red.gltf'
-  | '/piece_blue.gltf'
-  | '/piece_green.gltf'
-  | '/piece_purple.gltf'
-  | '/piece_king.gltf'
+  | '/resources/piece_red.gltf'
+  | '/resources/piece_blue.gltf'
+  | '/resources/piece_green.gltf'
+  | '/resources/piece_purple.gltf'
+  | '/resources/piece_king.gltf'
 
 export class ShougiPieceRigidBodyMesh {
   constructor (

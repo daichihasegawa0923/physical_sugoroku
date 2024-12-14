@@ -10,7 +10,10 @@ import { type Vector3 } from '@/shared/game/type'
 export class Goal extends RigidBodyMonoBehaviour {
   public constructor () {
     super()
-    const shougi = new ShougiPieceRigidBodyMesh('/piece_king.gltf', 1.5)
+    const shougi = new ShougiPieceRigidBodyMesh(
+      '/resources/piece_king.gltf',
+      1.5
+    )
 
     this.rb = new CANNON.Body({
       shape: shougi.getConvex(),

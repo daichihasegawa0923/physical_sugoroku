@@ -1,4 +1,5 @@
 import useGameSceneInitializer from '@/app/room/[roomId]/_hooks/useGameScene'
+import { useSequence } from '@/app/room/[roomId]/_hooks/useSequence'
 import useTryJoin, {
   type JoinRoomResult
 } from '@/app/room/[roomId]/_hooks/useTryJoin'
@@ -24,6 +25,7 @@ export default function useMainLogic (
     mainLogic.current?.getStatus() ?? 'WAITING'
   )
   const [activeMemberId, setActiveMemberId] = useState<string | null>(null)
+  const { fetch, sequence } = useSequence(roomId)
   const setStatusAndActiveMemberId = (
     status: GameStatus,
     activeMemberId: string
@@ -169,6 +171,7 @@ export default function useMainLogic (
   const { tryReJoin } = useTryJoin(roomId, onSucceed, (data) => {
     if (!data.ok) return
     setCommandText(data.memberName + 'が参加しました！')
+    fetch().then(() => {})
   })
   const rollDice = useCallback(
     (height: number, forward: number) => {
@@ -184,6 +187,7 @@ export default function useMainLogic (
     });
     (async () => {
       await tryReJoin()
+      await fetch()
     })()
   }, [])
 
@@ -191,7 +195,8 @@ export default function useMainLogic (
     mainLogic: mainLogic.current,
     status,
     activeMemberId,
-    rollDice
+    rollDice,
+    sequence
   }
 }
 
