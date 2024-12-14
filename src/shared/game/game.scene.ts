@@ -103,11 +103,13 @@ export class GameScene {
   }
 
   public static add (mono: MonoBehaviour) {
-    const gameScene = GameScene.get()
-    gameScene.monos.push(mono)
+    if (GameScene.findById(mono.getId())) {
+      return
+    }
+    GameScene.get().monos.push(mono)
     const obj3d = mono.getObject3D()
     if (obj3d) {
-      gameScene.scene.add(obj3d)
+      GameScene.get().scene.add(obj3d)
     }
     mono.start()
   }

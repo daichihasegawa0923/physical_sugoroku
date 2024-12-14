@@ -2,6 +2,7 @@
 
 import { useWebSocketContext } from '@/shared/function/websocket.context'
 import useLocalRoomInfo from '@/shared/hooks/useLocalRoomInfo'
+import { useLocalUserName } from '@/shared/hooks/useLocalUserName'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
@@ -19,9 +20,10 @@ interface RoomCreateInput {
 }
 
 export default function useCreateRoom () {
+  const { getName, setName } = useLocalUserName()
   const [roomInput, setRoomInput] = useState<RoomCreateInput>({
     roomName: '',
-    memberName: '',
+    memberName: getName() || '',
     public: false,
     memberCount: 1,
     stageClassName: 'Stage1'
@@ -33,6 +35,12 @@ export default function useCreateRoom () {
   return {
     roomInput,
     setRoomInput,
+    setMemberName: (name: string) => {
+      setRoomInput((prev) => {
+        setName(name)
+        return { ...prev, memberName: name }
+      })
+    },
     submit: async () => {
       await sendSync<RoomCreateInput, RoomCreateResult>(
         'createRoom',

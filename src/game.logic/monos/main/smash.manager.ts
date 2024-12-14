@@ -12,7 +12,7 @@ export class SmashManager {
       dX: 0,
       dY: 0
     },
-    private arrowModel: ArrowDrawer | null = SmashManager.generateArrow()
+    private arrowModel: ArrowDrawer = SmashManager.generateArrow()
   ) {}
 
   public updateDirectionPower (x: number, y: number) {
@@ -30,16 +30,11 @@ export class SmashManager {
 
     const calc = this.calcSmashDirection()
     const { x, y, z } = currentPosition
-    const from = new THREE.Vector3(x, y, z)
-    const to = new THREE.Vector3(
-      x + calc.x / 10,
-      currentPosition.y + 2,
-      z + calc.z / 10
-    )
-    if (this.arrowModel == null) {
-      this.arrowModel = SmashManager.generateArrow(from, to)
-    }
-    this.arrowModel.updatePoints(from, to)
+    const from = new THREE.Vector3(x, y + 2, z)
+    const to = new THREE.Vector3(x + calc.x / 10, y + 2, z + calc.z / 10)
+    GameScene.remove(this.arrowModel)
+    this.arrowModel = SmashManager.generateArrow(from, to)
+    GameScene.add(this.arrowModel)
   }
 
   public calcSmashDirection (): Vector3 {
@@ -92,12 +87,7 @@ export class SmashManager {
   }
 
   public reset () {
-    if (this.arrowModel != null) {
-      if (GameScene.findById(this.arrowModel.getId())) {
-        GameScene.remove(this.arrowModel)
-      }
-    }
-    this.arrowModel = null
+    GameScene.remove(this.arrowModel)
     this.updateDirectionPower(0, 0)
   }
 
@@ -109,7 +99,6 @@ export class SmashManager {
       },
       0xff00cc
     )
-    GameScene.add(arrow)
     return arrow
   }
 }

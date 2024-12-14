@@ -21,9 +21,11 @@ export default function Page ({
           onChange={(e) => {
             setName(e.target.value)
           }}
+          minLength={1}
+          maxLength={10}
         />
       </Field>
-      <Button type="submit" w={32} onClick={onClick}>
+      <Button disabled={!name} type="submit" w={32} onClick={onClick}>
         参加する
       </Button>
     </VStack>

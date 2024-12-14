@@ -22,7 +22,7 @@ import { useState } from 'react'
 import Loading from '@/shared/components/loading'
 
 const Home = () => {
-  const { roomInput, setRoomInput, submit } = useCreateRoom()
+  const { roomInput, setRoomInput, setMemberName, submit } = useCreateRoom()
   const [loading, setLoading] = useState(false)
 
   return (
@@ -49,10 +49,7 @@ const Home = () => {
                   placeholder="例：ほげほげ太郎"
                   value={roomInput.memberName}
                   onChange={(e) => {
-                    setRoomInput({
-                      ...roomInput,
-                      memberName: e.target.value
-                    })
+                    setMemberName(e.target.value)
                   }}
                 />
               </Field>
