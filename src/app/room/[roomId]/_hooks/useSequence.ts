@@ -2,7 +2,7 @@ import { useWebSocketContext } from '@/shared/function/websocket.context'
 import { type GameStatus } from '@/shared/game/type'
 import { useState } from 'react'
 
-export interface Sequence {
+export interface GameSequence {
   sequence: Array<{
     memberId: string
     memberName: string
@@ -10,18 +10,18 @@ export interface Sequence {
   }>
 }
 
-interface SequenceResult extends Sequence {
+interface GameSequenceResult extends GameSequence {
   activeMemberId: string
   activeMemberName: string
   status: GameStatus
 }
 
 export function useSequence (roomId: string) {
-  const [sequence, setSequence] = useState<Sequence>({ sequence: [] })
+  const [sequence, setSequence] = useState<GameSequence>({ sequence: [] })
   const { sendSync } = useWebSocketContext()
 
   const fetch = async () => {
-    sendSync<{ roomId: string }, SequenceResult>(
+    sendSync<{ roomId: string }, GameSequenceResult>(
       'sequence',
       { roomId },
       (data) => {
