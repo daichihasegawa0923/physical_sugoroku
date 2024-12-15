@@ -5,8 +5,8 @@ import { TABLE_NAME_SUGOROKU } from 'src/shared/table.name';
 
 const serverlessConfiguration: AWS = {
   service: 'physical-sugoroku-backend',
-  frameworkVersion: '3',
-  plugins: ['serverless-esbuild', 'serverless-dynamodb', 'serverless-offline'],
+  frameworkVersion: '4',
+  plugins: ['serverless-dynamodb', 'serverless-offline'],
   provider: {
     name: 'aws',
     runtime: 'nodejs20.x',
@@ -35,7 +35,7 @@ const serverlessConfiguration: AWS = {
   custom: {
     esbuild: {
       bundle: true,
-      minify: false,
+      minify: true,
       sourcemap: true,
       exclude: ['aws-sdk'],
       target: 'node20',
