@@ -17,7 +17,7 @@
     "@middy/http-json-body-parser": "^3.4.0",
     "dayjs": "^1.11.13",
     "ulid": "^2.3.0",
-    "physical_sugoroku_common": "*"
+    "physical-sugoroku-common": "*"
   },
   "devDependencies": {
     "@aws-sdk/client-apigatewaymanagementapi": "^3.687.0",

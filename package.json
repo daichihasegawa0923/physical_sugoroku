@@ -1,11 +1,15 @@
 {
-    "name": "physical_sugoroku",
+    "name": "physical-sugoroku",
     "version": "1.0.0",
     "license": "UNLICENSED",
     "private": true,
     "workspaces": [
-        "backend/*",
-        "frontend/*",
-        "common/*"
-    ]
+        "frontend",
+        "backend",
+        "common"
+    ],
+    "scripts": {
+        "dev-front": "yarn workspace physical-sugoroku-frontend dev",
+        "clean-front": "yarn workspace physical-sugoroku-frontend lint --fix & yarn workspace physical-sugoroku-frontend build"
+    }
 }
