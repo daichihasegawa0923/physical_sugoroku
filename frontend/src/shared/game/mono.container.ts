@@ -1,5 +1,5 @@
 import { type MonoBehaviour } from '@/shared/game/monobehaviour'
-import { type GameObject } from '@/shared/game/type'
+import { type GameObject } from 'physical-sugoroku-common/src/shared'
 
 export class MonoContainer {
   private static readonly INSTANCE: MonoContainer = new MonoContainer()

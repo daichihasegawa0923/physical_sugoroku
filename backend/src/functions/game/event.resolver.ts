@@ -4,16 +4,15 @@ import {
   AddVelocityResult,
   DiceResult,
   GameInfoResult,
-  GameObject,
   GameSequenceInfo,
   GoalResult,
   TurnEndResult,
-  Vector3,
 } from 'src/modules/game/type';
 import query from 'src/modules/query';
 import roomService from 'src/modules/room/room.service';
 import { JoinRoomResult, RoomCreateResult } from 'src/modules/room/type';
 import gameObjectRepository from 'src/modules/game/game.object.repository';
+import { GameObject, Vector3 } from 'physical-sugoroku-common/src/shared';
 
 export default async function resolve(
   json: string,

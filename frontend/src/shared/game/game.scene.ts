@@ -2,8 +2,8 @@ import * as THREE from 'three'
 import { type MonoBehaviour } from './monobehaviour'
 import { CannonWorld } from './cannon.world'
 import { type RigidBodyMonoBehaviour } from '@/game/logic/monos/base/rigid.body.monobehaviour'
-import { type GameObject } from '@/shared/game/type'
 import type IOnline from '@/shared/game/i.online'
+import { type GameObject } from 'physical-sugoroku-common/src/shared'
 
 export class GameScene {
   private static instance: GameScene | null = null

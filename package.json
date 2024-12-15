@@ -10,6 +10,7 @@
     ],
     "scripts": {
         "dev:backend": "yarn workspace physical-sugoroku-backend dev",
+        "deploy:backend": "yarn workspace physical-sugoroku-backend deploy",
         "dev:frontend": "yarn workspace physical-sugoroku-frontend dev",
         "clean:front": "yarn workspace physical-sugoroku-frontend lint --fix && yarn workspace physical-sugoroku-frontend build"
     }

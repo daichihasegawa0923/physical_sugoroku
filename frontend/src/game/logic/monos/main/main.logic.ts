@@ -3,14 +3,17 @@ import { type Object3D } from 'three'
 import { GameScene } from '@/shared/game/game.scene'
 import { type GameEventHandlers } from '../../events/event'
 import { Light } from '@/game/logic/monos/base/light'
-import { type GameObject, type Vector3 } from '@/shared/game/type'
 import { LightHemisphere } from '@/game/logic/monos/base/light.hemisphere'
 import { CameraManager } from '@/game/logic/monos/main/camera.manager'
 import { SmashManager } from '@/game/logic/monos/main/smash.manager'
 import { findMyPiece } from '@/game/logic/monos/main/functions'
 import { TurnEndManager } from '@/game/logic/monos/main/turn.end.manager'
 import { GameObjectResolver } from '@/game/logic/monos/main/game.object.resolver'
-import { type GameStatus } from 'physical-sugoroku-common/src/shared'
+import {
+  type Vector3,
+  type GameStatus,
+  type GameObject
+} from 'physical-sugoroku-common/src/shared'
 
 export class MainLogic extends MonoBehaviour {
   public constructor (

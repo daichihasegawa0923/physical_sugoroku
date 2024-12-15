@@ -1,8 +1,8 @@
-import gameObjectRepository from '../game/game.object.repository';
-import { GameObject } from '../game/type';
-import memberRepository from '../member/member.repository';
-import roomRepository from '../room/room.repository';
-import { RoomMemberList } from './type';
+import { GameObject } from 'physical-sugoroku-common/src/shared';
+import gameObjectRepository from 'src/modules/game/game.object.repository';
+import memberRepository from 'src/modules/member/member.repository';
+import { RoomMemberList } from 'src/modules/query/type';
+import roomRepository from 'src/modules/room/room.repository';
 
 export default function query() {
   return {

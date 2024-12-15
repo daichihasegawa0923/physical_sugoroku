@@ -1,4 +1,4 @@
-import { type Vector3 } from '@/shared/game/type'
+import { type Vector3 } from 'physical-sugoroku-common/src/shared'
 
 export class StageBuilderHelper {
   public create (

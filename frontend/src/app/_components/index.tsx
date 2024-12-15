@@ -107,14 +107,12 @@ const Home = () => {
 
 const array = [
   { label: 'Stage1|初心者向け', value: 'Stage1' },
-  { label: 'Stage2|中級者向け', value: 'Stage2' }
+  { label: 'Stage2|中級者向け', value: 'Stage2' },
+  { label: '超ミニステージ', value: 'StageTest' }
 ]
 
 const list = createListCollection({
-  items:
-    process.env.NODE_ENV !== 'development'
-      ? array
-      : [...array, { label: 'test', value: 'StageTest' }]
+  items: array
 })
 
 export default Home

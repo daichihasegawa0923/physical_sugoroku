@@ -59,7 +59,7 @@ async function joinRoom(
     connectionId,
     sequence: null,
     // すでに参加済みの場合はhostの場合もあるので注意
-    host: joinedMember.host ?? false,
+    host: joinedMember?.host ?? false,
   });
 
   return {

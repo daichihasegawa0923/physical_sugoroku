@@ -1,7 +1,5 @@
 import { ulid } from 'ulid';
 import {
-  GameObject,
-  Vector3,
   AddVelocityResult,
   DiceResult,
   TurnEndResult,
@@ -11,6 +9,7 @@ import {
 import gameObjectRepository from 'src/modules/game/game.object.repository';
 import gameStatusRepository from 'src/modules/game/game.status.repository';
 import memberRepository from 'src/modules/member/member.repository';
+import { GameObject, Vector3 } from 'physical-sugoroku-common/src/shared';
 
 export default function gameObjectService() {
   return {

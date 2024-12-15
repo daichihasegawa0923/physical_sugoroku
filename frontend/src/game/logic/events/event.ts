@@ -1,4 +1,4 @@
-import { type GameObject } from '@/shared/game/type'
+import { type GameObject } from 'physical-sugoroku-common/src/shared'
 
 interface Vector3 {
   x: number

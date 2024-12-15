@@ -5,7 +5,7 @@ import { StageTest } from '@/game/logic/monos/stage/stageTest'
 import { GameScene } from '@/shared/game/game.scene'
 import type IOnline from '@/shared/game/i.online'
 import { MonoContainer } from '@/shared/game/mono.container'
-import { type GameObject } from '@/shared/game/type'
+import { type GameObject } from 'physical-sugoroku-common/src/shared'
 
 export class GameObjectResolver {
   public syncAll (gameObjects: GameObject[]) {

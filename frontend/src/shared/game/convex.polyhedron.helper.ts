@@ -1,6 +1,6 @@
 import { GameScene } from '@/shared/game/game.scene'
-import { type Vector3 } from '@/shared/game/type'
 import * as CANNON from 'cannon-es'
+import { type Vector3 } from 'physical-sugoroku-common/src/shared'
 import * as THREE from 'three'
 
 export class ConvexPolyhedronHelper {

@@ -1,8 +1,8 @@
 import { RigidBodyOnlineMonoBehaviour } from '@/game/logic/monos/base/rigid.body.monobehaviour.onine.ts'
 import { ShougiPieceRigidBodyMesh } from '@/game/logic/monos/player/shougi.piece'
 import { GameScene } from '@/shared/game/game.scene'
-import { type GameObject, type Vector3 } from '@/shared/game/type'
 import * as CANNON from 'cannon-es'
+import { type GameObject, type Vector3 } from 'physical-sugoroku-common/src/shared'
 import type * as THREE from 'three'
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 

@@ -1,6 +1,6 @@
 import { RigidBodyMonoBehaviour } from '@/game/logic/monos/base/rigid.body.monobehaviour'
 import type IOnline from '@/shared/game/i.online'
-import { type GameObject } from '@/shared/game/type'
+import { type GameObject } from 'physical-sugoroku-common/src/shared'
 import * as THREE from 'three'
 
 export abstract class RigidBodyOnlineMonoBehaviour

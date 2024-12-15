@@ -5,8 +5,8 @@ import { StageBuilderHelper } from '@/game/logic/monos/stage/stage.builder.helpe
 import { GameScene } from '@/shared/game/game.scene'
 import type IOnline from '@/shared/game/i.online'
 import { MonoBehaviour } from '@/shared/game/monobehaviour'
-import { type GameObject, type Vector3 } from '@/shared/game/type'
 import * as CANNON from 'cannon-es'
+import { type GameObject, type Vector3 } from 'physical-sugoroku-common/src/shared'
 import type * as THREE from 'three'
 
 export abstract class StageBuilder extends MonoBehaviour implements IOnline {

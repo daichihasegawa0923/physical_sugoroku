@@ -5,7 +5,7 @@ import { type Piece } from '@/game/logic/monos/player/piece'
 import { ShougiPieceRigidBodyMesh } from '@/game/logic/monos/player/shougi.piece'
 import { GameScene } from '@/shared/game/game.scene'
 import * as CANNON from 'cannon-es'
-import { type Vector3 } from '@/shared/game/type'
+import { type Vector3 } from 'physical-sugoroku-common/src/shared'
 
 export class Goal extends RigidBodyMonoBehaviour {
   public constructor () {
