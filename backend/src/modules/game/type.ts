@@ -1,3 +1,5 @@
+import { GameStatus } from 'physical-sugoroku-common/src/shared';
+
 export interface Vector3 {
   x: number;
   y: number;
@@ -25,8 +27,6 @@ export type AddVelocityResult = {
   id: string;
   direction: Vector3;
 } & GameInfoResult;
-
-export type GameStatus = 'WAITING' | 'DICE' | 'DIRECTION' | 'MOVING' | 'RESULT';
 
 export interface GameStatusInfo {
   status: GameStatus;

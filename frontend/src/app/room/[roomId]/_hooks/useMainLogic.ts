@@ -7,12 +7,9 @@ import { MainLogic } from '@/game/logic/monos/main/main.logic'
 import { useCommandContext } from '@/shared/components/command.provider'
 import { useWebSocketContext } from '@/shared/function/websocket.context'
 import { GameScene } from '@/shared/game/game.scene'
-import {
-  type GameObject,
-  type GameStatus,
-  type Vector3
-} from '@/shared/game/type'
+import { type GameObject, type Vector3 } from '@/shared/game/type'
 import useLocalRoomInfo from '@/shared/hooks/useLocalRoomInfo'
+import { type GameStatus } from 'physical-sugoroku-common/src/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 export default function useMainLogic (

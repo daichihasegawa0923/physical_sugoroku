@@ -2,7 +2,8 @@ import { ArrowDrawer } from '@/game/logic/monos/base/arrow.drawer'
 import { type RigidBodyMonoBehaviour } from '@/game/logic/monos/base/rigid.body.monobehaviour'
 import { findMyPiece } from '@/game/logic/monos/main/functions'
 import { GameScene } from '@/shared/game/game.scene'
-import { type GameStatus, type Vector3 } from '@/shared/game/type'
+import { type Vector3 } from '@/shared/game/type'
+import { type GameStatus } from 'physical-sugoroku-common/src/shared'
 import * as THREE from 'three'
 
 export class SmashManager {

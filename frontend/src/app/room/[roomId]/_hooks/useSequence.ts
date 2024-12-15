@@ -1,5 +1,5 @@
 import { useWebSocketContext } from '@/shared/function/websocket.context'
-import { type GameStatus } from '@/shared/game/type'
+import { type GameStatus } from 'physical-sugoroku-common/src/shared'
 import { useState } from 'react'
 
 export interface GameSequence {

@@ -1,7 +1,8 @@
 import { useWebSocketContext } from '@/shared/function/websocket.context'
-import { type GameStatus, type GameObject } from '@/shared/game/type'
+import { type GameObject } from '@/shared/game/type'
 import useLocalRoomInfo from '@/shared/hooks/useLocalRoomInfo'
 import { useRouter } from 'next/navigation'
+import { type GameStatus } from 'physical-sugoroku-common/src/shared'
 
 interface JoinRoomInput {
   roomId: string

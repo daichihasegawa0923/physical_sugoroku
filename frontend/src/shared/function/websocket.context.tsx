@@ -1,9 +1,12 @@
 'use client'
 
-import { type GameStatus } from '@/shared/game/type'
+import { type GameStatus } from 'physical-sugoroku-common/src/shared'
 import { createContext, type ReactNode, useContext, useRef } from 'react'
 
-interface TypedCallback<CbT> { id: string, func: (data: CbT) => void }
+interface TypedCallback<CbT> {
+  id: string
+  func: (data: CbT) => void
+}
 
 type TypedCallbackOpt<CbT> = TypedCallback<CbT> | ((data: CbT) => void)
 

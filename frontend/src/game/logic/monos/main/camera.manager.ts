@@ -1,7 +1,7 @@
 import { findMyPiece } from '@/game/logic/monos/main/functions'
 import { Piece } from '@/game/logic/monos/player/piece'
 import { GameScene } from '@/shared/game/game.scene'
-import { type GameStatus } from '@/shared/game/type'
+import { type GameStatus } from 'physical-sugoroku-common/src/shared'
 import * as THREE from 'three'
 
 export class CameraManager {

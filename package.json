@@ -9,7 +9,8 @@
         "common"
     ],
     "scripts": {
-        "dev-front": "yarn workspace physical-sugoroku-frontend dev",
-        "clean-front": "yarn workspace physical-sugoroku-frontend lint --fix & yarn workspace physical-sugoroku-frontend build"
+        "dev:backend": "yarn workspace physical-sugoroku-backend dev",
+        "dev:frontend": "yarn workspace physical-sugoroku-frontend dev",
+        "clean:front": "yarn workspace physical-sugoroku-frontend lint --fix && yarn workspace physical-sugoroku-frontend build"
     }
 }

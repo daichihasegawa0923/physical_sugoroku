@@ -1,5 +1,5 @@
 import { Button } from '@/chakra/components/ui/button'
-import { type GameStatus } from '@/shared/game/type'
+import { type GameStatus } from 'physical-sugoroku-common/src/shared'
 import { Box, Center, HStack, VStack } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
 
