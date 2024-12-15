@@ -1,36 +1,36 @@
-'use client';
+'use client'
 
-import { useSequence } from '@/app/room/[roomId]/_hooks/useSequence';
-import useTryJoin from '@/app/room/[roomId]/_hooks/useTryJoin';
-import { useCommandContext } from '@/shared/components/command.provider';
-import { Box, Heading, HStack, VStack } from '@chakra-ui/react';
-import { useEffect } from 'react';
+import { useSequence } from '@/app/room/[roomId]/_hooks/useSequence'
+import useTryJoin from '@/app/room/[roomId]/_hooks/useTryJoin'
+import { useCommandContext } from '@/shared/components/command.provider'
+import { Box, Heading, VStack } from '@chakra-ui/react'
+import { useEffect } from 'react'
 
-export default function Page({ params }: { params: { roomId: string } }) {
-  const { fetch, sequence } = useSequence(params.roomId);
-  const { setCommandText } = useCommandContext();
+export default function Page ({ params }: { params: { roomId: string } }) {
+  const { fetch, sequence } = useSequence(params.roomId)
+  const { setCommandText } = useCommandContext()
   const { tryReJoin } = useTryJoin(
     params.roomId,
     (data) => {
       if (!data.ok) {
-        setCommandText('ルームに参加できませんでした。');
-        return;
+        setCommandText('ルームに参加できませんでした。')
+        return
       }
-      fetch().then(() => {});
+      fetch().then(() => {})
     },
     (data) => {
       if (data.ok) {
-        setCommandText(data.memberName + 'さんがルームに参加しました！');
-        fetch().then(() => {});
+        setCommandText(data.memberName + 'さんがルームに参加しました！')
+        fetch().then(() => {})
       }
     }
-  );
+  )
 
   useEffect(() => {
     (async () => {
-      await tryReJoin();
-    })();
-  }, []);
+      await tryReJoin()
+    })()
+  }, [])
 
   return (
     <VStack>
@@ -39,5 +39,5 @@ export default function Page({ params }: { params: { roomId: string } }) {
         <Box key={seq.memberId}>{seq.memberName}</Box>
       ))}
     </VStack>
-  );
+  )
 }

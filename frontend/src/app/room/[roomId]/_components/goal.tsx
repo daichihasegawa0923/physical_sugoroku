@@ -1,35 +1,35 @@
-'use client';
+'use client'
 
-import { useWebSocketContext } from '@/shared/function/websocket.context';
-import useLocalRoomInfo from '@/shared/hooks/useLocalRoomInfo';
-import { Button, Text, VStack } from '@chakra-ui/react';
-import React, { useEffect, useState } from 'react';
+import { useWebSocketContext } from '@/shared/function/websocket.context'
+import useLocalRoomInfo from '@/shared/hooks/useLocalRoomInfo'
+import { Button, Text, VStack } from '@chakra-ui/react'
+import React, { useEffect, useState } from 'react'
 
 interface Props {
-  roomId: string;
+  roomId: string
 }
 
-function Goal({ roomId }: Props) {
-  const [name, setName] = useState('');
-  const [goalMemberId, setGoalMemberId] = useState('');
-  const { sendSync, add } = useWebSocketContext();
-  const info = useLocalRoomInfo().getByRoomId(roomId);
-  if (info == null) return;
+function Goal ({ roomId }: Props) {
+  const [name, setName] = useState('')
+  const [goalMemberId, setGoalMemberId] = useState('')
+  const { sendSync, add } = useWebSocketContext()
+  const info = useLocalRoomInfo().getByRoomId(roomId)
+  if (info == null) return
 
   useEffect(() => {
     add<{
-      goalMemberId: string;
-      goalMemberName: string;
+      goalMemberId: string
+      goalMemberName: string
     }>('goal', {
       id: 'onComponent',
       func: (data) => {
-        setName(() => data.goalMemberName);
-        setGoalMemberId(() => data.goalMemberId);
-      },
-    });
-  }, []);
+        setName(() => data.goalMemberName)
+        setGoalMemberId(() => data.goalMemberId)
+      }
+    })
+  }, [])
 
-  if (!name) return null;
+  if (!name) return null
 
   return (
     <VStack
@@ -51,14 +51,14 @@ function Goal({ roomId }: Props) {
       {info.myMemberId === goalMemberId && (
         <Button
           onClick={async () => {
-            await sendSync('replay', { roomId });
+            await sendSync('replay', { roomId })
           }}
         >
           もう一度遊ぶ
         </Button>
       )}
     </VStack>
-  );
+  )
 }
 
-export default React.memo(Goal);
+export default React.memo(Goal)
