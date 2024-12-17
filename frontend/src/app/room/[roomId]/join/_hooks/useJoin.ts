@@ -4,19 +4,6 @@ import { useLocalUserName } from '@/shared/hooks/useLocalUserName'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
-interface JoinRoomInput {
-  roomId: string
-  memberName: string
-}
-
-type JoinRoomResult =
-  | { ok: false, message: string }
-  | {
-    ok: true
-    roomId: string
-    memberName: string
-    memberId: string
-  }
 export default function useJoin (roomId: string) {
   const { getName: getLocalUserName, setName: setLocalUserName } =
     useLocalUserName()
@@ -26,18 +13,14 @@ export default function useJoin (roomId: string) {
   const [name, setNameState] = useState<string>(getLocalUserName())
   const [error, setError] = useState<string | null>(null)
   const onClick = () => {
-    sendSync<JoinRoomInput, JoinRoomResult>(
-      'joinRoom',
-      { roomId, memberName: name },
-      (data) => {
-        if (!data.ok) {
-          setError('参加できませんでした。: ' + data.message)
-          return
-        }
-        set(roomId, data.memberId, data.memberName)
-        router.push(`/room/${roomId}`)
+    sendSync<'joinRoom'>('joinRoom', { roomId, memberName: name }, (data) => {
+      if (!data.ok) {
+        setError('参加できませんでした。: ' + data.message)
+        return
       }
-    )
+      set(roomId, data.memberId, data.memberName)
+      router.push(`/room/${roomId}`)
+    })
   }
 
   return {

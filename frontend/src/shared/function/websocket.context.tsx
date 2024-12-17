@@ -1,32 +1,41 @@
 'use client'
 
-import { type GameStatus } from 'physical-sugoroku-common/src/shared'
 import { createContext, type ReactNode, useContext, useRef } from 'react'
+import {
+  type InputFromNameOmitName,
+  type ResultFromName
+} from 'physical-sugoroku-common/src/event'
 
-interface TypedCallback<CbT> {
+type Callback<Key extends string> = (
+  data: ResultFromName<Key>['value']
+) => void
+
+interface TypedCallback<Key extends string> {
   id: string
-  func: (data: CbT) => void
+  func: Callback<Key>
 }
 
-type TypedCallbackOpt<CbT> = TypedCallback<CbT> | ((data: CbT) => void)
+type TypedCallbackOpt<Key extends string> = TypedCallback<Key> | Callback<Key>
 
 interface WebSocketContextStatus {
-  sendSync: <T, CbT>(
-    name: string,
-    event: T,
-    callBack?: TypedCallbackOpt<CbT>
+  sendSync: <Key extends string>(
+    name: Key,
+    event: InputFromNameOmitName<Key>,
+    callBack?: TypedCallbackOpt<Key>
   ) => Promise<void>
-  add: <CbT2>(name: string, cb: TypedCallbackOpt<CbT2>) => void
+  add: <Key extends string>(name: Key, cb: TypedCallbackOpt<Key>) => void
 }
 
-function parse<CbT> (value: TypedCallbackOpt<CbT>): TypedCallback<CbT> {
+function parse<Key extends string> (
+  value: TypedCallbackOpt<Key>
+): TypedCallback<Key> {
   if (isNotOpt(value)) return value
   return { id: 'default', func: value }
 }
 
-function isNotOpt<CbT> (
-  value: TypedCallbackOpt<CbT>
-): value is TypedCallback<CbT> {
+function isNotOpt<Key extends string> (
+  value: TypedCallbackOpt<Key>
+): value is TypedCallback<Key> {
   return 'id' in value && 'func' in value
 }
 
@@ -58,9 +67,9 @@ export default function WebSocketContextProvider ({
           if (!webSocketRef.current) {
             webSocketRef.current = createWebSocket()
             webSocketRef.current.onmessage = (event) => {
-              const parsed = JSON.parse(event.data) as { name: string } & {
-                value: { status: GameStatus } & unknown
-              }
+              const parsed = JSON.parse(event.data) as ResultFromName<
+                typeof name
+              >
               if (onMessageMap.current[parsed.name]) {
                 const funcs = onMessageMap.current[parsed.name]
                 Object.entries(funcs).forEach(([, func]) => {
@@ -86,7 +95,7 @@ export default function WebSocketContextProvider ({
               }
             }
           }
-          await webSocketSendMiddy(webSocketRef.current, { name, ...event })
+          await webSocketSendMiddy(webSocketRef.current, { ...event, name })
         },
         add: (name, cb) => {
           const prev = onMessageMap.current[name]

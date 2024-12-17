@@ -1,19 +1,17 @@
 import useGameSceneInitializer from '@/app/room/[roomId]/_hooks/useGameScene'
 import { useSequence } from '@/app/room/[roomId]/_hooks/useSequence'
-import useTryJoin, {
-  type JoinRoomResult
-} from '@/app/room/[roomId]/_hooks/useTryJoin'
+import useTryJoin from '@/app/room/[roomId]/_hooks/useTryJoin'
 import { MainLogic } from '@/game/logic/monos/main/main.logic'
 import { useCommandContext } from '@/shared/components/command.provider'
 import { useWebSocketContext } from '@/shared/function/websocket.context'
 import { GameScene } from '@/shared/game/game.scene'
 import useLocalRoomInfo from '@/shared/hooks/useLocalRoomInfo'
 import {
-  type Vector3,
-  type GameStatus,
-  type GameObject
-} from 'physical-sugoroku-common/src/shared'
-import { useCallback, useEffect, useRef, useState } from 'react'
+  type InputFromNameOmitName,
+  type ResultFromName
+} from 'physical-sugoroku-common/src/event'
+import { type GameStatus } from 'physical-sugoroku-common/src/shared'
+import { useEffect, useRef, useState } from 'react'
 
 export default function useMainLogic (
   roomId: string,
@@ -28,7 +26,7 @@ export default function useMainLogic (
   const { fetch, sequence } = useSequence(roomId)
   const setStatusAndActiveMemberId = (
     status: GameStatus,
-    activeMemberId: string
+    activeMemberId: string | null
   ) => {
     setStatus(() => status)
     setActiveMemberId(() => activeMemberId)
@@ -37,7 +35,7 @@ export default function useMainLogic (
   const { getByRoomId } = useLocalRoomInfo()
   const { sendSync, add } = useWebSocketContext()
 
-  function send<T> (name: string, ev: T) {
+  function send<Key extends string> (name: Key, ev: InputFromNameOmitName<Key>) {
     onLoading(true)
     sendSync(name, ev)
       .then(() => {})
@@ -48,7 +46,7 @@ export default function useMainLogic (
         onLoading(false)
       })
   }
-  const onSucceed = (data: JoinRoomResult) => {
+  const onSucceed = (data: ResultFromName<'joinRoom'>['value']) => {
     if (!data.ok) return
     if (
       data.isFull &&
@@ -66,33 +64,26 @@ export default function useMainLogic (
         data.status,
         {
           add: (event) => {
-            send<{ roomId: string, gameObjects: GameObject[] }>(
-              'updateGameObjects',
-              { roomId, gameObjects: event.input }
-            )
+            send('updateGameObjects', { roomId, gameObjects: event.input })
           },
           impulse: (event) => {
-            send<{ roomId: string, direction: Vector3, id: string }>(
-              'impulse',
-              {
-                roomId,
-                direction: event.direction,
-                id: event.id
-              }
-            )
+            send('impulse', {
+              roomId,
+              direction: event.direction,
+              id: event.id
+            })
           },
           remove: (_event) => {},
           goal: (event) => {
             const { goalMemberId, roomId, gameObjects } = event
-            send<typeof event>('goal', {
-              name: 'goal',
+            send('goal', {
               goalMemberId,
               roomId,
               gameObjects
             })
           },
           turnEnd: (event) => {
-            send<{ roomId: string, gameObjects: GameObject[] }>('turnEnd', {
+            send('turnEnd', {
               roomId,
               gameObjects: event.gameObjects
             })
@@ -102,12 +93,7 @@ export default function useMainLogic (
       )
       GameScene.add(mainLogic.current)
       // websocketから通信を受けた時の処理
-      add<{
-        id: string
-        direction: Vector3
-        status: GameStatus
-        activeMemberId: string
-      }>('impulse', (data) => {
+      add('impulse', (data) => {
         mainLogic.current?.smashById(data.id, data.direction)
         mainLogic.current?.updateStats(
           data.status,
@@ -115,24 +101,10 @@ export default function useMainLogic (
           setStatusAndActiveMemberId
         )
       })
-      add<{ status: GameStatus, activeMemberId: string }>(
-        'rollDice',
-        (data) => {
-          mainLogic.current?.updateStats(
-            data.status,
-            data.activeMemberId,
-            setStatusAndActiveMemberId
-          )
-        }
-      )
-      add<{ objects: GameObject[] }>('updateGameObjects', (data) => {
+      add('updateGameObjects', (data) => {
         mainLogic.current?.syncAll(data.objects)
       })
-      add<{
-        objects: GameObject[]
-        status: GameStatus
-        activeMemberId: string
-      }>('turnEnd', (data) => {
+      add('turnEnd', (data) => {
         mainLogic.current?.syncAll(data.objects)
         mainLogic.current?.updateStats(
           data.status,
@@ -143,12 +115,7 @@ export default function useMainLogic (
           setCommandText('画面をスワイプして駒を飛ばす方向を決めよう！')
         }
       })
-      add<{
-        goalMemberId: string
-        goalMemberName: string
-        status: GameStatus
-        objects: GameObject[]
-      }>('goal', (data) => {
+      add('goal', (data) => {
         mainLogic.current?.syncAll(data.objects)
         mainLogic.current?.updateStats(
           data.status,
@@ -156,11 +123,7 @@ export default function useMainLogic (
           setStatusAndActiveMemberId
         )
       })
-      add<{
-        status: GameStatus
-        objects: GameObject[]
-        activeMemberId: string
-      }>('replay', (data) => {
+      add('replay', (data) => {
         mainLogic.current?.updateStats(
           data.status,
           data.activeMemberId,
@@ -182,12 +145,6 @@ export default function useMainLogic (
     setCommandText(data.memberName + 'が参加しました！')
     fetch().then(() => {})
   })
-  const rollDice = useCallback(
-    (height: number, forward: number) => {
-      send<DiceInput>('rollDice', { roomId, input: { height, forward } })
-    },
-    [roomId, send]
-  )
 
   useEffect(() => {
     useGameSceneInitializer({
@@ -204,17 +161,6 @@ export default function useMainLogic (
     mainLogic: mainLogic.current,
     status,
     activeMemberId,
-    rollDice,
     sequence
   }
-}
-
-interface DiceResult {
-  height: number
-  forward: number
-}
-
-interface DiceInput {
-  roomId: string
-  input: DiceResult
 }

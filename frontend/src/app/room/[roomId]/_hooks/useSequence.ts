@@ -1,35 +1,19 @@
 import { useWebSocketContext } from '@/shared/function/websocket.context'
-import { type GameStatus } from 'physical-sugoroku-common/src/shared'
+import { type ResultFromName } from 'physical-sugoroku-common/src/event'
 import { useState } from 'react'
 
-export interface GameSequence {
-  sequence: Array<{
-    memberId: string
-    memberName: string
-    sequence: number
-  }>
-}
-
-interface GameSequenceResult extends GameSequence {
-  activeMemberId: string
-  activeMemberName: string
-  status: GameStatus
-}
-
 export function useSequence (roomId: string) {
-  const [sequence, setSequence] = useState<GameSequence>({ sequence: [] })
+  const [sequence, setSequence] = useState<
+  Pick<ResultFromName<'sequence'>['value'], 'sequence'>
+  >({ sequence: [] })
   const { sendSync } = useWebSocketContext()
 
   const fetch = async () => {
-    sendSync<{ roomId: string }, GameSequenceResult>(
-      'sequence',
-      { roomId },
-      (data) => {
-        setSequence(() => {
-          return { sequence: data.sequence }
-        })
-      }
-    )
+    sendSync<'sequence'>('sequence', { roomId }, (data) => {
+      setSequence(() => {
+        return { sequence: data.sequence }
+      })
+    })
   }
   return {
     fetch,

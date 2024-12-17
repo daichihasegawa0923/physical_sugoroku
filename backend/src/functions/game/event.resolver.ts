@@ -1,25 +1,19 @@
 import gameStatusRepository from 'src/modules/game/game.status.repository';
 import gameObjectService from 'src/modules/game/game.service';
-import {
-  AddVelocityResult,
-  DiceResult,
-  GameInfoResult,
-  GameSequenceInfo,
-  GoalResult,
-  TurnEndResult,
-} from 'src/modules/game/type';
 import query from 'src/modules/query';
 import roomService from 'src/modules/room/room.service';
-import { JoinRoomResult, RoomCreateResult } from 'src/modules/room/type';
 import gameObjectRepository from 'src/modules/game/game.object.repository';
-import { GameObject, Vector3 } from 'physical-sugoroku-common/src/shared';
+import {
+  WebsocketResult,
+  WebsocketInput,
+} from 'physical-sugoroku-common/src/event';
 
 export default async function resolve(
   json: string,
   connectionId: string
-): Promise<ResolvedTypeExtends> {
+): Promise<WebsocketResult> {
   try {
-    const event = JSON.parse(json) as EventType;
+    const event = JSON.parse(json) as WebsocketInput;
     switch (event.name) {
       case 'fetchGameObjects': {
         const objects = await gameObjectService().findAllObjects(event.roomId);
@@ -80,16 +74,6 @@ export default async function resolve(
             result.ok && !result.rejoin
               ? await roomMemberConnectionIds(result.roomId)
               : connectionId,
-        };
-      }
-      case 'rollDice': {
-        await gameObjectService().rollDice(event.roomId, event.input);
-        const { status, activeMemberId, activeMemberName } =
-          await gameStatusRepository().findOrCreate(event.roomId);
-        return {
-          name: 'rollDice',
-          value: { ...event.input, status, activeMemberId, activeMemberName },
-          pushTarget: await roomMemberConnectionIds(event.roomId),
         };
       }
       case 'impulse': {
@@ -184,11 +168,6 @@ export default async function resolve(
       default:
         break;
     }
-    return {
-      name: 'not found',
-      value: {},
-      pushTarget: connectionId,
-    };
   } catch (e) {
     console.log(e);
     throw Error(e);
@@ -198,82 +177,3 @@ export default async function resolve(
 async function roomMemberConnectionIds(roomId: string) {
   return (await query().roomMembers(roomId)).list.map((m) => m.connectionId);
 }
-
-type EventType =
-  | {
-      name: 'fetchGameObjects';
-      roomId: string;
-    }
-  | {
-      name: 'createRoom';
-      roomName: string;
-      memberName: string;
-      memberCount: number;
-      public: boolean;
-      stageClassName: string;
-    }
-  | {
-      name: 'joinRoom';
-      roomId: string;
-      memberName: string;
-      memberId?: string;
-    }
-  | {
-      name: 'getRoomMembers';
-      roomId: string;
-    }
-  | {
-      name: 'rollDice';
-      roomId: string;
-      input: DiceResult;
-    }
-  | {
-      name: 'impulse';
-      roomId: string;
-      id: string;
-      direction: Vector3;
-    }
-  | {
-      name: 'updateGameObjects';
-      roomId: string;
-      gameObjects: GameObject[];
-    }
-  | {
-      name: 'turnEnd';
-      roomId: string;
-      gameObjects: GameObject[];
-    }
-  | {
-      name: 'goal';
-      roomId: string;
-      goalMemberId: string;
-      gameObjects: GameObject[];
-    }
-  | {
-      name: 'sequence';
-      roomId: string;
-    }
-  | {
-      name: 'replay';
-      roomId: string;
-    };
-
-type ResolvedType<T> = {
-  name: string;
-  value: GameInfoResult & T;
-  pushTarget: string | string[];
-};
-
-type ResolvedTypeExtends =
-  | (ResolvedType<RoomCreateResult> & { name: 'createRoom' })
-  | (ResolvedType<JoinRoomResult & { objects: GameObject[] }> & {
-      name: 'joinRoom';
-    })
-  | (ResolvedType<DiceResult> & { name: 'rollDice' })
-  | (ResolvedType<AddVelocityResult> & { name: 'impulse' })
-  | (ResolvedType<{ objects: GameObject[] }> & { name: 'fetchGameObjects' })
-  | (ResolvedType<TurnEndResult> & { name: 'turnEnd' })
-  | (ResolvedType<GoalResult> & { name: 'goal' })
-  | (ResolvedType<GameSequenceInfo> & { name: 'sequence' })
-  | (ResolvedType<{ objects: GameObject[] }> & { name: 'replay' })
-  | (ResolvedType<any> & { name: 'not found' | 'error' });

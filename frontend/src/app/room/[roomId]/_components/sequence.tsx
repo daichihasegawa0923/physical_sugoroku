@@ -1,7 +1,9 @@
-import { type GameSequence } from '@/app/room/[roomId]/_hooks/useSequence'
 import { Box, Flex, HStack } from '@chakra-ui/react'
+import { type ResultFromName } from 'physical-sugoroku-common/src/event'
 
-function Sequence (props: GameSequence) {
+function Sequence (
+  props: Pick<ResultFromName<'sequence'>['value'], 'sequence'>
+) {
   return (
     <Flex
       position="absolute"

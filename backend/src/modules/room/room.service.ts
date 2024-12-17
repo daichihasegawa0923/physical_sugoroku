@@ -2,7 +2,11 @@ import gameObjectService from 'src/modules/game/game.service';
 import memberRepository from '../member/member.repository';
 import query from '../query';
 import roomRepository from './room.repository';
-import { JoinRoomResult, RoomCreateInput, RoomCreateResult } from './type';
+import {
+  JoinRoomResult,
+  RoomCreateInput,
+  RoomCreateResult,
+} from 'physical-sugoroku-common/src/event/result/room';
 
 export default function roomService() {
   return {

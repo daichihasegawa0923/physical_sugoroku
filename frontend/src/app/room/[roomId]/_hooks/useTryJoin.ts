@@ -1,34 +1,12 @@
 import { useWebSocketContext } from '@/shared/function/websocket.context'
 import useLocalRoomInfo from '@/shared/hooks/useLocalRoomInfo'
 import { useRouter } from 'next/navigation'
-import {
-  type GameObject,
-  type GameStatus
-} from 'physical-sugoroku-common/src/shared'
-
-interface JoinRoomInput {
-  roomId: string
-  memberName: string
-  memberId?: string
-}
-
-export type JoinRoomResult =
-  | { ok: false, message: string }
-  | {
-    ok: true
-    roomId: string
-    memberName: string
-    memberId: string
-    objects: GameObject[]
-    status: GameStatus
-    activeMemberId: string
-    isFull: boolean
-  }
+import { type ResultFromName } from 'physical-sugoroku-common/src/event'
 
 export default function useTryJoin (
   roomId: string,
-  onSucceed: (data: JoinRoomResult) => void,
-  onOtherMemberSucceed: (data: JoinRoomResult) => void
+  onSucceed: (data: ResultFromName<'joinRoom'>['value']) => void,
+  onOtherMemberSucceed: (data: ResultFromName<'joinRoom'>['value']) => void
 ) {
   const { getByRoomId } = useLocalRoomInfo()
   const { sendSync } = useWebSocketContext()
@@ -40,7 +18,7 @@ export default function useTryJoin (
       router.push(`/room/${roomId}/join`)
       return
     }
-    await sendSync<JoinRoomInput, JoinRoomResult>(
+    await sendSync(
       'joinRoom',
       {
         roomId,

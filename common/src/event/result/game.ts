@@ -1,8 +1,4 @@
-import {
-  GameObject,
-  GameStatus,
-  Vector3,
-} from 'physical-sugoroku-common/src/shared';
+import { GameObject, GameStatus, Vector3 } from '../../shared';
 
 export type AddVelocityResult = {
   id: string;

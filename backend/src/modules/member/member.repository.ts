@@ -1,5 +1,6 @@
 import gameRepository from 'src/shared/game.repository';
 import { ulid } from 'ulid';
+import { Member } from 'physical-sugoroku-common/src/event/result/member';
 
 export default function memberRepository() {
   return {

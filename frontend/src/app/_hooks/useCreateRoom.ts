@@ -4,24 +4,14 @@ import { useWebSocketContext } from '@/shared/function/websocket.context'
 import useLocalRoomInfo from '@/shared/hooks/useLocalRoomInfo'
 import { useLocalUserName } from '@/shared/hooks/useLocalUserName'
 import { useRouter } from 'next/navigation'
+import { type InputFromNameOmitName } from 'physical-sugoroku-common/src/event'
 import { useState } from 'react'
-
-interface RoomCreateResult {
-  roomId: string
-  memberId: string
-}
-
-interface RoomCreateInput {
-  roomName: string
-  memberName: string
-  public: boolean
-  memberCount: number
-  stageClassName: string
-}
 
 export default function useCreateRoom () {
   const { getName, setName } = useLocalUserName()
-  const [roomInput, setRoomInput] = useState<RoomCreateInput>({
+  const [roomInput, setRoomInput] = useState<
+  InputFromNameOmitName<'createRoom'>
+  >({
     roomName: '',
     memberName: getName() || '',
     public: false,
@@ -42,14 +32,10 @@ export default function useCreateRoom () {
       })
     },
     submit: async () => {
-      await sendSync<RoomCreateInput, RoomCreateResult>(
-        'createRoom',
-        roomInput,
-        (data) => {
-          router.push(`/room/${data.roomId}`)
-          set(data.roomId, data.memberId, roomInput.memberName)
-        }
-      )
+      await sendSync('createRoom', roomInput, (data) => {
+        router.push(`/room/${data.roomId}`)
+        set(data.roomId, data.memberId, roomInput.memberName)
+      })
     }
   }
 }

@@ -5,7 +5,7 @@ import {
   TurnEndResult,
   GoalResult,
   GameSequenceInfo,
-} from 'src/modules/game/type';
+} from 'physical-sugoroku-common/src/event/result/game';
 import gameObjectRepository from 'src/modules/game/game.object.repository';
 import gameStatusRepository from 'src/modules/game/game.status.repository';
 import memberRepository from 'src/modules/member/member.repository';

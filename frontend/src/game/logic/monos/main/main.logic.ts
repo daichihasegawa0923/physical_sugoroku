@@ -46,8 +46,8 @@ export class MainLogic extends MonoBehaviour {
 
   public updateStats (
     status: GameStatus,
-    activeMemberId: string,
-    onChange: (gs: GameStatus, activeMemberId: string) => void
+    activeMemberId: string | null,
+    onChange: (gs: GameStatus, activeMemberId: string | null) => void
   ) {
     onChange(status, activeMemberId)
     this.status = status

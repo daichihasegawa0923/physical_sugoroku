@@ -17,10 +17,7 @@ function Goal ({ roomId }: Props) {
   if (info == null) return
 
   useEffect(() => {
-    add<{
-      goalMemberId: string
-      goalMemberName: string
-    }>('goal', {
+    add('goal', {
       id: 'onComponent',
       func: (data) => {
         setName(() => data.goalMemberName)
