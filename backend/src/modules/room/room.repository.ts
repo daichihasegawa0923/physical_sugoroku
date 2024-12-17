@@ -1,5 +1,4 @@
 import { newRoomId } from './roomId';
-import { Room, RoomCreateInput } from './type';
 import gameRepository from 'src/shared/game.repository';
 
 export default function roomRepository() {
@@ -9,21 +8,16 @@ export default function roomRepository() {
   };
 }
 
-async function create(input: RoomCreateInput): Promise<string> {
+async function create(): Promise<string> {
   const roomId = newRoomId();
-  await gameRepository.upsert({ id: 'room', subId: roomId }, { ...input });
+  await gameRepository.upsert({ id: 'room', subId: roomId }, {});
   return roomId;
 }
 
-async function find(id: string): Promise<Room> {
+async function find(id: string): Promise<string> {
   const result = await gameRepository.find({
     id: 'room',
     subId: id,
   });
-  return {
-    id: result.subId,
-    name: result.name,
-    isPublic: result.isPublic,
-    memberCount: result.memberCount,
-  };
+  return result.subId;
 }

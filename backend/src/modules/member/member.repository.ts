@@ -19,10 +19,10 @@ async function upsert(
   member: Omit<Member, 'id'> & { id?: string }
 ): Promise<string> {
   const updateMemberId = member.id ?? createMemberId();
-  const { name, connectionId, sequence } = member;
+  const { name, connectionId, sequence, host } = member;
   await gameRepository.upsert(
     { id: roomId, subId: updateMemberId },
-    { name, connectionId, sequence }
+    { name, connectionId, sequence, host }
   );
   return updateMemberId;
 }

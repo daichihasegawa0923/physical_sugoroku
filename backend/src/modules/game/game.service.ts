@@ -1,7 +1,6 @@
 import { ulid } from 'ulid';
 import {
   AddVelocityResult,
-  DiceResult,
   TurnEndResult,
   GoalResult,
   GameSequenceInfo,
@@ -18,12 +17,10 @@ export default function gameObjectService() {
     upsertObjects,
     addVelocity,
     startGame,
-    rollDice,
     shoot,
     turnEnd,
     getSequenceInfo,
     goal,
-    replay,
   };
 }
 
@@ -70,11 +67,12 @@ async function init(roomId: string, stageClassName: string) {
   ]);
 }
 
-async function startGame(roomId: string) {
+async function startGame(roomId: string, stageClassName: string) {
   const info = await gameStatusRepository().findOrCreate(roomId);
   if (info.status !== 'WAITING') {
     return;
   }
+  await init(roomId, stageClassName);
   // ユーザーの順番の決定
   const membersWithIndex = shuffleArray(
     await memberRepository().findAll(roomId)
@@ -92,6 +90,7 @@ async function startGame(roomId: string) {
     return {
       id: ulid(),
       className: 'Piece',
+      // -999に指定して、初期位置に強制的に飛ばせる
       position: { x: 0, y: -999, z: 0 },
       quaternion: { x: 0, y: 0, z: 0, w: 1 },
       size: { x: 1, y: 1, z: 1 },
@@ -113,22 +112,10 @@ async function startGame(roomId: string) {
   await gameStatusRepository().upsert(roomId, info);
 }
 
-/**
- * Deprecated.
- */
-async function rollDice(roomId: string, diceResult: DiceResult) {
-  const info = await gameStatusRepository().findOrCreate(roomId);
-  if (info.status !== 'DICE') return;
-  info.status = 'DIRECTION';
-  info.diceResult = diceResult;
-  await gameStatusRepository().upsert(roomId, info);
-}
-
 async function shoot(roomId: string) {
   const info = await gameStatusRepository().findOrCreate(roomId);
   if (info.status !== 'DIRECTION') return;
   info.status = 'MOVING';
-  info.diceResult = null;
   await gameStatusRepository().upsert(roomId, info);
 }
 
@@ -218,17 +205,4 @@ async function findNextMember(roomId: string, currentMemberId: string) {
     if (current.sequence < min.sequence) return current;
     return min;
   }, nextCandidates[0]);
-}
-
-async function replay(roomId: string) {
-  const info = await gameStatusRepository().findOrCreate(roomId);
-  if (info.status !== 'RESULT') return;
-  const all = await gameObjectRepository().findAll(roomId);
-  await gameObjectRepository().upsertMany(
-    roomId,
-    all.filter((o) => o.className !== 'Piece')
-  );
-  info.status = 'WAITING';
-  await gameStatusRepository().upsert(roomId, info);
-  await startGame(roomId);
 }

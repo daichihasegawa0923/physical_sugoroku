@@ -30,14 +30,14 @@ export type EventTypeMap = {
     input: Input<
       'createRoom',
       {
-        roomName: string;
         memberName: string;
-        memberCount: number;
-        public: boolean;
-        stageClassName: string;
       }
     >;
     result: Result<'createRoom', RoomCreateResult>;
+  };
+  startGame: {
+    input: Input<'startGame', { roomId: string; stageClassName: string }>;
+    result: Result<'startGame', {}>;
   };
   joinRoom: {
     input: Input<
@@ -88,9 +88,9 @@ export type EventTypeMap = {
     >;
     result: Result<'goal', GoalResult>;
   };
-  sequence: {
-    input: Input<'sequence', { roomId: string }>;
-    result: Result<'sequence', GameSequenceInfo>;
+  status: {
+    input: Input<'status', { roomId: string }>;
+    result: Result<'status', GameSequenceInfo & { hostRoomMemberId: string }>;
   };
   replay: {
     input: Input<'replay', { roomId: string }>;

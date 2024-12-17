@@ -1,9 +1,9 @@
-export interface RoomCreateInput extends Omit<Room, 'id'> {}
-
 export type RoomCreateResult = {
   roomId: string;
   memberId: string;
 };
+
+export type Room = {};
 
 export type JoinRoomResult =
   | { ok: false; message: string }
@@ -15,11 +15,3 @@ export type JoinRoomResult =
       rejoin: boolean;
       isFull: boolean;
     };
-
-export interface Room {
-  id: string;
-  name: string;
-  isPublic: boolean;
-  memberCount: number;
-  stageClassName: string;
-}

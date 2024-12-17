@@ -10,13 +10,7 @@ export interface GameStatusInfo {
   activeMemberName: string | null;
   activeMemberId: string | null;
   turn: number;
-  diceResult: DiceResult | null;
   goalMemberId: string | null;
-}
-
-export interface DiceResult {
-  height: number;
-  forward: number;
 }
 
 export interface TurnEndResult {

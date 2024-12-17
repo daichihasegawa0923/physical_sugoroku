@@ -1,9 +1,7 @@
-import { Box, Flex, HStack } from '@chakra-ui/react'
-import { type ResultFromName } from 'physical-sugoroku-common/src/event'
+import { Box, Flex, HStack } from '@chakra-ui/react';
+import { type ResultFromName } from 'physical-sugoroku-common/src/event';
 
-function Sequence (
-  props: Pick<ResultFromName<'sequence'>['value'], 'sequence'>
-) {
+function Sequence(props: Pick<ResultFromName<'status'>['value'], 'sequence'>) {
   return (
     <Flex
       position="absolute"
@@ -34,23 +32,23 @@ function Sequence (
               {seq.memberName}
             </HStack>
           </HStack>
-        )
+        );
       })}
     </Flex>
-  )
+  );
 }
 
-function getColor (sequence: number) {
+function getColor(sequence: number) {
   switch (sequence) {
     case 0:
-      return '#ff0000'
+      return '#ff0000';
     case 1:
-      return '#0000ff'
+      return '#0000ff';
     case 2:
-      return '#00ff00'
+      return '#00ff00';
     case 3:
-      return '#ff00ff'
+      return '#ff00ff';
   }
 }
 
-export default Sequence
+export default Sequence;

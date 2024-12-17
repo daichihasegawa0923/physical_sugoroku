@@ -1,5 +1,5 @@
+import { GameStatusInfo } from 'physical-sugoroku-common/src/event/result/game';
 import gameRepository from 'src/shared/game.repository';
-import { GameStatusInfo } from './type';
 
 const ID = 'game';
 
@@ -20,7 +20,6 @@ async function findOrCreate(roomId: string): Promise<GameStatusInfo> {
       activeMemberName: null,
       activeMemberId: null,
       turn: 0,
-      diceResult: null,
       goalMemberId: null,
     };
     gameRepository.upsert(
@@ -34,7 +33,6 @@ async function findOrCreate(roomId: string): Promise<GameStatusInfo> {
     activeMemberName: data.activeMemberName,
     activeMemberId: data.activeMemberId,
     turn: data.turn,
-    diceResult: data.diceResult,
     goalMemberId: data.goalMemberId,
   };
 }

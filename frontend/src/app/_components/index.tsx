@@ -1,8 +1,8 @@
-'use client'
+'use client';
 
-import { Button } from '@/chakra/components/ui/button'
-import { Field } from '@/chakra/components/ui/field'
-import { StepperInput } from '@/chakra/components/ui/stepper-input'
+import { Button } from '@/chakra/components/ui/button';
+import { Field } from '@/chakra/components/ui/field';
+import { StepperInput } from '@/chakra/components/ui/stepper-input';
 import {
   Box,
   Center,
@@ -15,15 +15,15 @@ import {
   SelectTrigger,
   SelectValueText,
   VStack,
-  createListCollection
-} from '@chakra-ui/react'
-import useCreateRoom from '../_hooks/useCreateRoom'
-import { useState } from 'react'
-import Loading from '@/shared/components/loading'
+  createListCollection,
+} from '@chakra-ui/react';
+import useCreateRoom from '../_hooks/useCreateRoom';
+import { useState } from 'react';
+import Loading from '@/shared/components/loading';
 
 const Home = () => {
-  const { roomInput, setRoomInput, setMemberName, submit } = useCreateRoom()
-  const [loading, setLoading] = useState(false)
+  const { roomInput, setRoomInput, setMemberName, submit } = useCreateRoom();
+  const [loading, setLoading] = useState(false);
 
   return (
     <>
@@ -49,48 +49,16 @@ const Home = () => {
                   placeholder="例：ほげほげ太郎"
                   value={roomInput.memberName}
                   onChange={(e) => {
-                    setMemberName(e.target.value)
+                    setMemberName(e.target.value);
                   }}
                 />
               </Field>
-              <Field label="参加人数" helperText="最大4人まで参加できます">
-                <StepperInput
-                  min={1}
-                  max={4}
-                  value={roomInput.memberCount.toString()}
-                  onValueChange={(e) => {
-                    setRoomInput({
-                      ...roomInput,
-                      memberCount: Number(e.value)
-                    })
-                  }}
-                />
-              </Field>
-              <SelectRoot
-                collection={list}
-                defaultValue={['Stage1']}
-                onValueChange={({ value }) => {
-                  setRoomInput({ ...roomInput, stageClassName: value[0] })
-                }}
-              >
-                <SelectLabel>ステージを選択する</SelectLabel>
-                <SelectTrigger>
-                  <SelectValueText placeholder="Select movie" />
-                </SelectTrigger>
-                <SelectContent>
-                  {list.items.map((item) => (
-                    <SelectItem item={item} key={item.value}>
-                      {item.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </SelectRoot>
               <Center w="100%">
                 <Button
                   onClick={async () => {
-                    setLoading(true)
-                    await submit()
-                    setLoading(false)
+                    setLoading(true);
+                    await submit();
+                    setLoading(false);
                   }}
                 >
                   作成する
@@ -102,17 +70,7 @@ const Home = () => {
       </Center>
       <Loading open={loading} />
     </>
-  )
-}
+  );
+};
 
-const array = [
-  { label: 'Stage1|初心者向け', value: 'Stage1' },
-  { label: 'Stage2|中級者向け', value: 'Stage2' },
-  { label: '超ミニステージ', value: 'StageTest' }
-]
-
-const list = createListCollection({
-  items: array
-})
-
-export default Home
+export default Home;
