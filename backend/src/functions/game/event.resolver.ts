@@ -157,6 +157,20 @@ export default async function resolve(
         pushTarget: connectionId,
       };
     }
+    case 'replay': {
+      await gameObjectService().replay(event.roomId);
+      const { status, activeMemberId, activeMemberName } =
+        await gameStatusRepository().findOrCreate(event.roomId);
+      return {
+        name: 'replay',
+        value: {
+          status,
+          activeMemberId,
+          activeMemberName,
+        },
+        pushTarget: await roomMemberConnectionIds(event.roomId),
+      };
+    }
     default:
       break;
   }

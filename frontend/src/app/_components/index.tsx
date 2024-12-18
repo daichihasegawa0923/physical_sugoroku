@@ -1,29 +1,15 @@
-'use client';
+'use client'
 
-import { Button } from '@/chakra/components/ui/button';
-import { Field } from '@/chakra/components/ui/field';
-import { StepperInput } from '@/chakra/components/ui/stepper-input';
-import {
-  Box,
-  Center,
-  Heading,
-  Input,
-  SelectContent,
-  SelectItem,
-  SelectLabel,
-  SelectRoot,
-  SelectTrigger,
-  SelectValueText,
-  VStack,
-  createListCollection,
-} from '@chakra-ui/react';
-import useCreateRoom from '../_hooks/useCreateRoom';
-import { useState } from 'react';
-import Loading from '@/shared/components/loading';
+import { Button } from '@/chakra/components/ui/button'
+import { Field } from '@/chakra/components/ui/field'
+import { Box, Center, Heading, Input, VStack } from '@chakra-ui/react'
+import useCreateRoom from '../_hooks/useCreateRoom'
+import { useState } from 'react'
+import Loading from '@/shared/components/loading'
 
 const Home = () => {
-  const { roomInput, setRoomInput, setMemberName, submit } = useCreateRoom();
-  const [loading, setLoading] = useState(false);
+  const { roomInput, setMemberName, submit } = useCreateRoom()
+  const [loading, setLoading] = useState(false)
 
   return (
     <>
@@ -49,16 +35,16 @@ const Home = () => {
                   placeholder="例：ほげほげ太郎"
                   value={roomInput.memberName}
                   onChange={(e) => {
-                    setMemberName(e.target.value);
+                    setMemberName(e.target.value)
                   }}
                 />
               </Field>
               <Center w="100%">
                 <Button
                   onClick={async () => {
-                    setLoading(true);
-                    await submit();
-                    setLoading(false);
+                    setLoading(true)
+                    await submit()
+                    setLoading(false)
                   }}
                 >
                   作成する
@@ -70,7 +56,7 @@ const Home = () => {
       </Center>
       <Loading open={loading} />
     </>
-  );
-};
+  )
+}
 
-export default Home;
+export default Home

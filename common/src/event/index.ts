@@ -94,7 +94,7 @@ export type EventTypeMap = {
   };
   replay: {
     input: Input<'replay', { roomId: string }>;
-    result: Result<'replay', { objects: GameObject[] }>;
+    result: Result<'replay', {}>;
   };
 };
 

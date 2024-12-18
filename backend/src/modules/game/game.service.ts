@@ -21,6 +21,7 @@ export default function gameObjectService() {
     turnEnd,
     getSequenceInfo,
     goal,
+    replay,
   };
 }
 
@@ -205,4 +206,25 @@ async function findNextMember(roomId: string, currentMemberId: string) {
     if (current.sequence < min.sequence) return current;
     return min;
   }, nextCandidates[0]);
+}
+
+async function replay(roomId: string) {
+  const members = await memberRepository().findAll(roomId);
+  await Promise.all(
+    members.map(async (m) => {
+      // 順番をリセット
+      m.sequence = null;
+      await memberRepository().upsert(roomId, m);
+    })
+  );
+
+  // ゲームオブジェクトを初期化
+  await gameObjectRepository().deleteAll(roomId);
+  const statusInfo = await gameStatusRepository().findOrCreate(roomId);
+  statusInfo.status = 'WAITING';
+  statusInfo.activeMemberId = null;
+  statusInfo.activeMemberName = null;
+  statusInfo.goalMemberId = null;
+  statusInfo.turn = 0;
+  await gameStatusRepository().upsert(roomId, statusInfo);
 }

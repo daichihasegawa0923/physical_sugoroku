@@ -3,8 +3,6 @@ export type RoomCreateResult = {
   memberId: string;
 };
 
-export type Room = {};
-
 export type JoinRoomResult =
   | { ok: false; message: string }
   | {

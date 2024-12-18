@@ -1,5 +1,5 @@
+import { GameObject } from 'physical-sugoroku-common/src/shared';
 import gameRepository from 'src/shared/game.repository';
-import { GameObject } from './type';
 
 const ID = 'game';
 
@@ -8,6 +8,7 @@ export default function gameObjectRepository() {
     findAll,
     find,
     upsertMany,
+    deleteAll,
   };
 }
 
@@ -37,5 +38,12 @@ async function upsertMany(
   await gameRepository.upsert(
     { id: ID, subId: roomId },
     { objects: JSON.stringify([...createdObjects, ...upsertObjects]) }
+  );
+}
+
+async function deleteAll(roomId: string) {
+  await gameRepository.upsert(
+    { id: ID, subId: roomId },
+    { objects: JSON.stringify([]) }
   );
 }

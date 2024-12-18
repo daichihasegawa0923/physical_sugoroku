@@ -1,37 +1,37 @@
-'use client';
+'use client'
 
-import { useWebSocketContext } from '@/shared/function/websocket.context';
-import useLocalRoomInfo from '@/shared/hooks/useLocalRoomInfo';
-import { useLocalUserName } from '@/shared/hooks/useLocalUserName';
-import { useRouter } from 'next/navigation';
-import { type InputFromNameOmitName } from 'physical-sugoroku-common/src/event';
-import { useState } from 'react';
+import { useWebSocketContext } from '@/shared/function/websocket.context'
+import useLocalRoomInfo from '@/shared/hooks/useLocalRoomInfo'
+import { useLocalUserName } from '@/shared/hooks/useLocalUserName'
+import { useRouter } from 'next/navigation'
+import { type InputFromNameOmitName } from 'physical-sugoroku-common/src/event'
+import { useState } from 'react'
 
-export default function useCreateRoom() {
-  const { getName, setName } = useLocalUserName();
+export default function useCreateRoom () {
+  const { getName, setName } = useLocalUserName()
   const [roomInput, setRoomInput] = useState<
-    InputFromNameOmitName<'createRoom'>
+  InputFromNameOmitName<'createRoom'>
   >({
-    memberName: getName() || '',
-  });
-  const router = useRouter();
-  const { sendSync } = useWebSocketContext();
-  const { set } = useLocalRoomInfo();
+    memberName: getName() || ''
+  })
+  const router = useRouter()
+  const { sendSync } = useWebSocketContext()
+  const { set } = useLocalRoomInfo()
 
   return {
     roomInput,
     setRoomInput,
     setMemberName: (name: string) => {
       setRoomInput((prev) => {
-        setName(name);
-        return { ...prev, memberName: name };
-      });
+        setName(name)
+        return { ...prev, memberName: name }
+      })
     },
     submit: async () => {
       await sendSync('createRoom', roomInput, (data) => {
-        router.push(`/room/${data.roomId}/lobby`);
-        set(data.roomId, data.memberId, roomInput.memberName);
-      });
-    },
-  };
+        router.push(`/room/${data.roomId}/lobby`)
+        set(data.roomId, data.memberId, roomInput.memberName)
+      })
+    }
+  }
 }
