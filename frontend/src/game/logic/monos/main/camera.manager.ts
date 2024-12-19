@@ -26,7 +26,7 @@ export class CameraManager {
       this.camera.rotation.set(0, this.camera.rotation.y + 0.01, 0)
       return
     }
-    // 発射位置を決める時は、駒の位置にカメラを移動する
+    // 発射位置を決める時は駒の位置にカメラを移動する
     if (status === 'DIRECTION' && isMyTurn) {
       const { x, y, z } = myObjPosition
       this.camera.position.set(x, y + 10, z - 1)
