@@ -58,7 +58,7 @@ export default function Page ({ params }: { params: { roomId: string } }) {
   }, [status?.status])
 
   return (
-    <VStack w="100%" padding="8px" gap="16px">
+    <VStack w="100%" maxW="540px" padding="8px" gap="16px" margin="0 auto">
       <Heading as="h1">待機室</Heading>
       <Flex
         position="relative"

@@ -2,7 +2,6 @@ import { GameObject } from 'physical-sugoroku-common/src/shared';
 import gameObjectRepository from 'src/modules/game/game.object.repository';
 import memberRepository from 'src/modules/member/member.repository';
 import { RoomMemberList } from 'physical-sugoroku-common/src/event/result/member';
-import roomRepository from 'src/modules/room/room.repository';
 
 export default function query() {
   return {
@@ -12,11 +11,10 @@ export default function query() {
 }
 
 async function roomMembers(roomId: string): Promise<RoomMemberList> {
-  const room = await roomRepository().find(roomId);
-  if (!room) throw new Error();
+  if (!roomId) throw new Error();
   const members = await memberRepository().findAll(roomId);
   return {
-    roomId: room.id,
+    roomId,
     count: members.length,
     list: members.map((member) => ({
       memberId: member.id,
