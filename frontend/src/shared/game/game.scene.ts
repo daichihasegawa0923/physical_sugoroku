@@ -19,10 +19,11 @@ export class GameScene {
 
   public static reset () {
     GameScene.instance = null
+    GameScene.reset()
   }
 
   public static init (canvas: HTMLElement) {
-    GameScene.reset()
+    CannonWorld.reset()
     GameScene.instance = new GameScene(canvas)
   }
 

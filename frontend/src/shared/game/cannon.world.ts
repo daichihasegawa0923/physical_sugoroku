@@ -8,6 +8,10 @@ export class CannonWorld {
     return this.instance
   }
 
+  public static reset () {
+    CannonWorld.get().reset()
+  }
+
   public static getWorld (): CANNON.World {
     return this.get().world
   }
@@ -28,10 +32,15 @@ export class CannonWorld {
     this.get().world.removeBody(body)
   }
 
-  private constructor () {
-    this.world = new CANNON.World()
-    this.world.gravity.set(0, -9.82, 0)
+  private static init (): CANNON.World {
+    const world = new CANNON.World()
+    world.gravity.set(0, -9.82, 0)
+    return world
   }
 
-  private readonly world: CANNON.World
+  private reset () {
+    this.world = CannonWorld.init()
+  }
+
+  private world: CANNON.World = CannonWorld.init()
 }
