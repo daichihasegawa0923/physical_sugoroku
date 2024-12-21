@@ -2,10 +2,11 @@
 
 import { Button } from '@/chakra/components/ui/button'
 import { Field } from '@/chakra/components/ui/field'
-import { Box, Center, Heading, Input, VStack } from '@chakra-ui/react'
+import { Box, Center, Input, VStack } from '@chakra-ui/react'
 import useCreateRoom from '../_hooks/useCreateRoom'
 import { useState } from 'react'
 import Loading from '@/shared/components/loading'
+import Heading from '@/shared/components/heading'
 
 const Home = () => {
   const { roomInput, setMemberName, submit } = useCreateRoom()

@@ -1,6 +1,8 @@
 'use client'
 
-import { Box, Heading, HStack } from '@chakra-ui/react'
+import Heading from '@/shared/components/heading'
+import { Box, HStack } from '@chakra-ui/react'
+import React from 'react'
 
 const Header = () => {
   return (
@@ -12,10 +14,18 @@ const Header = () => {
       borderBottom={'1px solid #000'}
       marginBottom={1}
     >
-      <HStack w="100%" h="100%" padding={4}>
-        <Box w="100%">
+      <HStack
+        w="100%"
+        h="100%"
+        justifyContent={'center'}
+        padding={4}
+        bgColor="green"
+      >
+        <Box w="max-content">
           <a href="/">
-            <Heading>将棋王</Heading>
+            <Heading as="h2" color="white">
+              将棋王
+            </Heading>
           </a>
         </Box>
       </HStack>
@@ -23,4 +33,4 @@ const Header = () => {
   )
 }
 
-export default Header
+export default React.memo(Header)

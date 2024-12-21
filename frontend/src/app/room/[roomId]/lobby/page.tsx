@@ -9,14 +9,14 @@ import {
   createListCollection,
   Flex,
   Text,
-  Heading,
   SelectContent,
   SelectItem,
   SelectLabel,
   SelectRoot,
   SelectTrigger,
   SelectValueText,
-  VStack
+  VStack,
+  HStack
 } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -58,8 +58,7 @@ export default function Page ({ params }: { params: { roomId: string } }) {
   }, [status?.status])
 
   return (
-    <VStack w="100%" maxW="540px" padding="8px" gap="16px" margin="0 auto">
-      <Heading as="h1">待機室</Heading>
+    <VStack w="100%" maxW="540px" padding="16px 8px" gap="16px" margin="0 auto">
       <Flex
         position="relative"
         w="100%"
@@ -69,12 +68,15 @@ export default function Page ({ params }: { params: { roomId: string } }) {
         border="1px solid #000"
         padding="8px"
         alignItems="center"
+        justifyContent="center"
+        wrap="wrap"
       >
         <Box
           position="absolute"
           w="max-content"
           h="16px"
           top="0"
+          left="24px"
           bgColor="#fff"
           alignItems="center"
           transform="translate(0, -50%)"
@@ -83,22 +85,26 @@ export default function Page ({ params }: { params: { roomId: string } }) {
         >
           <Text>参加メンバー</Text>
         </Box>
-        {(status?.sequence ?? []).map((seq) => (
-          <Box key={seq.memberId}>{seq.memberName}</Box>
+        {(status?.sequence ?? []).map((info, index) => (
+          <>
+            <Box key={info.memberId}>{info.memberName}</Box>
+            {index < (status?.sequence.length ?? 0) - 1 && '|'}
+          </>
         ))}
       </Flex>
-      {isHost && (
+      {isHost
+        ? (
         <VStack w="100%" gap="16px">
           <SelectRoot
             collection={list}
-            defaultValue={['Stage1']}
+            defaultValue={[list.items[0].value]}
             onValueChange={({ value }) => {
               setStageClassName(() => value[0])
             }}
           >
             <SelectLabel>遊ぶステージ</SelectLabel>
             <SelectTrigger>
-              <SelectValueText placeholder="Select movie" />
+              <SelectValueText placeholder="ステージを選択してください。" />
             </SelectTrigger>
             <SelectContent>
               {list.items.map((item) => (
@@ -119,7 +125,14 @@ export default function Page ({ params }: { params: { roomId: string } }) {
             開始する
           </Button>
         </VStack>
-      )}
+          )
+        : (
+        <HStack>
+          <Text>
+            ホストがルームの設定をしています。しばらくお待ちください。
+          </Text>
+        </HStack>
+          )}
     </VStack>
   )
 }

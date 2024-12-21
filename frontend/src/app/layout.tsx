@@ -4,6 +4,7 @@ import Header from '@/shared/components/header'
 import WebSocketContextProvider from '@/shared/function/websocket.context'
 import { Box, Theme } from '@chakra-ui/react'
 import type { Metadata } from 'next'
+import font from '@/shared/font'
 
 export const metadata: Metadata = {
   title: '将棋王 | オンライン ボードゲーム',
@@ -18,7 +19,7 @@ export default function RootLayout ({
   return (
     <WebSocketContextProvider>
       <html suppressHydrationWarning={true}>
-        <body style={{ height: '100%' }}>
+        <body style={{ height: '100%' }} className={font}>
           <Provider>
             <Theme appearance="light">
               <CommandContextProvider>
