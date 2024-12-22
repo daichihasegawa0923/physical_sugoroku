@@ -1,4 +1,4 @@
-import { useWebSocketContext } from '@/shared/function/websocket.context'
+import { WebsocketResolver } from '@/shared/function/websocket.resolver'
 import useLocalRoomInfo from '@/shared/hooks/useLocalRoomInfo'
 import { useLocalUserName } from '@/shared/hooks/useLocalUserName'
 import { useRouter } from 'next/navigation'
@@ -7,14 +7,13 @@ import { useState } from 'react'
 export default function useJoin (roomId: string) {
   const { getName: getLocalUserName, setName: setLocalUserName } =
     useLocalUserName()
-  const { sendSync } = useWebSocketContext()
   const { set, getByRoomId } = useLocalRoomInfo()
   const router = useRouter()
   const [name, setNameState] = useState<string>(getLocalUserName())
   const [error, setError] = useState<string | null>(null)
   const onClick = () => {
     const localInfo = getByRoomId(roomId)
-    sendSync<'joinRoom'>(
+    WebsocketResolver.sendSync<'joinRoom'>(
       'joinRoom',
       { roomId, memberName: name, memberId: localInfo?.myMemberId },
       (data) => {

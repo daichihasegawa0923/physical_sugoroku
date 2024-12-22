@@ -20,10 +20,9 @@ import {
 } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useWebSocketContext } from '@/shared/function/websocket.context'
+import { WebsocketResolver } from '@/shared/function/websocket.resolver'
 
 export default function Page ({ params }: { params: { roomId: string } }) {
-  const { sendSync, add } = useWebSocketContext()
   const [stageClassName, setStageClassName] = useState(array[0].value)
   const { fetch, status, isHost } = useStatusInfo(params.roomId)
   const router = useRouter()
@@ -49,7 +48,7 @@ export default function Page ({ params }: { params: { roomId: string } }) {
     if (status && status.status !== 'WAITING') {
       router.push(`/room/${params.roomId}`)
     }
-    add('startGame', (_) => {
+    WebsocketResolver.add('startGame', (_) => {
       router.push(`/room/${params.roomId}`)
     });
     (async () => {
@@ -116,7 +115,7 @@ export default function Page ({ params }: { params: { roomId: string } }) {
           </SelectRoot>
           <Button
             onClick={async () => {
-              await sendSync('startGame', {
+              await WebsocketResolver.sendSync('startGame', {
                 roomId: params.roomId,
                 stageClassName
               })

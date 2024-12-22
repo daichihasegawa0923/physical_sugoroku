@@ -8,9 +8,10 @@ import {
 import { JoinRoomResult, RoomCreateResult } from '../event/result/room';
 import { GameObject, Vector3 } from '../shared';
 
-export type WebsocketInput = EventTypeMap[keyof EventTypeMap]['input'];
-export type WebsocketResult = EventTypeMap[keyof EventTypeMap]['result'];
-export type InputFromName<K extends string> = K extends keyof EventTypeMap
+export type EventKeys = keyof EventTypeMap;
+export type WebsocketInput = EventTypeMap[EventKeys]['input'];
+export type WebsocketResult = EventTypeMap[EventKeys]['result'];
+export type InputFromName<K extends string> = K extends EventKeys
   ? EventTypeMap[K]['input']
   : never;
 export type InputFromNameOmitName<K extends string> = Omit<

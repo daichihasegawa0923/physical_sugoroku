@@ -1,6 +1,6 @@
 'use client'
 
-import { useWebSocketContext } from '@/shared/function/websocket.context'
+import { WebsocketResolver } from '@/shared/function/websocket.resolver'
 import useLocalRoomInfo from '@/shared/hooks/useLocalRoomInfo'
 import { useLocalUserName } from '@/shared/hooks/useLocalUserName'
 import { useRouter } from 'next/navigation'
@@ -15,7 +15,6 @@ export default function useCreateRoom () {
     memberName: getName() || ''
   })
   const router = useRouter()
-  const { sendSync } = useWebSocketContext()
   const { set } = useLocalRoomInfo()
 
   return {
@@ -28,7 +27,7 @@ export default function useCreateRoom () {
       })
     },
     submit: async () => {
-      await sendSync('createRoom', roomInput, (data) => {
+      await WebsocketResolver.sendSync('createRoom', roomInput, (data) => {
         router.push(`/room/${data.roomId}/lobby`)
         set(data.roomId, data.memberId, roomInput.memberName)
       })

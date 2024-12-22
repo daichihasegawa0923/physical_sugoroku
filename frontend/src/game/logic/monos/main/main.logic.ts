@@ -1,7 +1,6 @@
 import { MonoBehaviour } from '@/shared/game/monobehaviour'
 import { type Object3D } from 'three'
 import { GameScene } from '@/shared/game/game.scene'
-import { type GameEventHandlers } from '../../events/event'
 import { Light } from '@/game/logic/monos/base/light'
 import { LightHemisphere } from '@/game/logic/monos/base/light.hemisphere'
 import { CameraManager } from '@/game/logic/monos/main/camera.manager'
@@ -14,13 +13,13 @@ import {
   type GameStatus,
   type GameObject
 } from 'physical-sugoroku-common/src/shared'
+import { WebsocketResolver } from '@/shared/function/websocket.resolver'
 
 export class MainLogic extends MonoBehaviour {
   public constructor (
     private readonly roomId: string,
     private readonly memberId: string,
     private status: GameStatus,
-    private readonly eventHandler: GameEventHandlers,
     objects: GameObject[],
     private readonly cameraManager = new CameraManager(memberId),
     private readonly smashManager = new SmashManager(memberId),
@@ -36,6 +35,7 @@ export class MainLogic extends MonoBehaviour {
     })
     this.status = status
     GameScene.setBackgroundColor(0x006644, 1.0)
+    this.initWebsocketAddList()
   }
 
   private activeMemberId: string | null = null
@@ -44,12 +44,7 @@ export class MainLogic extends MonoBehaviour {
     return this.status
   }
 
-  public updateStats (
-    status: GameStatus,
-    activeMemberId: string | null,
-    onChange: (gs: GameStatus, activeMemberId: string | null) => void
-  ) {
-    onChange(status, activeMemberId)
+  public updateStats (status: GameStatus, activeMemberId: string | null) {
     this.status = status
     this.activeMemberId = activeMemberId
   }
@@ -85,10 +80,10 @@ export class MainLogic extends MonoBehaviour {
     const myObjId = findMyPiece(this.memberId)?.getId()
     if (myObjId == null) return
     const result = this.smashManager.smash(this.memberId, (direction) => {
-      this.eventHandler.impulse({
-        name: 'impulse',
+      WebsocketResolver.send('impulse', {
         id: myObjId,
-        direction
+        direction,
+        roomId: this.roomId
       })
     })
     if (result) {
@@ -119,8 +114,7 @@ export class MainLogic extends MonoBehaviour {
         this.status = 'MOVING'
         return
       }
-      this.eventHandler.turnEnd({
-        name: 'turnEnd',
+      WebsocketResolver.send('turnEnd', {
         roomId: this.roomId,
         gameObjects: GameScene.allOnline()
       })
@@ -129,8 +123,7 @@ export class MainLogic extends MonoBehaviour {
   }
 
   public goal (goalMemberId: string) {
-    this.eventHandler.goal({
-      name: 'goal',
+    WebsocketResolver.send('goal', {
       goalMemberId,
       roomId: this.roomId,
       gameObjects: GameScene.allOnline()
@@ -148,5 +141,23 @@ export class MainLogic extends MonoBehaviour {
   private init () {
     GameScene.add(this.light)
     GameScene.add(this.lightHemisphere)
+  }
+
+  private initWebsocketAddList () {
+    WebsocketResolver.add('impulse', (data) => {
+      this.smashById(data.id, data.direction)
+      this.updateStats(data.status, data.activeMemberId)
+    })
+    WebsocketResolver.add('updateGameObjects', (data) => {
+      this.syncAll(data.objects)
+    })
+    WebsocketResolver.add('turnEnd', (data) => {
+      this.syncAll(data.objects)
+      this.updateStats(data.status, data.activeMemberId)
+    })
+    WebsocketResolver.add('goal', (data) => {
+      this.syncAll(data.objects)
+      this.updateStats(data.status, data.goalMemberId)
+    })
   }
 }

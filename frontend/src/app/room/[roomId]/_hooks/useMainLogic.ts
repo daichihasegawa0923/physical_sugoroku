@@ -5,21 +5,15 @@ import { useStatusInfo } from '@/shared/hooks/useStatusInfo'
 import useTryJoin from '@/shared/hooks/useTryJoin'
 import { MainLogic } from '@/game/logic/monos/main/main.logic'
 import { useCommandContext } from '@/shared/components/command.provider'
-import { useWebSocketContext } from '@/shared/function/websocket.context'
 import { GameScene } from '@/shared/game/game.scene'
 import useLocalRoomInfo from '@/shared/hooks/useLocalRoomInfo'
-import {
-  type InputFromNameOmitName,
-  type ResultFromName
-} from 'physical-sugoroku-common/src/event'
+import { type ResultFromName } from 'physical-sugoroku-common/src/event'
 import { type GameStatus } from 'physical-sugoroku-common/src/shared'
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { WebsocketResolver } from '@/shared/function/websocket.resolver'
 
-export default function useMainLogic (
-  roomId: string,
-  onLoading: (isLoading: boolean) => void
-) {
+export default function useMainLogic (roomId: string) {
   const mainLogic = useRef<MainLogic | null>(null)
   const router = useRouter()
   const { setCommandText } = useCommandContext()
@@ -28,31 +22,9 @@ export default function useMainLogic (
   )
   const [activeMemberId, setActiveMemberId] = useState<string | null>(null)
   const { fetch, status: statusInfo } = useStatusInfo(roomId)
-  const setStatusAndActiveMemberId = (
-    status: GameStatus,
-    activeMemberId: string | null
-  ) => {
-    setStatus(() => status)
-    setActiveMemberId(() => activeMemberId)
-  }
 
   const { getByRoomId } = useLocalRoomInfo()
-  const { sendSync, add } = useWebSocketContext()
 
-  const send = <Key extends string>(
-    name: Key,
-    ev: InputFromNameOmitName<Key>
-  ) => {
-    onLoading(true)
-    sendSync(name, ev)
-      .then(() => {})
-      .catch((e) => {
-        console.log(e, { name, event: ev })
-      })
-      .finally(() => {
-        onLoading(false)
-      })
-  }
   const onSucceed = (data: ResultFromName<'joinRoom'>['value']) => {
     if (!data.ok) return
     if (data.status === 'WAITING') {
@@ -71,77 +43,29 @@ export default function useMainLogic (
         data.roomId,
         memberId,
         data.status,
-        {
-          add: (event) => {
-            send('updateGameObjects', { roomId, gameObjects: event.input })
-          },
-          impulse: (event) => {
-            send('impulse', {
-              roomId,
-              direction: event.direction,
-              id: event.id
-            })
-          },
-          remove: (_event) => {},
-          goal: (event) => {
-            const { goalMemberId, roomId, gameObjects } = event
-            send('goal', {
-              goalMemberId,
-              roomId,
-              gameObjects
-            })
-          },
-          turnEnd: (event) => {
-            send('turnEnd', {
-              roomId,
-              gameObjects: event.gameObjects
-            })
-          }
-        },
         data.objects
       )
       GameScene.add(mainLogic.current)
       // websocketから通信を受けた時の処理
-      add('impulse', (data) => {
-        mainLogic.current?.smashById(data.id, data.direction)
-        mainLogic.current?.updateStats(
-          data.status,
-          data.activeMemberId,
-          setStatusAndActiveMemberId
-        )
-      })
-      add('updateGameObjects', (data) => {
-        mainLogic.current?.syncAll(data.objects)
-      })
-      add('turnEnd', (data) => {
-        mainLogic.current?.syncAll(data.objects)
-        mainLogic.current?.updateStats(
-          data.status,
-          data.activeMemberId,
-          setStatusAndActiveMemberId
-        )
-        if (data.activeMemberId === getByRoomId(roomId)?.myMemberId) {
-          setCommandText('画面をスワイプして駒を飛ばす方向を決めよう！')
+      WebsocketResolver.addAny((data) => {
+        setActiveMemberId(() => data.activeMemberId)
+        setStatus(() => data.status)
+        switch (data.status) {
+          case 'DIRECTION':
+            if (data.activeMemberId === getByRoomId(roomId)?.myMemberId) {
+              setCommandText('画面をスワイプして駒を飛ばす方向を決めよう！')
+            }
+            break
+          case 'WAITING':
+            router.push(`/room/${roomId}/lobby`)
+            break
         }
-      })
-      add('goal', (data) => {
-        mainLogic.current?.syncAll(data.objects)
-        mainLogic.current?.updateStats(
-          data.status,
-          data.goalMemberId,
-          setStatusAndActiveMemberId
-        )
-      })
-      add('replay', (_) => {
-        router.push(`/room/${roomId}/lobby`)
       })
     }
     mainLogic.current?.syncAll(data.objects)
-    mainLogic.current?.updateStats(
-      data.status,
-      data.activeMemberId,
-      setStatusAndActiveMemberId
-    )
+    mainLogic.current?.updateStats(data.status, data.activeMemberId)
+    setActiveMemberId(() => data.activeMemberId)
+    setStatus(() => data.status)
   }
 
   useTryJoin(

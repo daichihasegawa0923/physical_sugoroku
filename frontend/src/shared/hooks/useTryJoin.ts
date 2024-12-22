@@ -1,4 +1,4 @@
-import { useWebSocketContext } from '@/shared/function/websocket.context'
+import { WebsocketResolver } from '@/shared/function/websocket.resolver'
 import useLocalRoomInfo from '@/shared/hooks/useLocalRoomInfo'
 import { useRouter } from 'next/navigation'
 import { type ResultFromName } from 'physical-sugoroku-common/src/event'
@@ -10,7 +10,6 @@ export default function useTryJoin (
   onOtherMemberSucceed: (data: ResultFromName<'joinRoom'>['value']) => void
 ) {
   const { getByRoomId } = useLocalRoomInfo()
-  const { sendSync } = useWebSocketContext()
   const router = useRouter()
 
   async function tryReJoin (): Promise<void> {
@@ -19,7 +18,7 @@ export default function useTryJoin (
       router.push(`/room/${roomId}/join`)
       return
     }
-    await sendSync(
+    await WebsocketResolver.sendSync(
       'joinRoom',
       {
         roomId,

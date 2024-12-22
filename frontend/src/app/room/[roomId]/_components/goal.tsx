@@ -1,8 +1,9 @@
 'use client'
 
-import { useWebSocketContext } from '@/shared/function/websocket.context'
+import { WebsocketResolver } from '@/shared/function/websocket.resolver'
 import useLocalRoomInfo from '@/shared/hooks/useLocalRoomInfo'
 import { Button, Text, VStack } from '@chakra-ui/react'
+import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 
 interface Props {
@@ -12,12 +13,12 @@ interface Props {
 function Goal ({ roomId }: Props) {
   const [name, setName] = useState('')
   const [goalMemberId, setGoalMemberId] = useState('')
-  const { sendSync, add } = useWebSocketContext()
   const info = useLocalRoomInfo().getByRoomId(roomId)
+  const router = useRouter()
   if (info == null) return
 
   useEffect(() => {
-    add('goal', {
+    WebsocketResolver.add('goal', {
       id: 'onComponent',
       func: (data) => {
         setName(() => data.goalMemberName)
@@ -48,7 +49,9 @@ function Goal ({ roomId }: Props) {
       {info.myMemberId === goalMemberId && (
         <Button
           onClick={async () => {
-            await sendSync('replay', { roomId })
+            await WebsocketResolver.sendSync('replay', { roomId }, (_) => {
+              router.push(`/room/${roomId}/lobby`)
+            })
           }}
         >
           もう一度遊ぶ
