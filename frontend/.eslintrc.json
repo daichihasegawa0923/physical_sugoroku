@@ -25,6 +25,8 @@
         "@typescript-eslint/no-unsafe-argument": "off",
         "@typescript-eslint/no-misused-promises": "off",
         "unused-imports/no-unused-imports": "warn",
-        "@typescript-eslint/no-floating-promises": "warn"
+        "@typescript-eslint/no-floating-promises": "warn",
+        "@typescript-eslint/member-delimiter-style": "off",
+        "@typescript-eslint/semi": "off"
     }
 }

@@ -22,7 +22,7 @@ export default function useJoin (roomId: string) {
           return
         }
         set(roomId, data.memberId, data.memberName)
-        router.push(`/room/${roomId}`)
+        router.push(`/room/${roomId}/lobby`)
       }
     )
   }

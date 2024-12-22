@@ -1,9 +1,10 @@
 'use client'
 
 import useJoin from '@/app/room/[roomId]/join/_hooks/useJoin'
-import { Button } from '@/chakra/components/ui/button'
-import { Field } from '@/chakra/components/ui/field'
-import { Input, Text, VStack } from '@chakra-ui/react'
+import { Button } from '@/components/ui/button'
+import { Field } from '@/components/ui/field'
+import ContentBox from '@/shared/components/content.box'
+import { Box, Input, Text, VStack } from '@chakra-ui/react'
 
 export default function Page ({
   params: { roomId }
@@ -13,21 +14,25 @@ export default function Page ({
   const { name, setName, error, onClick } = useJoin(roomId)
 
   return (
-    <VStack padding={8} gap={8}>
-      <Field label="ニックネーム" w={64} required>
-        {error && <Text color="red">{error}</Text>}
-        <Input
-          value={name}
-          onChange={(e) => {
-            setName(e.target.value)
-          }}
-          minLength={1}
-          maxLength={10}
-        />
-      </Field>
-      <Button disabled={!name} type="submit" w={32} onClick={onClick}>
-        参加する
-      </Button>
-    </VStack>
+    <Box padding={4}>
+      <ContentBox title="参加する">
+        <VStack gap={8}>
+          <Field label="ニックネーム" w={64} required>
+            {error && <Text color="red">{error}</Text>}
+            <Input
+              value={name}
+              onChange={(e) => {
+                setName(e.target.value)
+              }}
+              minLength={1}
+              maxLength={10}
+            />
+          </Field>
+          <Button disabled={!name} type="submit" w={32} onClick={onClick}>
+            参加する
+          </Button>
+        </VStack>
+      </ContentBox>
+    </Box>
   )
 }

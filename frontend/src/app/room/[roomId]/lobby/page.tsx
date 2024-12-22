@@ -7,20 +7,22 @@ import {
   Box,
   Button,
   createListCollection,
-  Flex,
   Text,
-  SelectContent,
-  SelectItem,
-  SelectLabel,
-  SelectRoot,
-  SelectTrigger,
-  SelectValueText,
   VStack,
   HStack
 } from '@chakra-ui/react'
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { WebsocketResolver } from '@/shared/function/websocket.resolver'
+import ContentBox from '@/shared/components/content.box'
+import {
+  SelectRoot,
+  SelectContent,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValueText
+} from '@/components/ui/select'
 
 export default function Page ({ params }: { params: { roomId: string } }) {
   const [stageClassName, setStageClassName] = useState(array[0].value)
@@ -58,72 +60,58 @@ export default function Page ({ params }: { params: { roomId: string } }) {
 
   return (
     <VStack w="100%" maxW="540px" padding="16px 8px" gap="16px" margin="0 auto">
-      <Flex
-        position="relative"
-        w="100%"
-        gap="8px"
-        borderRadius="8px"
-        minH="64px"
-        border="1px solid #000"
-        padding="8px"
-        alignItems="center"
-        justifyContent="center"
-        wrap="wrap"
-      >
-        <Box
-          position="absolute"
-          w="max-content"
-          h="16px"
-          top="0"
-          left="24px"
-          bgColor="#fff"
+      <ContentBox title="参加メンバー">
+        <HStack
+          wrap="wrap"
           alignItems="center"
-          transform="translate(0, -50%)"
-          fontSize="11px"
-          padding="0 8px"
+          justifyContent="center"
+          width="100%"
+          minH="48px"
         >
-          <Text>参加メンバー</Text>
-        </Box>
-        {(status?.sequence ?? []).map((info, index) => (
-          <>
-            <Box key={info.memberId}>{info.memberName}</Box>
-            {index < (status?.sequence.length ?? 0) - 1 && '|'}
-          </>
-        ))}
-      </Flex>
+          {(status?.sequence ?? []).map((info, index) => (
+            <React.Fragment key={info.memberId}>
+              <Box>{info.memberName}</Box>
+              {index < (status?.sequence.length ?? 0) - 1 && '|'}
+            </React.Fragment>
+          ))}
+        </HStack>
+      </ContentBox>
       {isHost
         ? (
-        <VStack w="100%" gap="16px">
-          <SelectRoot
-            collection={list}
-            defaultValue={[list.items[0].value]}
-            onValueChange={({ value }) => {
-              setStageClassName(() => value[0])
-            }}
-          >
-            <SelectLabel>遊ぶステージ</SelectLabel>
-            <SelectTrigger>
-              <SelectValueText placeholder="ステージを選択してください。" />
-            </SelectTrigger>
-            <SelectContent>
-              {list.items.map((item) => (
-                <SelectItem item={item} key={item.value}>
-                  {item.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </SelectRoot>
-          <Button
-            onClick={async () => {
-              await WebsocketResolver.sendSync('startGame', {
-                roomId: params.roomId,
-                stageClassName
-              })
-            }}
-          >
-            開始する
-          </Button>
-        </VStack>
+        <ContentBox title="ゲームの設定">
+          <VStack w="100%" gap={16}>
+            <SelectRoot
+              collection={list}
+              size="md"
+              defaultValue={[list.items[0].value]}
+              onValueChange={({ value }) => {
+                setStageClassName(() => value[0])
+              }}
+            >
+              <SelectLabel>ステージ</SelectLabel>
+              <SelectTrigger>
+                <SelectValueText placeholder="ステージを選択してください。" />
+              </SelectTrigger>
+              <SelectContent>
+                {list.items.map((item) => (
+                  <SelectItem item={item} key={item.value}>
+                    {item.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </SelectRoot>
+            <Button
+              onClick={async () => {
+                await WebsocketResolver.sendSync('startGame', {
+                  roomId: params.roomId,
+                  stageClassName
+                })
+              }}
+            >
+              スタート
+            </Button>
+          </VStack>
+        </ContentBox>
           )
         : (
         <HStack>

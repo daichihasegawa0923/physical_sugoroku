@@ -144,20 +144,32 @@ export class MainLogic extends MonoBehaviour {
   }
 
   private initWebsocketAddList () {
-    WebsocketResolver.add('impulse', (data) => {
-      this.smashById(data.id, data.direction)
-      this.updateStats(data.status, data.activeMemberId)
+    WebsocketResolver.add('impulse', {
+      id: 'game',
+      func: (data) => {
+        this.smashById(data.id, data.direction)
+        this.updateStats(data.status, data.activeMemberId)
+      }
     })
-    WebsocketResolver.add('updateGameObjects', (data) => {
-      this.syncAll(data.objects)
+    WebsocketResolver.add('updateGameObjects', {
+      id: 'game',
+      func: (data) => {
+        this.syncAll(data.objects)
+      }
     })
-    WebsocketResolver.add('turnEnd', (data) => {
-      this.syncAll(data.objects)
-      this.updateStats(data.status, data.activeMemberId)
+    WebsocketResolver.add('turnEnd', {
+      id: 'game',
+      func: (data) => {
+        this.syncAll(data.objects)
+        this.updateStats(data.status, data.activeMemberId)
+      }
     })
-    WebsocketResolver.add('goal', (data) => {
-      this.syncAll(data.objects)
-      this.updateStats(data.status, data.goalMemberId)
+    WebsocketResolver.add('goal', {
+      id: 'game',
+      func: (data) => {
+        this.syncAll(data.objects)
+        this.updateStats(data.status, data.goalMemberId)
+      }
     })
   }
 }

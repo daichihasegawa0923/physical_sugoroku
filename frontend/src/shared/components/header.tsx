@@ -7,14 +7,8 @@ import React from 'react'
 const Header = () => {
   return (
     <>
-      <Box w="100%" h="54px">
-        <HStack
-          w="100%"
-          h="100%"
-          justifyContent={'center'}
-          padding={4}
-          bgColor="green"
-        >
+      <Box w="100%" h="54px" backgroundColor="#A83F89">
+        <HStack w="100%" h="100%" justifyContent={'center'} padding={4}>
           <Box w="max-content">
             <a href="/">
               <Heading as="h2" color="white">

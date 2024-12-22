@@ -1,40 +1,49 @@
-import { Box, Flex, HStack } from '@chakra-ui/react'
+import ContentBox from '@/shared/components/content.box'
+import { Box, Flex, HStack, Text } from '@chakra-ui/react'
 import { type ResultFromName } from 'physical-sugoroku-common/src/event'
+import React from 'react'
 
 function Sequence (props: Pick<ResultFromName<'status'>['value'], 'sequence'>) {
   return (
-    <Flex
+    <Box
       position="absolute"
-      bgColor="#FFF"
-      borderRadius="8px"
-      padding="8px"
       left={'50%'}
-      bottom={'5%'}
-      zIndex={99}
+      top={'10%'}
       w="300px"
+      zIndex={99}
       transform="translate(-50%, 0)"
-      wrap="wrap"
     >
-      {props.sequence.map((seq) => {
-        return (
-          <HStack key={seq.memberId} w="140px">
-            <HStack>
-              <Box>
-                <Box
-                  w="10px"
-                  h="10px"
-                  borderWidth="5px"
-                  borderColor="transparent"
-                  borderBottomColor={getColor(seq.sequence)}
-                />
-                <Box w="10px" h="10px" bgColor={getColor(seq.sequence)} />
-              </Box>
-              {seq.memberName}
-            </HStack>
-          </HStack>
-        )
-      })}
-    </Flex>
+      <ContentBox title="メンバー">
+        <Flex w="100%" justifyContent="space-between" wrap="wrap">
+          {props.sequence.map((seq) => {
+            return (
+              <HStack key={seq.memberId} w="100px">
+                <HStack>
+                  <Box>
+                    <Box
+                      w="10px"
+                      h="10px"
+                      borderWidth="5px"
+                      borderColor="transparent"
+                      borderBottomColor={getColor(seq.sequence)}
+                    />
+                    <Box w="10px" h="10px" bgColor={getColor(seq.sequence)} />
+                  </Box>
+                  <Text
+                    w="80px"
+                    textWrap="nowrap"
+                    overflow="hidden"
+                    textOverflow="ellipsis"
+                  >
+                    {seq.memberName}
+                  </Text>
+                </HStack>
+              </HStack>
+            )
+          })}
+        </Flex>
+      </ContentBox>
+    </Box>
   )
 }
 

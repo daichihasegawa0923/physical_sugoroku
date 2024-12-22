@@ -1,4 +1,4 @@
-import { Provider } from '@/chakra/components/ui/provider'
+import { Provider } from '@/components/ui/provider'
 import { CommandContextProvider } from '@/shared/components/command.provider'
 import Header from '@/shared/components/header'
 import { Box, Theme } from '@chakra-ui/react'
@@ -17,12 +17,19 @@ export default function RootLayout ({
 }>) {
   return (
     <html suppressHydrationWarning={true}>
-      <body style={{ height: '100%' }} className={font}>
+      <body
+        style={{
+          height: '100%'
+        }}
+        className={font}
+      >
         <Provider>
           <Theme appearance="light">
             <CommandContextProvider>
               <Header />
-              <Box h="calc(100svh - 54px)">{children}</Box>
+              <Box h="calc(100svh - 54px)" bgColor="#F4CA81">
+                {children}
+              </Box>
             </CommandContextProvider>
           </Theme>
         </Provider>

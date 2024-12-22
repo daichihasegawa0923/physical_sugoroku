@@ -1,8 +1,10 @@
 'use client'
 
+import ContentBox from '@/shared/components/content.box'
+import { useStatusContext } from '@/shared/components/status.provider'
 import { WebsocketResolver } from '@/shared/function/websocket.resolver'
 import useLocalRoomInfo from '@/shared/hooks/useLocalRoomInfo'
-import { Button, Text, VStack } from '@chakra-ui/react'
+import { Box, Button, Text, VStack } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 
@@ -12,7 +14,7 @@ interface Props {
 
 function Goal ({ roomId }: Props) {
   const [name, setName] = useState('')
-  const [goalMemberId, setGoalMemberId] = useState('')
+  const { status } = useStatusContext()
   const info = useLocalRoomInfo().getByRoomId(roomId)
   const router = useRouter()
   if (info == null) return
@@ -22,42 +24,38 @@ function Goal ({ roomId }: Props) {
       id: 'onComponent',
       func: (data) => {
         setName(() => data.goalMemberName)
-        setGoalMemberId(() => data.goalMemberId)
       }
     })
   }, [])
 
-  if (!name) return null
+  if (!name && status !== 'RESULT') return null
 
   return (
-    <VStack
+    <Box
       position="absolute"
-      bgColor="#fff"
-      borderRadius="8px"
       top="100px"
-      maxWidth="300px"
-      minWidth="180px"
       left="50%"
-      transform="translate(-50%)"
-      padding="8px"
       zIndex={100}
+      transform="translate(-50%)"
     >
-      <Text fontSize="24px" fontWeight="bold" textAlign="center">
-        王手！！
-      </Text>
-      <Text textAlign="center">{name}の勝利</Text>
-      {info.myMemberId === goalMemberId && (
-        <Button
-          onClick={async () => {
-            await WebsocketResolver.sendSync('replay', { roomId }, (_) => {
-              router.push(`/room/${roomId}/lobby`)
-            })
-          }}
-        >
-          もう一度遊ぶ
-        </Button>
-      )}
-    </VStack>
+      <ContentBox>
+        <VStack maxWidth="300px" minWidth="180px" padding="8px">
+          <Text fontSize="24px" fontWeight="bold" textAlign="center">
+            王手！！
+          </Text>
+          {name && <Text textAlign="center">{name}の勝利</Text>}
+          <Button
+            onClick={async () => {
+              await WebsocketResolver.sendSync('replay', { roomId }, (_) => {
+                router.push(`/room/${roomId}/lobby`)
+              })
+            }}
+          >
+            もう一度遊ぶ
+          </Button>
+        </VStack>
+      </ContentBox>
+    </Box>
   )
 }
 

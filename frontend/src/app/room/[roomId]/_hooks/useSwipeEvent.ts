@@ -1,3 +1,5 @@
+'use client'
+
 import { useEffect, useRef } from 'react'
 
 export default function useCanvasSwipeEvent (props: {
@@ -77,7 +79,8 @@ class MousePointProvider {
     private down: boolean = false
   ) {}
 
-  private static readonly instance: MousePointProvider = new MousePointProvider()
+  private static readonly instance: MousePointProvider =
+    new MousePointProvider()
 
   public static setStartPoint (x: number, y: number) {
     MousePointProvider.instance.startPoint.x = x
