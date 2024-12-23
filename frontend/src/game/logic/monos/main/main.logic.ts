@@ -1,19 +1,19 @@
-import { MonoBehaviour } from '@/shared/game/monobehaviour'
-import { type Object3D } from 'three'
-import { GameScene } from '@/shared/game/game.scene'
-import { Light } from '@/game/logic/monos/base/light'
-import { LightHemisphere } from '@/game/logic/monos/base/light.hemisphere'
-import { CameraManager } from '@/game/logic/monos/main/camera.manager'
-import { SmashManager } from '@/game/logic/monos/main/smash.manager'
-import { findMyPiece } from '@/game/logic/monos/main/functions'
-import { TurnEndManager } from '@/game/logic/monos/main/turn.end.manager'
-import { GameObjectResolver } from '@/game/logic/monos/main/game.object.resolver'
+import { MonoBehaviour } from '@/shared/game/monobehaviour';
+import { type Object3D } from 'three';
+import { GameScene } from '@/shared/game/game.scene';
+import { Light } from '@/game/logic/monos/base/light';
+import { LightHemisphere } from '@/game/logic/monos/base/light.hemisphere';
+import { CameraManager } from '@/game/logic/monos/main/camera.manager';
+import { SmashManager } from '@/game/logic/monos/main/smash.manager';
+import { findMyPiece } from '@/game/logic/monos/main/functions';
+import { TurnEndManager } from '@/game/logic/monos/main/turn.end.manager';
+import { GameObjectResolver } from '@/game/logic/monos/main/game.object.resolver';
 import {
   type Vector3,
   type GameStatus,
   type GameObject
-} from 'physical-sugoroku-common/src/shared'
-import { WebsocketResolver } from '@/shared/function/websocket.resolver'
+} from 'physical-sugoroku-common/src/shared';
+import { WebsocketResolver } from '@/shared/function/websocket.resolver';
 
 export class MainLogic extends MonoBehaviour {
   public constructor (
@@ -26,39 +26,39 @@ export class MainLogic extends MonoBehaviour {
     private readonly turnEndManager = new TurnEndManager(),
     private readonly gameObjectResolver = new GameObjectResolver()
   ) {
-    super()
-    this.roomId = roomId
-    this.memberId = memberId
-    this.gameObjectResolver.registerPrefabs()
+    super();
+    this.roomId = roomId;
+    this.memberId = memberId;
+    this.gameObjectResolver.registerPrefabs();
     objects.forEach((obj) => {
-      this.gameObjectResolver.createInstance(obj)
-    })
-    this.status = status
-    GameScene.setBackgroundColor(0x006644, 1.0)
-    this.initWebsocketAddList()
+      this.gameObjectResolver.createInstance(obj);
+    });
+    this.status = status;
+    GameScene.setBackgroundColor(0x006644, 1.0);
+    this.initWebsocketAddList();
   }
 
-  private activeMemberId: string | null = null
+  private activeMemberId: string | null = null;
 
   public getStatus () {
-    return this.status
+    return this.status;
   }
 
   public updateStats (status: GameStatus, activeMemberId: string | null) {
-    this.status = status
-    this.activeMemberId = activeMemberId
+    this.status = status;
+    this.activeMemberId = activeMemberId;
   }
 
   public getObject3D (): Object3D | null {
-    return null
+    return null;
   }
 
   public isMyTurn () {
-    return this.memberId === this.activeMemberId
+    return this.memberId === this.activeMemberId;
   }
 
   override start (): void {
-    this.init()
+    this.init();
   }
 
   override update (): void {
@@ -66,60 +66,60 @@ export class MainLogic extends MonoBehaviour {
       this.isMyTurn(),
       this.activeMemberId,
       this.status
-    )
-    this.executeTurnEnd()
-    this.smashManager.drawSmashDirection(this.status, this.isMyTurn())
+    );
+    this.executeTurnEnd();
+    this.smashManager.drawSmashDirection(this.status, this.isMyTurn());
   }
 
   public smashById (id: string, direction: Vector3) {
-    this.smashManager.smashById(id, direction)
+    this.smashManager.smashById(id, direction);
   }
 
   public smash (): void {
-    if (!this.isMyTurn() || this.getStatus() !== 'DIRECTION') return
-    const myObjId = findMyPiece(this.memberId)?.getId()
-    if (myObjId == null) return
+    if (!this.isMyTurn() || this.getStatus() !== 'DIRECTION') return;
+    const myObjId = findMyPiece(this.memberId)?.getId();
+    if (myObjId == null) return;
     const result = this.smashManager.smash(this.memberId, (direction) => {
       WebsocketResolver.send('impulse', {
         id: myObjId,
         direction,
         roomId: this.roomId
-      })
-    })
+      });
+    });
     if (result) {
-      this.status = 'MOVING'
+      this.status = 'MOVING';
     }
   }
 
   public changeAngle (horizontal: number) {
-    this.cameraManager.changeAngle(horizontal)
+    this.cameraManager.changeAngle(horizontal);
   }
 
   public updateSmashDirection (x: number, y: number) {
     if (this.status === 'DIRECTION' && this.isMyTurn()) {
-      this.smashManager.updateDirectionPower(x, y)
+      this.smashManager.updateDirectionPower(x, y);
     }
   }
 
   private executeTurnEnd (): void {
-    if (!this.isMyTurn() || this.getStatus() !== 'MOVING') return
-    if (this.turnEndManager.isMoveSomePieces()) return
+    if (!this.isMyTurn() || this.getStatus() !== 'MOVING') return;
+    if (this.turnEndManager.isMoveSomePieces()) return;
 
-    this.status = 'WAITING'
+    this.status = 'WAITING';
     setTimeout(() => {
       // ゲーム終了時は何もしない
-      if (this.status === 'RESULT') return
+      if (this.status === 'RESULT') return;
 
       if (this.turnEndManager.isMoveSomePieces()) {
-        this.status = 'MOVING'
-        return
+        this.status = 'MOVING';
+        return;
       }
       WebsocketResolver.send('turnEnd', {
         roomId: this.roomId,
         gameObjects: GameScene.allOnline()
-      })
+      });
       // 遅延させる
-    }, 1500)
+    }, 1500);
   }
 
   public goal (goalMemberId: string) {
@@ -127,49 +127,49 @@ export class MainLogic extends MonoBehaviour {
       goalMemberId,
       roomId: this.roomId,
       gameObjects: GameScene.allOnline()
-    })
-    this.status = 'RESULT'
+    });
+    this.status = 'RESULT';
   }
 
   public syncAll (gameObjects: GameObject[]) {
-    this.gameObjectResolver.syncAll(gameObjects)
+    this.gameObjectResolver.syncAll(gameObjects);
   }
 
-  private readonly light = new Light()
-  private readonly lightHemisphere = new LightHemisphere()
+  private readonly light = new Light();
+  private readonly lightHemisphere = new LightHemisphere();
 
   private init () {
-    GameScene.add(this.light)
-    GameScene.add(this.lightHemisphere)
+    GameScene.add(this.light);
+    GameScene.add(this.lightHemisphere);
   }
 
   private initWebsocketAddList () {
     WebsocketResolver.add('impulse', {
       id: 'game',
       func: (data) => {
-        this.smashById(data.id, data.direction)
-        this.updateStats(data.status, data.activeMemberId)
+        this.smashById(data.id, data.direction);
+        this.updateStats(data.status, data.activeMemberId);
       }
-    })
+    });
     WebsocketResolver.add('updateGameObjects', {
       id: 'game',
       func: (data) => {
-        this.syncAll(data.objects)
+        this.syncAll(data.objects);
       }
-    })
+    });
     WebsocketResolver.add('turnEnd', {
       id: 'game',
       func: (data) => {
-        this.syncAll(data.objects)
-        this.updateStats(data.status, data.activeMemberId)
+        this.syncAll(data.objects);
+        this.updateStats(data.status, data.activeMemberId);
       }
-    })
+    });
     WebsocketResolver.add('goal', {
       id: 'game',
       func: (data) => {
-        this.syncAll(data.objects)
-        this.updateStats(data.status, data.goalMemberId)
+        this.syncAll(data.objects);
+        this.updateStats(data.status, data.goalMemberId);
       }
-    })
+    });
   }
 }

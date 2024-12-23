@@ -1,8 +1,8 @@
-'use client'
+'use client';
 
-import { useStatusInfo } from '@/shared/hooks/useStatusInfo'
-import useTryJoin from '@/shared/hooks/useTryJoin'
-import { useCommandContext } from '@/shared/components/command.provider'
+import { useStatusInfo } from '@/shared/hooks/useStatusInfo';
+import useTryJoin from '@/shared/hooks/useTryJoin';
+import { useCommandContext } from '@/shared/components/command.provider';
 import {
   Box,
   Button,
@@ -10,11 +10,11 @@ import {
   Text,
   VStack,
   HStack
-} from '@chakra-ui/react'
-import React, { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { WebsocketResolver } from '@/shared/function/websocket.resolver'
-import ContentBox from '@/shared/components/content.box'
+} from '@chakra-ui/react';
+import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { WebsocketResolver } from '@/shared/function/websocket.resolver';
+import ContentBox from '@/shared/components/content.box';
 import {
   SelectRoot,
   SelectContent,
@@ -22,44 +22,48 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValueText
-} from '@/components/ui/select'
+} from '@/components/ui/select';
+import InviteUrl from '@/app/room/[roomId]/lobby/_components/invite.url';
 
 export default function Page ({ params }: { params: { roomId: string } }) {
-  const [stageClassName, setStageClassName] = useState(array[0].value)
-  const { fetch, status, isHost } = useStatusInfo(params.roomId)
-  const router = useRouter()
-  const { setCommandText } = useCommandContext()
+  const [stageClassName, setStageClassName] = useState(array[0].value);
+  const { fetch, status, isHost } = useStatusInfo(params.roomId);
+  const router = useRouter();
+  const { setCommandText } = useCommandContext();
   useTryJoin(
     params.roomId,
     (data) => {
       if (!data.ok) {
-        setCommandText('ルームに参加できませんでした。')
-        return
+        setCommandText('ルームに参加できませんでした。');
+        return;
       }
-      fetch().then(() => {})
+      fetch().then(() => {});
     },
     (data) => {
       if (data.ok) {
-        setCommandText(data.memberName + 'さんがルームに参加しました！')
-        fetch().then(() => {})
+        setCommandText(data.memberName + 'さんがルームに参加しました！');
+        fetch().then(() => {});
       }
     }
-  )
+  );
 
   useEffect(() => {
     if (status && status.status !== 'WAITING') {
-      router.push(`/room/${params.roomId}`)
+      router.push(`/room/${params.roomId}`);
     }
     WebsocketResolver.add('startGame', (_) => {
-      router.push(`/room/${params.roomId}`)
+      router.push(`/room/${params.roomId}`);
     });
     (async () => {
-      await fetch()
-    })()
-  }, [status?.status])
+      await fetch();
+    })();
+  }, [status?.status]);
 
   return (
     <VStack w="100%" maxW="540px" padding="16px 8px" gap="16px" margin="0 auto">
+      <ContentBox title="招待リンク">
+        <InviteUrl />
+      </ContentBox>
       <ContentBox title="参加メンバー">
         <HStack
           wrap="wrap"
@@ -85,7 +89,7 @@ export default function Page ({ params }: { params: { roomId: string } }) {
               size="md"
               defaultValue={[list.items[0].value]}
               onValueChange={({ value }) => {
-                setStageClassName(() => value[0])
+                setStageClassName(() => value[0]);
               }}
             >
               <SelectLabel>ステージ</SelectLabel>
@@ -105,7 +109,7 @@ export default function Page ({ params }: { params: { roomId: string } }) {
                 await WebsocketResolver.sendSync('startGame', {
                   roomId: params.roomId,
                   stageClassName
-                })
+                });
               }}
             >
               スタート
@@ -121,15 +125,15 @@ export default function Page ({ params }: { params: { roomId: string } }) {
         </HStack>
           )}
     </VStack>
-  )
+  );
 }
 
 const array = [
   { label: 'Stage1|初心者向け', value: 'Stage1' },
   { label: 'Stage2|中級者向け', value: 'Stage2' },
   { label: '超ミニステージ', value: 'StageTest' }
-]
+];
 
 const list = createListCollection({
   items: array
-})
+});
