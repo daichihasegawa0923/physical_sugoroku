@@ -1,17 +1,75 @@
 import { StageBase } from '@/game/logic/monos/stage/stage.base';
+import { type StageMap } from '@/game/logic/monos/stage/stage.maptip';
 
 export class Stage2 extends StageBase {
-  protected mapInfo (): number[][] {
+  protected mapInfo (): StageMap {
     return [
-      [1, 1, 1, 0, 0, 0, 0, 1, 1, 1],
-      [1, 1, 1, 0, 0, 0, 0, 1, 2, 1],
-      [0, 1, 0, 0, 0, 0, 0, 1, 1, 1],
-      [0, 1, 0, 0, 0, 0, 0, 0, 1, 0],
-      [0, 1, 0, 0, 0, 0, 0, 0, 1, 0],
-      [0, 1, 0, 0, 0, 0, 0, 0, 1, 0],
-      [1, 1, 1, 0, 0, 0, 0, 1, 1, 1],
-      [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      [2, 2, 2, 0, 0, 0, 0, 2, 2, 2]
+      [
+        { name: 'box', height: 1 },
+        { name: 'box', height: 1 },
+        { name: 'box', height: 1 },
+        { name: 'box', height: 1 },
+        { name: 'box', height: 1 }
+      ],
+      [null, null, { name: 'slope', height: 2, direction: 'f' }, null, null],
+      [],
+      [
+        null,
+        { name: 'slope', height: 2, direction: 'l' },
+        { name: 'box', height: 2 },
+        { name: 'slope', height: 2, direction: 'r' },
+        null
+      ],
+      [
+        null,
+        { name: 'slope', height: 2, direction: 'l' },
+        { name: 'box', height: 2 },
+        { name: 'slope', height: 2, direction: 'r' },
+        null
+      ],
+      [],
+      [
+        { name: 'box', height: 1 },
+        { name: 'box', height: 1 },
+        { name: 'box', height: 1 },
+        { name: 'box', height: 1 },
+        { name: 'box', height: 1 }
+      ],
+      [
+        { name: 'slope', height: 2, direction: 'f' },
+        null,
+        null,
+        null,
+        { name: 'slope', height: 2, direction: 'f' }
+      ],
+      [
+        { name: 'slope', height: 3, direction: 'f' },
+        null,
+        null,
+        null,
+        { name: 'slope', height: 3, direction: 'f' }
+      ],
+      [
+        { name: 'box', height: 3 },
+        { name: 'box', height: 3 },
+        null,
+        { name: 'box', height: 3 },
+        { name: 'box', height: 3 }
+      ],
+      [
+        { name: 'box', height: 3 },
+        { name: 'box', height: 3 },
+        null,
+        { name: 'box', height: 3 },
+        { name: 'box', height: 3 }
+      ],
+      [
+        { name: 'box', height: 3 },
+        { name: 'box', height: 3 },
+        { name: 'box', height: 3 },
+        { name: 'box', height: 3 },
+        { name: 'box', height: 3 }
+      ]
     ];
   }
 
@@ -24,19 +82,19 @@ export class Stage2 extends StageBase {
   }
 
   getPiece2Position (): { x: number; y: number } {
-    return { x: 2, y: 0 };
+    return { x: 4, y: 0 };
   }
 
   getPiece3Position (): { x: number; y: number } {
-    return { x: 0, y: 1 };
+    return { x: 1, y: 0 };
   }
 
   getPiece4Position (): { x: number; y: number } {
-    return { x: 2, y: 1 };
+    return { x: 3, y: 0 };
   }
 
   getGoalPosition (): { x: number; y: number; height: number } {
-    return { x: 8, y: 0, height: 4 };
+    return { x: 2, y: 11, height: 10 };
   }
 
   getClass (): string {

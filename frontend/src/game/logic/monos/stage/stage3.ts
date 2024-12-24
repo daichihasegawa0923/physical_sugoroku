@@ -1,21 +1,24 @@
 import { StageBase } from '@/game/logic/monos/stage/stage.base';
 import { type StageMap } from '@/game/logic/monos/stage/stage.maptip';
 
-export class StageTest extends StageBase {
+const SIZE = 11;
+
+export class Stage3 extends StageBase {
   protected mapInfo (): StageMap {
-    return [
-      [
-        { name: 'box', height: 1 },
-        { name: 'box', height: 1 },
-        { name: 'box', height: 1 },
-        { name: 'box', height: 1 }
-      ],
-      [{ name: 'box', height: 1 }]
-    ];
+    const mapInfo: StageMap = [];
+
+    for (let y = 0; y < SIZE; y++) {
+      mapInfo.push([]);
+      for (let x = 0; x < SIZE; x++) {
+        mapInfo[y].push({ name: 'box', height: y });
+      }
+    }
+
+    return mapInfo;
   }
 
   protected override rate (): number {
-    return 2;
+    return 1.5;
   }
 
   getPiece1Position (): { x: number; y: number } {
@@ -23,11 +26,11 @@ export class StageTest extends StageBase {
   }
 
   getPiece2Position (): { x: number; y: number } {
-    return { x: 1, y: 0 };
+    return { x: 4, y: 0 };
   }
 
   getPiece3Position (): { x: number; y: number } {
-    return { x: 2, y: 0 };
+    return { x: 1, y: 0 };
   }
 
   getPiece4Position (): { x: number; y: number } {
@@ -35,10 +38,10 @@ export class StageTest extends StageBase {
   }
 
   getGoalPosition (): { x: number; y: number; height: number } {
-    return { x: 0, y: 1, height: 3 };
+    return { x: 2, y: 11, height: 10 };
   }
 
   getClass (): string {
-    return 'StageTest';
+    return 'Stage3';
   }
 }

@@ -6,12 +6,15 @@ import { MonoBehaviour } from '@/shared/game/monobehaviour';
 import { type GameObject } from 'physical-sugoroku-common/src/shared';
 import * as CANNON from 'cannon-es';
 import type * as THREE from 'three';
+import {
+  type StageMap
+} from '@/game/logic/monos/stage/stage.maptip';
 
 export abstract class StageBase extends MonoBehaviour implements IOnline {
   public constructor (id?: string) {
     super(id);
-    this.builder = new StageBuilder()
-      .buildStage(this.mapInfo(), this.rate())
+    this.builder = new StageBuilder(this.mapInfo(), this.rate())
+      .buildStage()
       .buildGoal(
         this.getGoalPosition().x,
         this.getGoalPosition().y,
@@ -59,7 +62,7 @@ export abstract class StageBase extends MonoBehaviour implements IOnline {
           throw Error();
         };
         const { x, y } = getPosition();
-        const position = this.builder.getPositionFromMapPoint(x, y, 10);
+        const position = this.builder.getPositionFromMapPoint(x, 10, y);
         const quaternion = new CANNON.Quaternion().setFromAxisAngle(
           new CANNON.Vec3(0, 1, 0),
           Math.PI
@@ -77,7 +80,7 @@ export abstract class StageBase extends MonoBehaviour implements IOnline {
     });
   }
 
-  protected abstract mapInfo (): number[][];
+  protected abstract mapInfo (): StageMap;
 
   protected abstract rate (): number;
 

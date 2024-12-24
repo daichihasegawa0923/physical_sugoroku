@@ -17,7 +17,7 @@ export interface TriPrismProps {
 export class TriPrism extends RigidBodyMonoBehaviour {
   constructor (props: TriPrismProps) {
     super();
-    const geometry = TriPrism.createGeometry(1);
+    const geometry = TriPrism.createGeometry(props?.options?.rate ?? 1);
     const material = new THREE.MeshStandardMaterial({ color: props.color });
     this.model = new THREE.Mesh(geometry, material);
     this.model.castShadow = true;
@@ -32,7 +32,7 @@ export class TriPrism extends RigidBodyMonoBehaviour {
     return this.body;
   }
 
-  public getObject3D (): THREE.Object3D | null {
+  public getObject3D (): THREE.Object3D {
     return this.model;
   }
 
@@ -40,40 +40,40 @@ export class TriPrism extends RigidBodyMonoBehaviour {
     // 三角柱の頂点データを作成
     const vertices = new Float32Array([
       // pの三角形
-      0, 0, 0,
+      -0.5, -0.5, -0.5,
       // 頂点1
-      1, 0, 0,
+      0.5, -0.5, -0.5,
       // 頂点2
-      1, 1, 0,
+      0.5, 0.5, -0.5,
       // 頂点3
 
       // 上面の三角形
-      0, 0, 1,
+      -0.5, -0.5, 0.5,
       // 頂点4
-      1, 0, 1,
+      0.5, -0.5, 0.5,
       // 頂点5
-      1, 1, 1
+      0.5, 0.5, 0.5
       // 頂点6
     ]);
 
     // 三角形の面を定義
     const indices = [
       // p
-      0, 1, 2,
+      2, 1, 0,
       // 上面
-      3, 5, 4,
+      4, 5, 3,
       // 側面1-1
-      0, 2, 3,
+      3, 2, 0,
       // 側面1-2
-      3, 2, 5,
+      5, 2, 3,
       // 側面1
-      2, 1, 5,
+      5, 1, 2,
       // 側面1
-      5, 1, 4,
+      4, 1, 5,
       // 側面1
-      1, 0, 4,
+      4, 0, 1,
       // 側面1
-      4, 0, 3
+      3, 0, 4
     ];
 
     // ジオメトリの作成
@@ -93,12 +93,12 @@ export class TriPrism extends RigidBodyMonoBehaviour {
   private static createRigidBody (options: TriPrismProps['options']) {
     const helper = new ConvexPolyhedronHelper(
       [
-        ['p0', { x: 0, y: 0, z: 0 }],
-        ['p1', { x: 1, y: 0, z: 0 }],
-        ['p2', { x: 1, y: 1, z: 0 }],
-        ['p3', { x: 0, y: 0, z: 1 }],
-        ['p4', { x: 1, y: 0, z: 1 }],
-        ['p5', { x: 1, y: 1, z: 1 }]
+        ['p0', { x: -0.5, y: -0.5, z: -0.5 }],
+        ['p1', { x: 0.5, y: -0.5, z: -0.5 }],
+        ['p2', { x: 0.5, y: 0.5, z: -0.5 }],
+        ['p3', { x: -0.5, y: -0.5, z: 0.5 }],
+        ['p4', { x: 0.5, y: -0.5, z: 0.5 }],
+        ['p5', { x: 0.5, y: 0.5, z: 0.5 }]
       ],
       [
         // 両底面
