@@ -1,10 +1,10 @@
-import { Box, Text } from '@chakra-ui/react'
-import React, { type ReactNode } from 'react'
+import { Box, Text, VStack } from '@chakra-ui/react';
+import React, { type ReactNode } from 'react';
 
 interface Props {
-  title?: string
-  children: ReactNode
-  height?: string
+  title?: string;
+  children: ReactNode;
+  height?: string;
 }
 
 function ContentBox ({ title, children, height }: Props) {
@@ -16,22 +16,23 @@ function ContentBox ({ title, children, height }: Props) {
       color="black"
     >
       {title && (
-        <Box
+        <VStack
           position="absolute"
           w="max-content"
-          h="16px"
+          h="24px"
           top="0"
           left="24px"
           bgColor="#fff"
           transform="translate(0, -50%)"
           lineHeight="100%"
-          fontSize="11px"
-          padding="0 8px"
+          fontSize="12px"
+          padding="0 12px"
           border="1px solid #000"
-          borderRadius="8px"
+          borderRadius="12px"
+          justifyContent="center"
         >
           <Text>{title}</Text>
-        </Box>
+        </VStack>
       )}
       <Box
         w="100%"
@@ -44,7 +45,7 @@ function ContentBox ({ title, children, height }: Props) {
         {children}
       </Box>
     </Box>
-  )
+  );
 }
 
-export default React.memo(ContentBox)
+export default React.memo(ContentBox);

@@ -10,35 +10,44 @@ export class Stage3 extends StageBase {
     for (let y = 0; y < SIZE; y++) {
       mapInfo.push([]);
       for (let x = 0; x < SIZE; x++) {
-        mapInfo[y].push({ name: 'box', height: y });
+        mapInfo[y].push(null);
       }
     }
 
+    let index = 0;
+    while (index < Math.floor(SIZE / 2)) {
+      for (let y = index; y < SIZE - index; y++) {
+        for (let x = index; x < SIZE - index; x++) {
+          mapInfo[y][x] = { name: 'box', height: index };
+        }
+      }
+      index++;
+    }
     return mapInfo;
   }
 
   protected override rate (): number {
-    return 1.5;
+    return 3;
   }
 
   getPiece1Position (): { x: number; y: number } {
-    return { x: 0, y: 0 };
+    return { x: SIZE - 1, y: 0 };
   }
 
   getPiece2Position (): { x: number; y: number } {
-    return { x: 4, y: 0 };
+    return { x: SIZE - 2, y: 0 };
   }
 
   getPiece3Position (): { x: number; y: number } {
-    return { x: 1, y: 0 };
+    return { x: SIZE - 3, y: 0 };
   }
 
   getPiece4Position (): { x: number; y: number } {
-    return { x: 3, y: 0 };
+    return { x: SIZE - 4, y: 0 };
   }
 
   getGoalPosition (): { x: number; y: number; height: number } {
-    return { x: 2, y: 11, height: 10 };
+    return { x: Math.floor(SIZE / 2), y: Math.floor(SIZE / 2), height: 20 };
   }
 
   getClass (): string {

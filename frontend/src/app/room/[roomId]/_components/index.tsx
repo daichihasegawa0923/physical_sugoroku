@@ -29,7 +29,7 @@ function Index ({ roomId }: Props) {
     <>
       <Sequence sequence={sequence} />
       <Goal roomId={roomId} />
-      <Box id="main" w="100%" height="100%" position="relative">
+      <Box id="main" w="100%" h="100%">
         <Canvas id="main_canvas" />
       </Box>
     </>

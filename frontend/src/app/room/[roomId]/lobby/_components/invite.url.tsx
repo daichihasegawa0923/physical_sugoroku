@@ -20,6 +20,9 @@ function InviteUrl () {
         readOnly
         value={url}
         borderWidth={0}
+        borderRadius={0}
+        lineHeight={0}
+        h="32px"
         borderBottom="1px solid #000"
         _focus={{
           borderWidth: 0,

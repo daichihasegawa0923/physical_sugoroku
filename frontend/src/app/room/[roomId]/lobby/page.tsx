@@ -24,6 +24,7 @@ import {
   SelectValueText
 } from '@/components/ui/select';
 import InviteUrl from '@/app/room/[roomId]/lobby/_components/invite.url';
+import Loading from '@/shared/components/loading';
 
 export default function Page ({ params }: { params: { roomId: string } }) {
   const [stageClassName, setStageClassName] = useState(array[0].value);
@@ -58,6 +59,10 @@ export default function Page ({ params }: { params: { roomId: string } }) {
       await fetch();
     })();
   }, [status?.status]);
+
+  if (isHost == null) {
+    return <Loading text="読み込み中" open={true} />;
+  }
 
   return (
     <VStack w="100%" maxW="540px" padding="16px 8px" gap="16px" margin="0 auto">
