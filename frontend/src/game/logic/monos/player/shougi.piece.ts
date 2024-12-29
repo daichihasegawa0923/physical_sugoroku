@@ -1,9 +1,9 @@
-import { ConvexPolyhedronHelper } from '@/shared/game/convex.polyhedron.helper'
-import { type Vector3 } from 'physical-sugoroku-common/src/shared'
+import { ConvexPolyhedronHelper } from '@/shared/game/convex.polyhedron.helper';
+import { type Vector3 } from 'physical-sugoroku-common/src/shared';
 import {
   type GLTF,
   GLTFLoader
-} from 'three/examples/jsm/loaders/GLTFLoader.js'
+} from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 export type ModelPath =
   | '/resources/piece_red.gltf'
@@ -11,6 +11,10 @@ export type ModelPath =
   | '/resources/piece_green.gltf'
   | '/resources/piece_purple.gltf'
   | '/resources/piece_king.gltf'
+  | '/resources/piece_king_red.gltf'
+  | '/resources/piece_king_blue.gltf'
+  | '/resources/piece_king_green.gltf'
+  | '/resources/piece_king_purple.gltf';
 
 export class ShougiPieceRigidBodyMesh {
   constructor (
@@ -18,25 +22,25 @@ export class ShougiPieceRigidBodyMesh {
     private readonly rate: number = 1
   ) {}
 
-  private readonly modelLoader: GLTFLoader = new GLTFLoader()
-  private readonly convexHelper = this.getConvexHelper()
+  private readonly modelLoader: GLTFLoader = new GLTFLoader();
+  private readonly convexHelper = this.getConvexHelper();
 
   public onLoad (handler: (data: GLTF) => void) {
     this.modelLoader.load(this.modelPath, (d: GLTF) => {
       d.scene.traverse((obj) => {
-        obj.castShadow = true
-        obj.receiveShadow = true
-      })
-      handler(d)
-    })
+        obj.castShadow = true;
+        obj.receiveShadow = true;
+      });
+      handler(d);
+    });
   }
 
   public getConvex () {
-    return this.convexHelper.generate()
+    return this.convexHelper.generate();
   }
 
   public debugConvex (position?: Vector3) {
-    return this.convexHelper.debugPolygon(position)
+    return this.convexHelper.debugPolygon(position);
   }
 
   private getConvexHelper () {
@@ -50,7 +54,7 @@ export class ShougiPieceRigidBodyMesh {
       ['right_pos', { x: 0.35, y: 0.125, z: 0.3 }], // 右下（表）
       ['left_neg', { x: -0.35, y: -0.125, z: 0.3 }], // 左下（裏）
       ['right_neg', { x: 0.35, y: -0.125, z: 0.3 }] // 右下（裏）
-    ]
+    ];
     const faces = [
       ['top', 'left_up_pos', 'right_up_pos'],
       ['top', 'right_up_neg', 'left_up_neg'],
@@ -61,7 +65,7 @@ export class ShougiPieceRigidBodyMesh {
       ['left_up_pos', 'left_up_neg', 'left_neg', 'left_pos'],
       ['right_pos', 'right_neg', 'right_up_neg', 'right_up_pos'],
       ['left_pos', 'left_neg', 'right_neg', 'right_pos']
-    ]
-    return new ConvexPolyhedronHelper(vertices, faces, this.rate)
+    ];
+    return new ConvexPolyhedronHelper(vertices, faces, this.rate);
   }
 }

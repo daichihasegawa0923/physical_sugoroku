@@ -134,6 +134,13 @@ export class GameScene {
     GameScene.get().scene.add(model);
   }
 
+  /**
+   * GLTFLoaderとかで遅延読み込みが必要な時だけ使う
+   */
+  public static removeModel (model: THREE.Object3D) {
+    GameScene.get().scene.remove(model);
+  }
+
   public static remove (mono: MonoBehaviour) {
     const gameScene = GameScene.get();
     if (!gameScene) return;

@@ -1,10 +1,16 @@
 import type * as THREE from 'three';
 import { MainLogic } from '@/game/logic/monos/main/main.logic';
-import { type Piece } from '@/game/logic/monos/player/piece';
-import { ShougiPieceRigidBodyMesh } from '@/game/logic/monos/player/shougi.piece';
+import { Piece } from '@/game/logic/monos/player/piece';
+import {
+  type ModelPath,
+  ShougiPieceRigidBodyMesh
+} from '@/game/logic/monos/player/shougi.piece';
 import { GameScene } from '@/shared/game/game.scene';
 import * as CANNON from 'cannon-es';
-import { type GameObject, type Vector3 } from 'physical-sugoroku-common/src/shared';
+import {
+  type GameObject,
+  type Vector3
+} from 'physical-sugoroku-common/src/shared';
 import { RigidBodyOnlineMonoBehaviour } from '@/game/logic/monos/base/rigid.body.monobehaviour.onine.ts';
 import { WebsocketResolver } from '@/shared/function/websocket.resolver';
 
@@ -46,8 +52,9 @@ export class Goal extends RigidBodyOnlineMonoBehaviour {
 
   private lastTouchMemberId: string | null = null;
 
-  public setLastTouchMemberId (memberId: string) {
+  public setLastTouchMemberId (memberId: string | null) {
     this.lastTouchMemberId = memberId;
+    this.changeModelByLastTouchMemberId();
   }
 
   private firstPosition: Vector3 = { x: 0, y: 0, z: 0 };
@@ -67,7 +74,7 @@ export class Goal extends RigidBodyOnlineMonoBehaviour {
         if (piece == null) return;
         if (typeof piece.getMemberId !== 'function') return;
         if (piece.getMemberId() === this.lastTouchMemberId) return;
-        this.lastTouchMemberId = piece.getMemberId();
+        this.setLastTouchMemberId(piece.getMemberId());
         WebsocketResolver.send('updateLastTouchMemberId', {
           roomId,
           lastTouchMemberId: piece.getMemberId()
@@ -94,6 +101,10 @@ export class Goal extends RigidBodyOnlineMonoBehaviour {
   }
 
   override update (): void {
+    // 無限に落ちるのを防止する
+    if (this.rigidBody().position.y > -100) {
+      return;
+    }
     super.update();
     this.judgeEnd();
   }
@@ -120,15 +131,17 @@ export class Goal extends RigidBodyOnlineMonoBehaviour {
   override syncFromOnline (gameObject: GameObject): void {
     super.syncFromOnline(gameObject);
     if (!gameObject.other) throw Error();
-    this.lastTouchMemberId =
+    this.setLastTouchMemberId(
       gameObject.other.lastTouchMemberId == null
         ? null
-        : (gameObject.other.lastTouchMemberId as string);
+        : (gameObject.other.lastTouchMemberId as string)
+    );
     const firstPosition = JSON.parse(
       gameObject.other.firstPosition as string
     ) as Vector3;
     if (!firstPosition) throw Error();
     this.firstPosition = firstPosition;
+    this.changeModelByLastTouchMemberId();
   }
 
   override online (): GameObject {
@@ -140,5 +153,45 @@ export class Goal extends RigidBodyOnlineMonoBehaviour {
         firstPosition: JSON.stringify(this.firstPosition)
       }
     };
+  }
+
+  changeModelByLastTouchMemberId () {
+    if (!this.lastTouchMemberId) return;
+    const number = GameScene.findByType(Piece)
+      .find((p) => p.getMemberId() === this.lastTouchMemberId)
+      ?.getNumber();
+    if (!number) return;
+    const modelPath = this.getModelByNumber(number);
+    if (this.model) {
+      GameScene.removeModel(this.model);
+    }
+    const shougi = new ShougiPieceRigidBodyMesh(modelPath, 1.5);
+    shougi.onLoad((data) => {
+      this.model = data.scene;
+      data.scene.scale.set(1.5, 1.5, 1.5);
+      GameScene.addModel(this.model);
+    });
+  }
+
+  private getModelByNumber (
+    number: string
+  ): Extract<
+    ModelPath,
+    | '/resources/piece_king_red.gltf'
+    | '/resources/piece_king_blue.gltf'
+    | '/resources/piece_king_green.gltf'
+    | '/resources/piece_king_purple.gltf'
+    > {
+    switch (number) {
+      case '1':
+        return '/resources/piece_king_red.gltf';
+      case '2':
+        return '/resources/piece_king_blue.gltf';
+      case '3':
+        return '/resources/piece_king_green.gltf';
+      case '4':
+        return '/resources/piece_king_purple.gltf';
+    }
+    throw Error();
   }
 }
