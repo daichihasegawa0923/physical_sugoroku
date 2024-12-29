@@ -1,7 +1,7 @@
 import { Piece } from '@/game/logic/monos/player/piece';
+import { Goal } from '@/game/logic/monos/stage/goal';
 import { Stage1 } from '@/game/logic/monos/stage/stage1';
 import { Stage2 } from '@/game/logic/monos/stage/stage2';
-import { Stage3 } from '@/game/logic/monos/stage/stage3';
 import { StageTest } from '@/game/logic/monos/stage/stageTest';
 import { GameScene } from '@/shared/game/game.scene';
 import type IOnline from '@/shared/game/i.online';
@@ -53,16 +53,6 @@ export class GameObjectResolver {
       return created;
     });
 
-    MonoContainer.registerPrefab('Stage3', (input) => {
-      const stage2 = GameScene.findById(input.id);
-      if (stage2) {
-        return stage2;
-      }
-      const created = new Stage3(input.id);
-      GameScene.add(created);
-      return created;
-    });
-
     MonoContainer.registerPrefab('StageTest', (input) => {
       const stageTest = GameScene.findById(input.id);
       if (stageTest) {
@@ -93,6 +83,18 @@ export class GameObjectResolver {
         memberId: input.other.memberId as string,
         position: input.position
       });
+      GameScene.add(created);
+      return created;
+    });
+    MonoContainer.registerPrefab('Goal', (input) => {
+      const goals = GameScene.findByType(Goal);
+      if (goals.length > 0) {
+        const goal = goals[0];
+        return goal;
+      }
+
+      const created = new Goal(input.id);
+      created.syncFromOnline(input);
       GameScene.add(created);
       return created;
     });

@@ -38,9 +38,10 @@ export default function useMainLogic (roomId: string) {
         data.roomId,
         memberId,
         data.status,
-        data.objects
+        data.activeMemberId
       );
       GameScene.add(mainLogic.current);
+      mainLogic.current.createOnlineObjects(data.objects);
       // websocketから通信を受けた時の処理
       WebsocketResolver.add('replay', (_) => {
         router.push(`/room/${roomId}/lobby`);

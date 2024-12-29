@@ -68,6 +68,7 @@ export type EventTypeMap = {
       {
         roomId: string;
         gameObjects: GameObject[];
+        syncDelay?: boolean;
       }
     >;
     result: Result<'updateGameObjects', { objects: GameObject[] }>;
@@ -83,10 +84,7 @@ export type EventTypeMap = {
     result: Result<'turnEnd', TurnEndResult>;
   };
   goal: {
-    input: Input<
-      'goal',
-      { roomId: string; goalMemberId: string; gameObjects: GameObject[] }
-    >;
+    input: Input<'goal', { roomId: string; gameObjects: GameObject[] }>;
     result: Result<'goal', GoalResult>;
   };
   status: {
@@ -96,6 +94,13 @@ export type EventTypeMap = {
   replay: {
     input: Input<'replay', { roomId: string }>;
     result: Result<'replay', {}>;
+  };
+  updateLastTouchMemberId: {
+    input: Input<
+      'updateLastTouchMemberId',
+      { roomId: string; lastTouchMemberId: string }
+    >;
+    result: Result<'updateLastTouchMemberId', { lastTouchMemberId: string }>;
   };
 };
 

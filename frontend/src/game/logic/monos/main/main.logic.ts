@@ -14,39 +14,47 @@ import {
   type GameObject
 } from 'physical-sugoroku-common/src/shared';
 import { WebsocketResolver } from '@/shared/function/websocket.resolver';
+import { Goal } from '@/game/logic/monos/stage/goal';
 
 export class MainLogic extends MonoBehaviour {
   public constructor (
     private readonly roomId: string,
     private readonly memberId: string,
     private status: GameStatus,
-    objects: GameObject[],
+    private activeMemberId: string | null,
     private readonly cameraManager = new CameraManager(memberId),
     private readonly smashManager = new SmashManager(memberId),
     private readonly turnEndManager = new TurnEndManager(),
     private readonly gameObjectResolver = new GameObjectResolver()
   ) {
     super();
+    this.initWebsocketAddList();
     this.roomId = roomId;
     this.memberId = memberId;
     this.gameObjectResolver.registerPrefabs();
-    objects.forEach((obj) => {
-      this.gameObjectResolver.createInstance(obj);
-    });
     this.status = status;
     GameScene.setBackgroundColor(0x006644, 1.0);
-    this.initWebsocketAddList();
   }
 
-  private activeMemberId: string | null = null;
+  public static get () {
+    const instances = GameScene.findByType(MainLogic);
+    if (instances.length === 0) return null;
+    return instances[0];
+  }
 
   public getStatus () {
     return this.status;
   }
 
-  public updateStats (status: GameStatus, activeMemberId: string | null) {
+  public updateStats (status: GameStatus, activeMemberId?: string | null) {
     this.status = status;
-    this.activeMemberId = activeMemberId;
+    if (activeMemberId !== undefined) {
+      this.activeMemberId = activeMemberId;
+    }
+  }
+
+  public getRoomId () {
+    return this.roomId;
   }
 
   public getObject3D (): Object3D | null {
@@ -107,7 +115,6 @@ export class MainLogic extends MonoBehaviour {
 
     this.status = 'WAITING';
     setTimeout(() => {
-      // ゲーム終了時は何もしない
       if (this.status === 'RESULT') return;
 
       if (this.turnEndManager.isMoveSomePieces()) {
@@ -120,15 +127,6 @@ export class MainLogic extends MonoBehaviour {
       });
       // 遅延させる
     }, 1500);
-  }
-
-  public goal (goalMemberId: string) {
-    WebsocketResolver.send('goal', {
-      goalMemberId,
-      roomId: this.roomId,
-      gameObjects: GameScene.allOnline()
-    });
-    this.status = 'RESULT';
   }
 
   public syncAll (gameObjects: GameObject[]) {
@@ -144,17 +142,18 @@ export class MainLogic extends MonoBehaviour {
   }
 
   private initWebsocketAddList () {
+    WebsocketResolver.add('fetchGameObjects', {
+      id: 'game',
+      func: (data) => {
+        this.gameObjectResolver.syncAll(data.objects);
+      }
+    });
+
     WebsocketResolver.add('impulse', {
       id: 'game',
       func: (data) => {
         this.smashById(data.id, data.direction);
         this.updateStats(data.status, data.activeMemberId);
-      }
-    });
-    WebsocketResolver.add('updateGameObjects', {
-      id: 'game',
-      func: (data) => {
-        this.syncAll(data.objects);
       }
     });
     WebsocketResolver.add('turnEnd', {
@@ -170,6 +169,26 @@ export class MainLogic extends MonoBehaviour {
         this.syncAll(data.objects);
         this.updateStats(data.status, data.goalMemberId);
       }
+    });
+    WebsocketResolver.add('replay', {
+      id: 'game',
+      func: (_) => {
+        GameScene.reset();
+      }
+    });
+    WebsocketResolver.add('updateLastTouchMemberId', {
+      id: 'game',
+      func: (data) => {
+        const goal = GameScene.findByType(Goal);
+        if (goal.length !== 1) return;
+        goal[0].setLastTouchMemberId(data.lastTouchMemberId);
+      }
+    });
+  }
+
+  public createOnlineObjects (onlineObjects: GameObject[]) {
+    onlineObjects.forEach((ol) => {
+      this.gameObjectResolver.createInstance(ol);
     });
   }
 }

@@ -1,34 +1,34 @@
-'use client'
+'use client';
 
-import ContentBox from '@/shared/components/content.box'
-import { useStatusContext } from '@/shared/components/status.provider'
-import { WebsocketResolver } from '@/shared/function/websocket.resolver'
-import useLocalRoomInfo from '@/shared/hooks/useLocalRoomInfo'
-import { Box, Button, Text, VStack } from '@chakra-ui/react'
-import { useRouter } from 'next/navigation'
-import React, { useEffect, useState } from 'react'
+import ContentBox from '@/shared/components/content.box';
+import { useStatusContext } from '@/shared/components/status.provider';
+import { WebsocketResolver } from '@/shared/function/websocket.resolver';
+import useLocalRoomInfo from '@/shared/hooks/useLocalRoomInfo';
+import { Box, Button, Text, VStack } from '@chakra-ui/react';
+import { useRouter } from 'next/navigation';
+import React, { useEffect, useState } from 'react';
 
 interface Props {
-  roomId: string
+  roomId: string;
 }
 
 function Goal ({ roomId }: Props) {
-  const [name, setName] = useState('')
-  const { status } = useStatusContext()
-  const info = useLocalRoomInfo().getByRoomId(roomId)
-  const router = useRouter()
-  if (info == null) return
+  const [name, setName] = useState('');
+  const { status } = useStatusContext();
+  const info = useLocalRoomInfo().getByRoomId(roomId);
+  const router = useRouter();
+  if (info == null) return;
 
   useEffect(() => {
     WebsocketResolver.add('goal', {
       id: 'onComponent',
       func: (data) => {
-        setName(() => data.goalMemberName)
+        setName(() => data.goalMemberName);
       }
-    })
-  }, [])
+    });
+  }, []);
 
-  if (!name && status !== 'RESULT') return null
+  if (!name || status !== 'RESULT') return null;
 
   return (
     <Box
@@ -47,8 +47,8 @@ function Goal ({ roomId }: Props) {
           <Button
             onClick={async () => {
               await WebsocketResolver.sendSync('replay', { roomId }, (_) => {
-                router.push(`/room/${roomId}/lobby`)
-              })
+                router.push(`/room/${roomId}/lobby`);
+              });
             }}
           >
             もう一度遊ぶ
@@ -56,7 +56,7 @@ function Goal ({ roomId }: Props) {
         </VStack>
       </ContentBox>
     </Box>
-  )
+  );
 }
 
-export default React.memo(Goal)
+export default React.memo(Goal);

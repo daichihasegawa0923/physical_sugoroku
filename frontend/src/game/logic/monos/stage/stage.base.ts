@@ -6,20 +6,16 @@ import { MonoBehaviour } from '@/shared/game/monobehaviour';
 import { type GameObject } from 'physical-sugoroku-common/src/shared';
 import * as CANNON from 'cannon-es';
 import type * as THREE from 'three';
-import {
-  type StageMap
-} from '@/game/logic/monos/stage/stage.maptip';
+import { type StageMap } from '@/game/logic/monos/stage/stage.maptip';
+import { type StageClasses } from 'physical-sugoroku-common/src/shared/stage';
 
 export abstract class StageBase extends MonoBehaviour implements IOnline {
   public constructor (id?: string) {
     super(id);
-    this.builder = new StageBuilder(this.mapInfo(), this.rate())
-      .buildStage()
-      .buildGoal(
-        this.getGoalPosition().x,
-        this.getGoalPosition().y,
-        this.getGoalPosition().height
-      );
+    this.builder = new StageBuilder(
+      this.mapInfo(),
+      this.getClass() as StageClasses
+    ).buildStage();
   }
 
   syncFromOnline (_gameObject: GameObject): void {}
@@ -43,7 +39,7 @@ export abstract class StageBase extends MonoBehaviour implements IOnline {
     this.rebornPiece();
   }
 
-  public rebornPiece (): void {
+  private rebornPiece (): void {
     GameScene.findByType(Piece).forEach((p) => {
       const obj = p.getObject3D();
       if (!obj) return;
@@ -62,7 +58,9 @@ export abstract class StageBase extends MonoBehaviour implements IOnline {
           throw Error();
         };
         const { x, y } = getPosition();
-        const position = this.builder.getPositionFromMapPoint(x, 10, y);
+        const position = this.builder
+          .getCommon()
+          .getPositionFromMapPoint(x, 10, y);
         const quaternion = new CANNON.Quaternion().setFromAxisAngle(
           new CANNON.Vec3(0, 1, 0),
           Math.PI

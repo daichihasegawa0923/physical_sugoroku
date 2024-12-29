@@ -9,10 +9,13 @@ import gameObjectRepository from 'src/modules/game/game.object.repository';
 import gameStatusRepository from 'src/modules/game/game.status.repository';
 import memberRepository from 'src/modules/member/member.repository';
 import { GameObject, Vector3 } from 'physical-sugoroku-common/src/shared';
+import {
+  Commons,
+  StageClasses,
+} from 'physical-sugoroku-common/src/shared/stage';
 
-export default function gameObjectService() {
+export default function gameService() {
   return {
-    init,
     findAllObjects,
     upsertObjects,
     addVelocity,
@@ -22,6 +25,7 @@ export default function gameObjectService() {
     getSequenceInfo,
     goal,
     replay,
+    setLastTouchMemberId,
   };
 }
 
@@ -57,7 +61,21 @@ async function addVelocity(
 async function init(roomId: string, stageClassName: string) {
   const info = await gameStatusRepository().findOrCreate(roomId);
   if (info.status !== 'WAITING') return;
+  const stageCommon = Commons[stageClassName as StageClasses];
+  const { x, y, z } = stageCommon.getGoalPositionFromMapPoint();
+  const goal: GameObject = {
+    id: ulid(),
+    className: 'Goal',
+    position: { x, y, z },
+    quaternion: { x: 0, y: 0, z: 0, w: 1 },
+    size: { x: 1.5, y: 1.5, z: 1.5 },
+    other: {
+      firstPosition: JSON.stringify({ x, y, z }),
+      lastTouchMemberId: null,
+    },
+  };
   await gameObjectRepository().upsertMany(roomId, [
+    goal,
     {
       id: ulid(),
       className: stageClassName,
@@ -93,7 +111,7 @@ async function startGame(roomId: string, stageClassName: string) {
       className: 'Piece',
       // -999に指定して、初期位置に強制的に飛ばせる
       position: { x: 0, y: -999, z: 0 },
-      quaternion: { x: 0, y: 0, z: 0, w: 1 },
+      quaternion: { x: 1, y: 0, z: 0, w: 1 },
       size: { x: 1, y: 1, z: 1 },
       other: {
         number: (member.sequence + 1).toString(),
@@ -133,22 +151,21 @@ async function turnEnd(
   }
   info.activeMemberId = nextMember.id;
   info.activeMemberName = nextMember.name;
-  gameObjectService().upsertObjects(roomId, gameObjects);
+  gameService().upsertObjects(roomId, gameObjects);
   await gameStatusRepository().upsert(roomId, info);
 }
 
 async function goal(
   roomId: string,
-  goalMemberId: string,
   gameObjects: GameObject[]
 ): Promise<GoalResult> {
   const info = await gameStatusRepository().findOrCreate(roomId);
+  const objects = await gameObjectRepository().findAll(roomId);
   if (info.status === 'RESULT') {
     const { name, id } = await memberRepository().find(
       roomId,
       info.goalMemberId
     );
-    const objects = await gameObjectRepository().findAll(roomId);
     return {
       goalMemberName: name,
       goalMemberId: id,
@@ -156,11 +173,16 @@ async function goal(
       objects,
     };
   }
+  const goal = objects.find((o) => o.className === 'Goal');
+  if (!goal || goal.other.lastTouchMemberId == null)
+    throw Error('Goal cannot be found.');
+  if (goal.other.lastTouchMemberId == null)
+    throw Error('lastTouchMemberId is not set.');
   info.status = 'RESULT';
-  info.goalMemberId = goalMemberId;
+  info.goalMemberId = goal.other.lastTouchMemberId as string;
   await gameStatusRepository().upsert(roomId, info);
   await gameObjectRepository().upsertMany(roomId, gameObjects);
-  const { id, name } = await memberRepository().find(roomId, goalMemberId);
+  const { id, name } = await memberRepository().find(roomId, info.goalMemberId);
   return {
     goalMemberName: name,
     goalMemberId: id,
@@ -206,6 +228,17 @@ async function findNextMember(roomId: string, currentMemberId: string) {
     if (current.sequence < min.sequence) return current;
     return min;
   }, nextCandidates[0]);
+}
+
+async function setLastTouchMemberId(roomId: string, lastTouchMemberId: string) {
+  const objs = await gameObjectRepository().findAll(roomId);
+  const goal = objs.find((o) => o.className === 'Goal');
+  if (!goal || goal.other.lastTouchMemberId === undefined) {
+    throw Error('goal cannot be found.');
+  }
+  goal.other.lastTouchMemberId = lastTouchMemberId;
+  await gameObjectRepository().upsertMany(roomId, [goal]);
+  return lastTouchMemberId;
 }
 
 async function replay(roomId: string) {

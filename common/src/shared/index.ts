@@ -9,14 +9,11 @@ export interface Vector3 {
 export interface Quaternion extends Vector3 {
   w: number;
 }
-
-export type PlaneData = Record<string, string | number>;
-
 export interface GameObject {
   id: string;
   className: string;
   position: Vector3;
   quaternion: Quaternion;
   size: Vector3;
-  other?: PlaneData;
+  other?: Record<string, string | number | null>;
 }

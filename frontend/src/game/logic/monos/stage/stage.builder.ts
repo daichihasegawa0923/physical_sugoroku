@@ -1,6 +1,5 @@
 import { SimpleBox } from '@/game/logic/monos/base/simple.box';
 import { TriPrism } from '@/game/logic/monos/base/tri.prism';
-import { Goal } from '@/game/logic/monos/stage/goal';
 import {
   type StageMap,
   type StageMapTip,
@@ -10,13 +9,17 @@ import { GameScene } from '@/shared/game/game.scene';
 import { type MonoBehaviour } from '@/shared/game/monobehaviour';
 import { paintTexture } from '@/shared/game/texture.painter';
 import * as CANNON from 'cannon-es';
-import { type Vector3 } from 'physical-sugoroku-common/src/shared';
+import {
+  Commons,
+  type StageClasses,
+  type StageCommon
+} from 'physical-sugoroku-common/src/shared/stage';
 import * as THREE from 'three';
 
 export class StageBuilder {
   public constructor (
     private readonly mapInfo: StageMap,
-    private readonly rate: number
+    private readonly className: StageClasses
   ) {}
 
   public buildStage () {
@@ -33,19 +36,8 @@ export class StageBuilder {
     return this;
   }
 
-  public buildGoal (x: number, y: number, height: number) {
-    const goal = new Goal();
-    goal.setPosition(this.getPositionFromMapPoint(x, height, y));
-    GameScene.add(goal);
-    return this;
-  }
-
-  public getPositionFromMapPoint (x: number, y: number, z: number): Vector3 {
-    return {
-      x: x * this.rate + this.rate / 2,
-      y: y * this.rate + this.rate / 2,
-      z: z * this.rate + this.rate / 2
-    };
+  public getCommon (): StageCommon {
+    return Commons[this.className];
   }
 
   protected createFloor (
@@ -65,9 +57,10 @@ export class StageBuilder {
     new THREE.TextureLoader();
 
   private createSimpleBoxFloor (info: StageMapTip<'box'>, x: number, y: number) {
+    const { rate } = this.getCommon();
     const box = new SimpleBox({
       color: 0xffffff,
-      size: new CANNON.Vec3(this.rate, this.rate, this.rate),
+      size: new CANNON.Vec3(rate, rate, rate),
       position: this.getPivotPosition(x, info.height, y),
       material: new CANNON.Material({
         friction: 0.1
@@ -98,7 +91,7 @@ export class StageBuilder {
     const slope = new TriPrism({
       color: 0xffffff,
       options: {
-        rate: this.rate,
+        rate: this.getCommon().rate,
         position: this.getPivotPosition(x, info.height, y),
         quaternion,
         material: new CANNON.Material({
@@ -111,7 +104,7 @@ export class StageBuilder {
   }
 
   private getPivotPosition (x: number, y: number, z: number) {
-    const position = this.getPositionFromMapPoint(x, y, z);
+    const position = this.getCommon().getPositionFromMapPoint(x, y, z);
     return new CANNON.Vec3(position.x, position.y, position.z);
   }
 }

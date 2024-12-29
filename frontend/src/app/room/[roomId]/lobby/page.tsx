@@ -136,7 +136,6 @@ export default function Page ({ params }: { params: { roomId: string } }) {
 const array = [
   { label: 'Stage1|初心者向け', value: 'Stage1' },
   { label: 'Stage2|中級者向け', value: 'Stage2' },
-  { label: 'Stage3|上級者向け', value: 'Stage3' },
   { label: '超ミニステージ', value: 'StageTest' }
 ];
 
