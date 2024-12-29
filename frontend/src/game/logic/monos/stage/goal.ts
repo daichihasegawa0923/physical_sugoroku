@@ -3,19 +3,19 @@ import { MainLogic } from '@/game/logic/monos/main/main.logic';
 import { Piece } from '@/game/logic/monos/player/piece';
 import {
   type ModelPath,
-  ShougiPieceRigidBodyMesh
+  ShougiPieceRigidBodyMesh,
 } from '@/game/logic/monos/player/shougi.piece';
 import { GameScene } from '@/shared/game/game.scene';
 import * as CANNON from 'cannon-es';
 import {
   type GameObject,
-  type Vector3
+  type Vector3,
 } from 'physical-sugoroku-common/src/shared';
 import { RigidBodyOnlineMonoBehaviour } from '@/game/logic/monos/base/rigid.body.monobehaviour.onine.ts';
 import { WebsocketResolver } from '@/shared/function/websocket.resolver';
 
 export class Goal extends RigidBodyOnlineMonoBehaviour {
-  public constructor (id?: string) {
+  public constructor(id?: string) {
     super(id);
     const shougi = new ShougiPieceRigidBodyMesh(
       '/resources/piece_king.gltf',
@@ -24,7 +24,7 @@ export class Goal extends RigidBodyOnlineMonoBehaviour {
 
     this.rb = new CANNON.Body({
       shape: shougi.getConvex(),
-      mass: 1
+      mass: 1,
     });
 
     shougi.onLoad((data) => {
@@ -34,32 +34,32 @@ export class Goal extends RigidBodyOnlineMonoBehaviour {
     });
   }
 
-  getClass (): string {
+  getClass(): string {
     return 'Goal';
   }
 
   private model: THREE.Object3D | null = null;
 
-  public getObject3D (): THREE.Object3D | null {
+  public getObject3D(): THREE.Object3D | null {
     return this.model;
   }
 
   private readonly rb: CANNON.Body;
 
-  public rigidBody (): CANNON.Body {
+  public rigidBody(): CANNON.Body {
     return this.rb;
   }
 
   private lastTouchMemberId: string | null = null;
 
-  public setLastTouchMemberId (memberId: string | null) {
+  public setLastTouchMemberId(memberId: string | null) {
     this.lastTouchMemberId = memberId;
     this.changeModelByLastTouchMemberId();
   }
 
   private firstPosition: Vector3 = { x: 0, y: 0, z: 0 };
 
-  start (): void {
+  start(): void {
     super.start();
     this.rigidBody().addEventListener(
       'collide',
@@ -77,39 +77,39 @@ export class Goal extends RigidBodyOnlineMonoBehaviour {
         this.setLastTouchMemberId(piece.getMemberId());
         WebsocketResolver.send('updateLastTouchMemberId', {
           roomId,
-          lastTouchMemberId: piece.getMemberId()
+          lastTouchMemberId: piece.getMemberId(),
         });
       }
     );
   }
 
-  public setFirstPosition (position: Vector3) {
+  public setFirstPosition(position: Vector3) {
     const mainLogic = MainLogic.get();
     if (!mainLogic) return;
     this.firstPosition = position;
     WebsocketResolver.send('updateGameObjects', {
       roomId: mainLogic.getRoomId(),
-      gameObjects: [this.online()]
+      gameObjects: [this.online()],
     });
   }
 
-  public setPosition (position: Vector3) {
+  public setPosition(position: Vector3) {
     const { x, y, z } = position;
     this.rigidBody().position.set(x, y, z);
     this.rigidBody().velocity.set(0, 0, 0);
     this.rigidBody().quaternion.set(1, 0, 0, 1);
   }
 
-  override update (): void {
+  override update(): void {
     // 無限に落ちるのを防止する
-    if (this.rigidBody().position.y > -100) {
+    if (this.rigidBody().position.y < -100) {
       return;
     }
     super.update();
     this.judgeEnd();
   }
 
-  private judgeEnd (): void {
+  private judgeEnd(): void {
     if (this.rigidBody().position.y > -10) {
       return;
     }
@@ -123,12 +123,12 @@ export class Goal extends RigidBodyOnlineMonoBehaviour {
       mainLogic.updateStats('RESULT');
       WebsocketResolver.send('goal', {
         roomId: mainLogic.getRoomId(),
-        gameObjects: GameScene.allOnline()
+        gameObjects: GameScene.allOnline(),
       });
     }
   }
 
-  override syncFromOnline (gameObject: GameObject): void {
+  override syncFromOnline(gameObject: GameObject): void {
     super.syncFromOnline(gameObject);
     if (!gameObject.other) throw Error();
     this.setLastTouchMemberId(
@@ -144,18 +144,18 @@ export class Goal extends RigidBodyOnlineMonoBehaviour {
     this.changeModelByLastTouchMemberId();
   }
 
-  override online (): GameObject {
+  override online(): GameObject {
     const go = super.online();
     return {
       ...go,
       other: {
         lastTouchMemberId: this.lastTouchMemberId,
-        firstPosition: JSON.stringify(this.firstPosition)
-      }
+        firstPosition: JSON.stringify(this.firstPosition),
+      },
     };
   }
 
-  changeModelByLastTouchMemberId () {
+  changeModelByLastTouchMemberId() {
     if (!this.lastTouchMemberId) return;
     const number = GameScene.findByType(Piece)
       .find((p) => p.getMemberId() === this.lastTouchMemberId)
@@ -173,7 +173,7 @@ export class Goal extends RigidBodyOnlineMonoBehaviour {
     });
   }
 
-  private getModelByNumber (
+  private getModelByNumber(
     number: string
   ): Extract<
     ModelPath,
@@ -181,7 +181,7 @@ export class Goal extends RigidBodyOnlineMonoBehaviour {
     | '/resources/piece_king_blue.gltf'
     | '/resources/piece_king_green.gltf'
     | '/resources/piece_king_purple.gltf'
-    > {
+  > {
     switch (number) {
       case '1':
         return '/resources/piece_king_red.gltf';
