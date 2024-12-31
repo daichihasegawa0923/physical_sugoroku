@@ -94,8 +94,8 @@ export class GameObjectResolver {
       }
 
       const created = new Goal(input.id);
-      created.syncFromOnline(input);
       GameScene.add(created);
+      created.syncFromOnline(input);
       return created;
     });
   }

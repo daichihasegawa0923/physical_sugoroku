@@ -147,7 +147,7 @@ export class WebsocketResolver {
   }
 }
 
-type Callback<Key extends string> = (
+export type Callback<Key extends string> = (
   data: ResultFromName<Key>['value']
 ) => void;
 

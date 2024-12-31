@@ -17,7 +17,6 @@ function Index ({ roomId }: Props) {
   useCanvasSwipeEvent({
     canvasName: 'main_canvas',
     onMoveCb: (x, y) => {
-      mainLogic?.changeAngle(x);
       mainLogic?.updateSmashDirection(x, y);
     },
     onReleaseCb: function (): void {

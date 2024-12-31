@@ -13,6 +13,10 @@ export class GameScene {
     return !!GameScene.instance;
   }
 
+  public static find () {
+    return GameScene.instance;
+  }
+
   public static get () {
     if (!GameScene.instance) throw new GameSceneNotInitializedError();
     return GameScene.instance;
@@ -59,6 +63,7 @@ export class GameScene {
         this.monos.forEach((mono) => {
           mono.update();
         });
+        GameScene.sync3dObjects();
       } catch (e) {
         if (!(e instanceof GameSceneNotInitializedError)) {
           throw e;
@@ -142,12 +147,13 @@ export class GameScene {
   }
 
   public static remove (mono: MonoBehaviour) {
+    if (mono == null) return;
     const gameScene = GameScene.get();
     if (!gameScene) return;
     mono.onRemove();
     const obj3d = mono.getObject3D();
     if (obj3d) {
-      gameScene.scene.remove(obj3d);
+      GameScene.removeModel(obj3d);
     }
     gameScene.monos = gameScene.monos.filter(
       (originalMono) => originalMono !== mono
@@ -186,5 +192,29 @@ export class GameScene {
     alpha: number
   ) {
     GameScene.get().renderer.setClearColor(color, alpha);
+  }
+
+  // オンライン処理でたまに3Dオブジェクトがきちんと同期されないことがあるので、都度調整する.
+  private static sync3dObjects () {
+    const gameScene = GameScene.find();
+    if (!gameScene) return;
+    const {
+      monos,
+      scene: { children }
+    } = gameScene;
+    const uuidWithCombineMonos = monos
+      .map((m) => m.getObject3D()?.uuid || '')
+      .filter((id) => id !== '');
+    const uuidSceneModels = children.map((c) => c.uuid);
+    const uuidNoActives = uuidSceneModels.filter(
+      (id) => !uuidWithCombineMonos.includes(id)
+    );
+    uuidNoActives
+      .map((id) => {
+        return children.find((c) => c.uuid === id);
+      })
+      .forEach((obj) => {
+        if (obj != null) gameScene.scene.remove(obj);
+      });
   }
 }

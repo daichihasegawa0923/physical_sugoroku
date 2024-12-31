@@ -61,26 +61,21 @@ export class Goal extends RigidBodyOnlineMonoBehaviour {
 
   start (): void {
     super.start();
-    this.rigidBody().addEventListener(
-      'collide',
-      ({ body }: { body: CANNON.Body }) => {
-        const mainLogic = MainLogic.get();
-        if (!mainLogic || !mainLogic.isMyTurn()) return;
-        const roomId = mainLogic.getRoomId();
-        const target = GameScene.allRigidBodies().find(
-          (rig) => rig.rigidBody() === body
-        );
-        const piece = target as Piece;
-        if (piece == null) return;
-        if (typeof piece.getMemberId !== 'function') return;
-        if (piece.getMemberId() === this.lastTouchMemberId) return;
-        this.setLastTouchMemberId(piece.getMemberId());
-        WebsocketResolver.send('updateLastTouchMemberId', {
-          roomId,
-          lastTouchMemberId: piece.getMemberId()
-        });
+    this.addCollisionEventListenerWithRigidBodyMonobehaviour((target) => {
+      if (!MainLogic.get()?.isMyTurn()) return;
+      const roomId = MainLogic.get()?.getRoomId();
+      if (!roomId) return;
+      if (
+        !(target instanceof Piece) ||
+        target.getMemberId() === this.lastTouchMemberId
+      ) {
+        return;
       }
-    );
+      WebsocketResolver.send('updateLastTouchMemberId', {
+        roomId,
+        lastTouchMemberId: target.getMemberId()
+      });
+    });
   }
 
   public setFirstPosition (position: Vector3) {
@@ -142,7 +137,6 @@ export class Goal extends RigidBodyOnlineMonoBehaviour {
     ) as Vector3;
     if (!firstPosition) throw Error();
     this.firstPosition = firstPosition;
-    this.changeModelByLastTouchMemberId();
   }
 
   override online (): GameObject {
@@ -157,7 +151,6 @@ export class Goal extends RigidBodyOnlineMonoBehaviour {
   }
 
   changeModelByLastTouchMemberId () {
-    if (!this.lastTouchMemberId) return;
     const number = GameScene.findByType(Piece)
       .find((p) => p.getMemberId() === this.lastTouchMemberId)
       ?.getNumber();
@@ -178,6 +171,7 @@ export class Goal extends RigidBodyOnlineMonoBehaviour {
     number: string
   ): Extract<
     ModelPath,
+    | '/resources/piece_king.gltf'
     | '/resources/piece_king_red.gltf'
     | '/resources/piece_king_blue.gltf'
     | '/resources/piece_king_green.gltf'
@@ -193,6 +187,6 @@ export class Goal extends RigidBodyOnlineMonoBehaviour {
       case '4':
         return '/resources/piece_king_purple.gltf';
     }
-    throw Error();
+    return '/resources/piece_king.gltf';
   }
 }

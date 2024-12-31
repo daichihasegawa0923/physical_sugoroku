@@ -13,8 +13,12 @@ import {
   type GameStatus,
   type GameObject
 } from 'physical-sugoroku-common/src/shared';
-import { WebsocketResolver } from '@/shared/function/websocket.resolver';
+import {
+  type Callback,
+  WebsocketResolver
+} from '@/shared/function/websocket.resolver';
 import { Goal } from '@/game/logic/monos/stage/goal';
+import { type EventKeys } from 'physical-sugoroku-common/src/event';
 
 export class MainLogic extends MonoBehaviour {
   public constructor (
@@ -65,16 +69,16 @@ export class MainLogic extends MonoBehaviour {
     return this.memberId === this.activeMemberId;
   }
 
+  public getActiveMemberId (): string | null {
+    return this.activeMemberId;
+  }
+
   override start (): void {
     this.init();
   }
 
   override update (): void {
-    this.cameraManager.setCameraPosition(
-      this.isMyTurn(),
-      this.activeMemberId,
-      this.status
-    );
+    this.cameraManager.setCameraPosition();
     this.executeTurnEnd();
     this.smashManager.drawSmashDirection(this.status, this.isMyTurn());
   }
@@ -97,10 +101,6 @@ export class MainLogic extends MonoBehaviour {
     if (result) {
       this.status = 'MOVING';
     }
-  }
-
-  public changeAngle (horizontal: number) {
-    this.cameraManager.changeAngle(horizontal);
   }
 
   public updateSmashDirection (x: number, y: number) {
@@ -142,48 +142,33 @@ export class MainLogic extends MonoBehaviour {
   }
 
   private initWebsocketAddList () {
-    WebsocketResolver.add('fetchGameObjects', {
-      id: 'game',
-      func: (data) => {
-        this.gameObjectResolver.syncAll(data.objects);
-      }
+    this.addWebsocket('fetchGameObjects', (data) => {
+      this.gameObjectResolver.syncAll(data.objects);
     });
+    this.addWebsocket('impulse', (data) => {
+      this.smashById(data.id, data.direction);
+      this.updateStats(data.status, data.activeMemberId);
+    });
+    this.addWebsocket('turnEnd', (data) => {
+      this.syncAll(data.objects);
+      this.updateStats(data.status, data.activeMemberId);
+    });
+    this.addWebsocket('goal', (data) => {
+      this.syncAll(data.objects);
+      this.updateStats(data.status, data.goalMemberId);
+    });
+    this.addWebsocket('replay', (_) => {
+      GameScene.reset();
+    });
+    this.addWebsocket('updateLastTouchMemberId', (data) => {
+      const goal = GameScene.findByType(Goal);
+      if (goal.length !== 1) return;
+      goal[0].setLastTouchMemberId(data.lastTouchMemberId);
+    });
+  }
 
-    WebsocketResolver.add('impulse', {
-      id: 'game',
-      func: (data) => {
-        this.smashById(data.id, data.direction);
-        this.updateStats(data.status, data.activeMemberId);
-      }
-    });
-    WebsocketResolver.add('turnEnd', {
-      id: 'game',
-      func: (data) => {
-        this.syncAll(data.objects);
-        this.updateStats(data.status, data.activeMemberId);
-      }
-    });
-    WebsocketResolver.add('goal', {
-      id: 'game',
-      func: (data) => {
-        this.syncAll(data.objects);
-        this.updateStats(data.status, data.goalMemberId);
-      }
-    });
-    WebsocketResolver.add('replay', {
-      id: 'game',
-      func: (_) => {
-        GameScene.reset();
-      }
-    });
-    WebsocketResolver.add('updateLastTouchMemberId', {
-      id: 'game',
-      func: (data) => {
-        const goal = GameScene.findByType(Goal);
-        if (goal.length !== 1) return;
-        goal[0].setLastTouchMemberId(data.lastTouchMemberId);
-      }
-    });
+  private addWebsocket<K extends EventKeys>(name: K, cb: Callback<K>) {
+    WebsocketResolver.add(name, { id: 'game', func: cb });
   }
 
   public createOnlineObjects (onlineObjects: GameObject[]) {
