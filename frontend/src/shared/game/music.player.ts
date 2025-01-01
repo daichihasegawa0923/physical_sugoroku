@@ -56,7 +56,7 @@ class MusicPlayer {
   public static async create (path: string): Promise<MusicPlayer | undefined> {
     try {
       const player = new MusicPlayer();
-      const response = await fetch('/api/resources/music/' + path);
+      const response = await fetch('/resources/music/bgm/' + path);
       player.arrayBuffer = await response.arrayBuffer();
       return player;
     } catch (e) {
@@ -97,7 +97,8 @@ class MusicPlayer {
 }
 
 class AudioContextProvider {
-  private static readonly instance: AudioContextProvider = new AudioContextProvider();
+  private static readonly instance: AudioContextProvider =
+    new AudioContextProvider();
 
   private constructor () {}
 
