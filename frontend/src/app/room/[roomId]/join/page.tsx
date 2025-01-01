@@ -1,17 +1,18 @@
-'use client'
+'use client';
 
-import useJoin from '@/app/room/[roomId]/join/_hooks/useJoin'
-import { Button } from '@/components/ui/button'
-import { Field } from '@/components/ui/field'
-import ContentBox from '@/shared/components/content.box'
-import { Box, Input, Text, VStack } from '@chakra-ui/react'
+import useJoin from '@/app/room/[roomId]/join/_hooks/useJoin';
+import { Button } from '@/components/ui/button';
+import { Field } from '@/components/ui/field';
+import { playTitleBGM } from '@/game/logic/music/bgm.manager';
+import ContentBox from '@/shared/components/content.box';
+import { Box, Input, Text, VStack } from '@chakra-ui/react';
 
 export default function Page ({
   params: { roomId }
 }: {
-  params: { roomId: string }
+  params: { roomId: string };
 }) {
-  const { name, setName, error, onClick } = useJoin(roomId)
+  const { name, setName, error, onClick } = useJoin(roomId);
 
   return (
     <Box padding={4}>
@@ -22,17 +23,25 @@ export default function Page ({
             <Input
               value={name}
               onChange={(e) => {
-                setName(e.target.value)
+                setName(e.target.value);
               }}
               minLength={1}
               maxLength={10}
             />
           </Field>
-          <Button disabled={!name} type="submit" w={32} onClick={onClick}>
+          <Button
+            disabled={!name}
+            type="submit"
+            w={32}
+            onClick={async () => {
+              await playTitleBGM();
+              onClick();
+            }}
+          >
             参加する
           </Button>
         </VStack>
       </ContentBox>
     </Box>
-  )
+  );
 }

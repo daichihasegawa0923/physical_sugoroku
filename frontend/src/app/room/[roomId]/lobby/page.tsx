@@ -25,6 +25,7 @@ import {
 } from '@/components/ui/select';
 import InviteUrl from '@/app/room/[roomId]/lobby/_components/invite.url';
 import Loading from '@/shared/components/loading';
+import { playTitleBGM } from '@/game/logic/music/bgm.manager';
 
 export default function Page ({ params }: { params: { roomId: string } }) {
   const [stageClassName, setStageClassName] = useState(array[0].value);
@@ -59,6 +60,12 @@ export default function Page ({ params }: { params: { roomId: string } }) {
       await fetch();
     })();
   }, [status?.status]);
+
+  useEffect(() => {
+    (async () => {
+      await playTitleBGM();
+    })();
+  }, []);
 
   if (isHost == null) {
     return <Loading text="読み込み中" open={true} />;

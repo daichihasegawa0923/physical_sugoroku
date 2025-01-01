@@ -8,6 +8,7 @@ import { useState } from 'react';
 import Loading from '@/shared/components/loading';
 import Heading from '@/shared/components/heading';
 import ContentBox from '@/shared/components/content.box';
+import { playTitleBGM } from '@/game/logic/music/bgm.manager';
 
 const Home = () => {
   const { roomInput, setMemberName, submit } = useCreateRoom();
@@ -34,7 +35,8 @@ const Home = () => {
               </Field>
               <Center w="100%">
                 <Button
-                  onClick={() => {
+                  onClick={async () => {
+                    await playTitleBGM();
                     setLoading(true);
                     submit().then(() => {
                       setLoading(false);

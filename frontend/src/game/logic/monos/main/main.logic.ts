@@ -176,4 +176,8 @@ export class MainLogic extends MonoBehaviour {
       this.gameObjectResolver.createInstance(ol);
     });
   }
+
+  public watchGoal (endCb: VoidFunction): void {
+    this.cameraManager.startOshoClosiing(endCb);
+  }
 }
