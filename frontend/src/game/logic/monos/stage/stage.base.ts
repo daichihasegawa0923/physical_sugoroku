@@ -62,7 +62,7 @@ export abstract class StageBase extends MonoBehaviour implements IOnline {
           quaternion.z,
           quaternion.w
         );
-        p.rigidBody().velocity.set(0, p.rigidBody().velocity.y, 0);
+        p.rigidBody().velocity.set(0, p.rigidBody().velocity.y * 0.1, 0);
         const roomId = MainLogic.get()?.getRoomId();
         if (!roomId) throw Error();
         p.damage();

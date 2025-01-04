@@ -1,7 +1,23 @@
+import Koma from '@/app/room/[roomId]/_components/koma';
 import { Box, HStack, Text, VStack } from '@chakra-ui/react';
 import { type ResultFromName } from 'physical-sugoroku-common/src/event';
+import { useCallback } from 'react';
 
 function Sequence (props: Pick<ResultFromName<'status'>['value'], 'sequence'>) {
+  const Lives = useCallback(
+    ({ life }: { life: number }) => {
+      const lives = [];
+      for (let i = 0; i < 3; i++) {
+        lives.push(<Koma size={6} color="#ddd" key={`${i}_koma`} />);
+      }
+      for (let i = 0; i < life; i++) {
+        lives[i] = <Koma size={6} color="black" key={`${i}_koma`} />;
+      }
+      return lives;
+    },
+    [props]
+  );
+
   return (
     <Box
       position="absolute"
@@ -10,7 +26,7 @@ function Sequence (props: Pick<ResultFromName<'status'>['value'], 'sequence'>) {
       zIndex={99}
       fontSize={['xs', 's']}
     >
-      <HStack
+      <VStack
         maxW="100%"
         align="start"
         gap={1}
@@ -29,31 +45,22 @@ function Sequence (props: Pick<ResultFromName<'status'>['value'], 'sequence'>) {
               padding={1}
               borderRadius={'8px'}
             >
-              <Box>
-                <Box
-                  w="10px"
-                  h="10px"
-                  borderWidth="5px"
-                  borderColor="transparent"
-                  borderBottomColor="white"
-                />
-                <Box w="10px" h="10px" bgColor="white" />
-              </Box>
-              <VStack bgColor="white" w="100%" gap={1} align="start">
-                <Text
-                  w="80px"
-                  textWrap="nowrap"
-                  overflow="hidden"
-                  textOverflow="ellipsis"
-                >
-                  {seq.memberName}
-                </Text>
-                <Text>残機：{seq.life ?? 0}</Text>
-              </VStack>
+              <Text
+                w="80px"
+                textWrap="nowrap"
+                overflow="hidden"
+                textOverflow="ellipsis"
+                color="white"
+              >
+                {seq.memberName}
+              </Text>
+              <HStack w="max-content" padding={1} bgColor="white">
+                <Lives life={seq.life} />
+              </HStack>
             </HStack>
           );
         })}
-      </HStack>
+      </VStack>
     </Box>
   );
 }
@@ -65,7 +72,7 @@ function getColor (sequence: number) {
     case 1:
       return '#0000ff';
     case 2:
-      return '#00ff00';
+      return '#00aa00';
     case 3:
       return '#aa00aa';
   }

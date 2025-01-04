@@ -155,23 +155,21 @@ async function turnEnd(
     .filter((go) => go.className === 'Piece')
     .filter((piece) => (piece.other?.life as number) > 0);
 
-  // 一人だけ生き残っている場合は、その人を優勝とする
-  if (livePieces.length === 1) {
-    const winPiece = livePieces[0];
-    const memberId = winPiece.other.memberId as string;
-    const member = await memberRepository().find(roomId, memberId);
+  if (livePieces.length <= 1) {
     info.status = 'RESULT';
     await gameStatusRepository().upsert(roomId, info);
-    return {
-      goalMemberId: memberId,
-      goalMemberName: member.name,
-      status: 'RESULT',
-      objects: all,
-    };
-  }
-
-  // 誰も生き残っていない場合は、引き分けとする
-  if (livePieces.length === 0) {
+    // 一人だけ生き残っている場合は、その人を優勝とする
+    if (livePieces.length === 1) {
+      const winPiece = livePieces[0];
+      const memberId = winPiece.other.memberId as string;
+      const member = await memberRepository().find(roomId, memberId);
+      return {
+        goalMemberId: memberId,
+        goalMemberName: member.name,
+        status: 'RESULT',
+        objects: all,
+      };
+    }
     return {
       goalMemberId: null,
       goalMemberName: null,

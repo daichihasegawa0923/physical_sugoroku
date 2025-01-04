@@ -28,7 +28,7 @@ function Goal ({ roomId }: Props) {
     });
   }, []);
 
-  if (!name || status !== 'RESULT') return null;
+  if (status !== 'RESULT') return null;
 
   return (
     <Box
@@ -41,7 +41,7 @@ function Goal ({ roomId }: Props) {
       <ContentBox>
         <VStack maxWidth="300px" minWidth="180px" padding="8px">
           <Text fontSize="24px" fontWeight="bold" textAlign="center">
-            王手！！
+            {name ? '王手!!' : '引き分け'}
           </Text>
           {name && <Text textAlign="center">{name}の勝利</Text>}
           <Button

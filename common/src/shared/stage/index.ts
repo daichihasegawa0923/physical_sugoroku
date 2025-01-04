@@ -75,12 +75,12 @@ export const Commons: Record<StageClasses, StageCommon> = {
     { x: 4, y: 0 }
   ),
   Stage2: new StageCommon(
-    1.5,
-    { x: 2, y: 11, height: 10 },
-    { x: 0, y: 0 },
-    { x: 4, y: 0 },
-    { x: 1, y: 0 },
-    { x: 3, y: 0 }
+    3,
+    { x: 3, y: 3, height: 5 },
+    { x: 1, y: 1 },
+    { x: 5, y: 5 },
+    { x: 1, y: 5 },
+    { x: 5, y: 1 }
   ),
   StageTest: new StageCommon(
     2,
