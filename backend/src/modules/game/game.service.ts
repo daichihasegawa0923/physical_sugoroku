@@ -36,7 +36,18 @@ async function findAllObjects(roomId: string) {
 
 async function upsertObjects(roomId: string, gameObjects: GameObject[]) {
   await gameObjectRepository().upsertMany(roomId, gameObjects);
+  await Promise.all(
+    getDeadPiece(gameObjects).map(async (go) => {
+      await gameObjectRepository().remove(roomId, go);
+    })
+  );
   return gameObjectRepository().findAll(roomId);
+}
+
+function getDeadPiece(gameObjects: GameObject[]) {
+  return gameObjects.filter(
+    (go) => go.className === 'Piece' && ((go.other?.life as number) ?? 0) <= 0
+  );
 }
 
 async function addVelocity(
@@ -58,9 +69,11 @@ async function addVelocity(
   };
 }
 
-async function init(roomId: string, stageClassName: string) {
+async function startGame(roomId: string, stageClassName: string) {
   const info = await gameStatusRepository().findOrCreate(roomId);
-  if (info.status !== 'WAITING') return;
+  if (info.status !== 'WAITING') {
+    return;
+  }
   const stageCommon = Commons[stageClassName as StageClasses];
   const { x, y, z } = stageCommon.getGoalPositionFromMapPoint();
   const goal: GameObject = {
@@ -74,24 +87,15 @@ async function init(roomId: string, stageClassName: string) {
       lastTouchMemberId: null,
     },
   };
-  await gameObjectRepository().upsertMany(roomId, [
-    goal,
-    {
-      id: ulid(),
-      className: stageClassName,
-      position: { x: 0, y: 0, z: 0 },
-      quaternion: { x: 0, y: 0, z: 0, w: 1 },
-      size: { x: 1, y: 1, z: 1 },
-    },
-  ]);
-}
 
-async function startGame(roomId: string, stageClassName: string) {
-  const info = await gameStatusRepository().findOrCreate(roomId);
-  if (info.status !== 'WAITING') {
-    return;
-  }
-  await init(roomId, stageClassName);
+  const stage = {
+    id: ulid(),
+    className: stageClassName,
+    position: { x: 0, y: 0, z: 0 },
+    quaternion: { x: 0, y: 0, z: 0, w: 1 },
+    size: { x: 1, y: 1, z: 1 },
+  };
+
   // ユーザーの順番の決定
   const membersWithIndex = shuffleArray(
     await memberRepository().findAll(roomId)
@@ -105,21 +109,22 @@ async function startGame(roomId: string, stageClassName: string) {
     })
   );
   // ゲームの駒の作成
-  const objs: GameObject[] = membersWithIndex.map((member) => {
+  const pieces: GameObject[] = membersWithIndex.map((member) => {
     return {
       id: ulid(),
       className: 'Piece',
-      // -999に指定して、初期位置に強制的に飛ばせる
-      position: { x: 0, y: -999, z: 0 },
-      quaternion: { x: 1, y: 0, z: 0, w: 1 },
+      position: stageCommon.getPiecePosition((member.sequence + 1).toString()),
+      quaternion: { x: 0, y: 0, z: 0, w: 1 },
+      velocity: { x: 0, y: 0, z: 0 },
       size: { x: 1, y: 1, z: 1 },
       other: {
         number: (member.sequence + 1).toString(),
         memberId: member.id,
+        life: 3,
       },
     };
   });
-  await gameObjectRepository().upsertMany(roomId, objs);
+  await gameObjectRepository().upsertMany(roomId, [stage, goal, ...pieces]);
 
   // 最初のターンのユーザーの設定
   const firstMember = membersWithIndex.filter(
@@ -144,15 +149,74 @@ async function turnEnd(
 ): Promise<TurnEndResult> {
   const info = await gameStatusRepository().findOrCreate(roomId);
   if (info.status !== 'MOVING') return;
+  // pieceのライフ残機の確認
+  const all = await gameObjectRepository().findAll(roomId);
+  const livePieces = all
+    .filter((go) => go.className === 'Piece')
+    .filter((piece) => (piece.other?.life as number) > 0);
+
+  // 一人だけ生き残っている場合は、その人を優勝とする
+  if (livePieces.length === 1) {
+    const winPiece = livePieces[0];
+    const memberId = winPiece.other.memberId as string;
+    const member = await memberRepository().find(roomId, memberId);
+    info.status = 'RESULT';
+    await gameStatusRepository().upsert(roomId, info);
+    return {
+      goalMemberId: memberId,
+      goalMemberName: member.name,
+      status: 'RESULT',
+      objects: all,
+    };
+  }
+
+  // 誰も生き残っていない場合は、引き分けとする
+  if (livePieces.length === 0) {
+    return {
+      goalMemberId: null,
+      goalMemberName: null,
+      status: 'RESULT',
+      objects: all,
+    };
+  }
+
   info.status = 'DIRECTION';
-  const nextMember = await findNextMember(roomId, info.activeMemberId);
-  if (nextMember.sequence === 0) {
+  const loveMemberIds = livePieces.map((go) => go.other.memberId as string);
+  const { nextMember, newTurn } = await findNextMemberRecursion(
+    roomId,
+    info.activeMemberId,
+    loveMemberIds
+  );
+  if (newTurn) {
     info.turn += 1;
   }
   info.activeMemberId = nextMember.id;
   info.activeMemberName = nextMember.name;
-  gameService().upsertObjects(roomId, gameObjects);
+  const objects = await gameService().upsertObjects(roomId, gameObjects);
   await gameStatusRepository().upsert(roomId, info);
+  return {
+    objects,
+    status: info.status,
+  };
+}
+
+async function findNextMemberRecursion(
+  roomId: string,
+  currentMemberId: string,
+  liveMemberIds: string[],
+  isNewTurn?: boolean
+) {
+  const nextMember = await findNextMember(roomId, currentMemberId);
+  const newTurn = isNewTurn || nextMember.sequence === 0;
+  if (!liveMemberIds.includes(nextMember.id)) {
+    return await findNextMemberRecursion(
+      roomId,
+      nextMember.id,
+      liveMemberIds,
+      newTurn
+    );
+  }
+  return { nextMember, newTurn };
 }
 
 async function goal(
@@ -193,12 +257,20 @@ async function goal(
 
 async function getSequenceInfo(roomId: string): Promise<GameSequenceInfo> {
   const members = await memberRepository().findAll(roomId);
+  const pieces = (await gameObjectRepository().findAll(roomId)).filter(
+    (go) => go.className === 'Piece'
+  );
   const sequence = members
     .sort((m1, m2) => m1.sequence - m2.sequence)
     .map((m) => ({
       sequence: m.sequence,
       memberName: m.name,
       memberId: m.id,
+      life:
+        pieces.length === 0
+          ? 0
+          : (pieces.find((p) => p?.other?.memberId === m.id)?.other
+              ?.life as number) ?? 0,
     }));
   return { sequence };
 }
@@ -252,7 +324,7 @@ async function replay(roomId: string) {
   );
 
   // ゲームオブジェクトを初期化
-  await gameObjectRepository().deleteAll(roomId);
+  await gameObjectRepository().removeAll(roomId);
   const statusInfo = await gameStatusRepository().findOrCreate(roomId);
   statusInfo.status = 'WAITING';
   statusInfo.activeMemberId = null;

@@ -11,7 +11,7 @@ import {
   type GameObject,
   type Vector3
 } from 'physical-sugoroku-common/src/shared';
-import { RigidBodyOnlineMonoBehaviour } from '@/game/logic/monos/base/rigid.body.monobehaviour.onine.ts';
+import { RigidBodyOnlineMonoBehaviour } from '@/game/logic/monos/base/rigid.body.monobehaviour.online.ts';
 import { WebsocketResolver } from '@/shared/function/websocket.resolver';
 
 export class Goal extends RigidBodyOnlineMonoBehaviour {
@@ -71,9 +71,10 @@ export class Goal extends RigidBodyOnlineMonoBehaviour {
       ) {
         return;
       }
-      WebsocketResolver.send('updateLastTouchMemberId', {
+      this.lastTouchMemberId = target.getMemberId();
+      WebsocketResolver.send('updateGameObject', {
         roomId,
-        lastTouchMemberId: target.getMemberId()
+        gameObject: this.online()
       });
     });
   }
@@ -82,9 +83,9 @@ export class Goal extends RigidBodyOnlineMonoBehaviour {
     const mainLogic = MainLogic.get();
     if (!mainLogic) return;
     this.firstPosition = position;
-    WebsocketResolver.send('updateGameObjects', {
+    WebsocketResolver.send('updateGameObject', {
       roomId: mainLogic.getRoomId(),
-      gameObjects: [this.online()]
+      gameObject: this.online()
     });
   }
 

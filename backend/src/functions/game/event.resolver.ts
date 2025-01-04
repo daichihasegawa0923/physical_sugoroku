@@ -18,9 +18,10 @@ export default async function resolve(
       const objects = await gameService().findAllObjects(event.roomId);
       const { status, activeMemberId, activeMemberName } =
         await gameStatusRepository().findOrCreate(event.roomId);
+      const { sequence } = await gameService().getSequenceInfo(event.roomId);
       return {
         name: 'fetchGameObjects',
-        value: { status, activeMemberId, activeMemberName, objects },
+        value: { status, activeMemberId, activeMemberName, objects, sequence },
         pushTarget: connectionId,
       };
     }
@@ -94,6 +95,24 @@ export default async function resolve(
         pushTarget: await roomMemberConnectionIds(event.roomId),
       };
     }
+    case 'updateGameObject': {
+      await gameService().upsertObjects(event.roomId, [event.gameObject]);
+      const { status, activeMemberId, activeMemberName } =
+        await gameStatusRepository().findOrCreate(event.roomId);
+      const { sequence } = await gameService().getSequenceInfo(event.roomId);
+      return {
+        name: 'updateGameObject',
+        value: {
+          // findの処理を割愛するために、eventで受け取った値をそのまま使用する.
+          gameObject: event.gameObject,
+          status,
+          activeMemberId,
+          activeMemberName,
+          sequence,
+        },
+        pushTarget: await roomMemberConnectionIds(event.roomId),
+      };
+    }
     case 'updateGameObjects': {
       const result = await gameService().upsertObjects(
         event.roomId,
@@ -101,9 +120,16 @@ export default async function resolve(
       );
       const { status, activeMemberId, activeMemberName } =
         await gameStatusRepository().findOrCreate(event.roomId);
+      const { sequence } = await gameService().getSequenceInfo(event.roomId);
       return {
         name: 'fetchGameObjects',
-        value: { objects: result, status, activeMemberId, activeMemberName },
+        value: {
+          objects: result,
+          status,
+          activeMemberId,
+          activeMemberName,
+          sequence,
+        },
         // 即時反映しない場合がある
         pushTarget: event.syncDelay
           ? []
@@ -111,14 +137,31 @@ export default async function resolve(
       };
     }
     case 'turnEnd': {
-      await gameService().turnEnd(event.roomId, event.gameObjects);
-      const { status, activeMemberId, activeMemberName } =
+      const result = await gameService().turnEnd(
+        event.roomId,
+        event.gameObjects
+      );
+      const { activeMemberId, activeMemberName } =
         await gameStatusRepository().findOrCreate(event.roomId);
+      if (result.status === 'RESULT') {
+        return {
+          name: 'goal',
+          value: {
+            objects: result.objects,
+            status: 'RESULT',
+            activeMemberId,
+            activeMemberName,
+            goalMemberId: result.goalMemberId,
+            goalMemberName: result.goalMemberName,
+          },
+          pushTarget: await roomMemberConnectionIds(event.roomId),
+        };
+      }
       return {
         name: 'turnEnd',
         value: {
           objects: await gameService().findAllObjects(event.roomId),
-          status,
+          status: 'DIRECTION',
           activeMemberId,
           activeMemberName,
         },
@@ -127,11 +170,16 @@ export default async function resolve(
     }
     case 'goal': {
       const result = await gameService().goal(event.roomId, event.gameObjects);
-      const { status, activeMemberId, activeMemberName } =
+      const { activeMemberId, activeMemberName } =
         await gameStatusRepository().findOrCreate(event.roomId);
       return {
         name: 'goal',
-        value: { ...result, status, activeMemberId, activeMemberName },
+        value: {
+          ...result,
+          status: 'RESULT',
+          activeMemberId,
+          activeMemberName,
+        },
         pushTarget: await roomMemberConnectionIds(event.roomId),
       };
     }

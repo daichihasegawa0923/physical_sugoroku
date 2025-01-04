@@ -8,7 +8,8 @@ export default function gameObjectRepository() {
     findAll,
     find,
     upsertMany,
-    deleteAll,
+    remove,
+    removeAll,
   };
 }
 
@@ -41,7 +42,20 @@ async function upsertMany(
   );
 }
 
-async function deleteAll(roomId: string) {
+async function remove(roomId: string, gameObject: GameObject) {
+  const remainObjects = (await findAll(roomId)).filter(
+    (go) => go.id !== gameObject.id
+  );
+  await gameRepository.upsert(
+    {
+      id: ID,
+      subId: roomId,
+    },
+    { objects: JSON.stringify(remainObjects) }
+  );
+}
+
+async function removeAll(roomId: string) {
   await gameRepository.upsert(
     { id: ID, subId: roomId },
     { objects: JSON.stringify([]) }

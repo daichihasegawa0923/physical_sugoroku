@@ -15,5 +15,7 @@ export interface GameObject {
   position: Vector3;
   quaternion: Quaternion;
   size: Vector3;
+  velocity?: Vector3;
+  angularVelocity?: Vector3;
   other?: Record<string, string | number | null>;
 }

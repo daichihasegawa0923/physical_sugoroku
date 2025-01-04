@@ -26,7 +26,15 @@ export default function useMainLogic (roomId: string) {
       router.push(`/room/${roomId}/lobby`);
     }
     if (data.status === 'DIRECTION') {
-      setCommandText(data.activeMemberName + 'のターンです!');
+      if (data.activeMemberId === getByRoomId(data.roomId)?.myMemberId) {
+        setCommandText(
+          data.activeMemberName +
+            'のターンです!画面をスワイプして飛ばす方向を決めてください！',
+          'ALL'
+        );
+      } else {
+        setCommandText(data.activeMemberName + 'のターンです!');
+      }
     }
     if (!mainLogic.current) {
       const memberId = getByRoomId(data.roomId)?.myMemberId;
@@ -44,9 +52,11 @@ export default function useMainLogic (roomId: string) {
         router.push(`/room/${roomId}/lobby`);
       });
       WebsocketResolver.add('turnEnd', (data) => {
-        const text = data.activeMemberName + 'のターンです！';
+        const text =
+          data.activeMemberName +
+          'のターンです！画面をスワイプして飛ばす方向を決めてください！';
         if (data.activeMemberId === getByRoomId(roomId)?.myMemberId) {
-          setCommandText(text);
+          setCommandText(text, 'ALL');
           return;
         }
         setCommandText(text);

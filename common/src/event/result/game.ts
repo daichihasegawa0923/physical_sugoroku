@@ -13,14 +13,17 @@ export interface GameStatusInfo {
   goalMemberId: string | null;
 }
 
-export interface TurnEndResult {
-  objects: GameObject[];
-}
+export type TurnEndResult =
+  | {
+      status: 'DIRECTION';
+      objects: GameObject[];
+    }
+  | GoalResult;
 
 export interface GoalResult {
   goalMemberId: string;
   goalMemberName: string;
-  status: GameStatus;
+  status: 'RESULT';
   objects: GameObject[];
 }
 
@@ -29,6 +32,7 @@ export interface GameSequenceInfo {
     sequence: number;
     memberId: string;
     memberName: string;
+    life: number;
   }[];
 }
 

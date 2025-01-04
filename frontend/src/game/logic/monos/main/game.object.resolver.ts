@@ -17,7 +17,10 @@ export class GameObjectResolver {
       (local) => gameObjects.find((go) => go.id === local.id) == null
     );
     addTarget.forEach((t) => {
-      MonoContainer.createInstance(t.className, t);
+      const mono = MonoContainer.createInstance(t.className, t);
+      if (mono != null) {
+        GameScene.add(mono);
+      }
     });
     removeTarget.forEach((r) => {
       const target = GameScene.findById(r.id);
@@ -33,6 +36,21 @@ export class GameObjectResolver {
     });
   }
 
+  public sync (gameObject: GameObject) {
+    const local = GameScene.findById(gameObject.id);
+    if (local != null) {
+      const iOnline = local as unknown as IOnline;
+      iOnline.syncFromOnline(gameObject);
+      return;
+    }
+    const created = MonoContainer.createInstance(
+      gameObject.className,
+      gameObject
+    );
+    if (!created) return;
+    GameScene.add(created);
+  }
+
   public registerPrefabs () {
     MonoContainer.registerPrefab('Stage1', (input) => {
       const stage1 = GameScene.findById(input.id);
@@ -40,7 +58,6 @@ export class GameObjectResolver {
         return stage1;
       }
       const created = new Stage1(input.id);
-      GameScene.add(created);
       return created;
     });
     MonoContainer.registerPrefab('Stage2', (input) => {
@@ -49,7 +66,6 @@ export class GameObjectResolver {
         return stage2;
       }
       const created = new Stage2(input.id);
-      GameScene.add(created);
       return created;
     });
 
@@ -59,7 +75,6 @@ export class GameObjectResolver {
         return stageTest;
       }
       const created = new StageTest(input.id);
-      GameScene.add(created);
       return created;
     });
     MonoContainer.registerPrefab('Piece', (input) => {
@@ -81,9 +96,9 @@ export class GameObjectResolver {
         id: input.id,
         number: input.other.number as string,
         memberId: input.other.memberId as string,
-        position: input.position
+        position: input.position,
+        life: input.other.life as number
       });
-      GameScene.add(created);
       return created;
     });
     MonoContainer.registerPrefab('Goal', (input) => {
@@ -92,10 +107,7 @@ export class GameObjectResolver {
         const goal = goals[0];
         return goal;
       }
-
       const created = new Goal(input.id);
-      GameScene.add(created);
-      created.syncFromOnline(input);
       return created;
     });
   }

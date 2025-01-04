@@ -1,63 +1,74 @@
-import ContentBox from '@/shared/components/content.box'
-import { Box, Flex, HStack, Text } from '@chakra-ui/react'
-import { type ResultFromName } from 'physical-sugoroku-common/src/event'
-import React from 'react'
+import { Box, HStack, Text, VStack } from '@chakra-ui/react';
+import { type ResultFromName } from 'physical-sugoroku-common/src/event';
 
 function Sequence (props: Pick<ResultFromName<'status'>['value'], 'sequence'>) {
   return (
     <Box
       position="absolute"
-      left={'50%'}
+      left={'1%'}
       top={'10%'}
-      w="300px"
       zIndex={99}
-      transform="translate(-50%, 0)"
+      fontSize={['xs', 's']}
     >
-      <ContentBox title="メンバー">
-        <Flex w="100%" justifyContent="space-between" wrap="wrap">
-          {props.sequence.map((seq) => {
-            return (
-              <HStack key={seq.memberId} w="100px">
-                <HStack>
-                  <Box>
-                    <Box
-                      w="10px"
-                      h="10px"
-                      borderWidth="5px"
-                      borderColor="transparent"
-                      borderBottomColor={getColor(seq.sequence)}
-                    />
-                    <Box w="10px" h="10px" bgColor={getColor(seq.sequence)} />
-                  </Box>
-                  <Text
-                    w="80px"
-                    textWrap="nowrap"
-                    overflow="hidden"
-                    textOverflow="ellipsis"
-                  >
-                    {seq.memberName}
-                  </Text>
-                </HStack>
-              </HStack>
-            )
-          })}
-        </Flex>
-      </ContentBox>
+      <HStack
+        maxW="100%"
+        align="start"
+        gap={1}
+        justifyContent="space-between"
+        wrap="wrap"
+      >
+        {props.sequence.map((seq) => {
+          return (
+            <HStack
+              key={seq.memberId}
+              w="max-content"
+              h="max-content"
+              backgroundColor={getColor(seq.sequence)}
+              borderWidth={'1px'}
+              borderColor={getColor(seq.sequence)}
+              padding={1}
+              borderRadius={'8px'}
+            >
+              <Box>
+                <Box
+                  w="10px"
+                  h="10px"
+                  borderWidth="5px"
+                  borderColor="transparent"
+                  borderBottomColor="white"
+                />
+                <Box w="10px" h="10px" bgColor="white" />
+              </Box>
+              <VStack bgColor="white" w="100%" gap={1} align="start">
+                <Text
+                  w="80px"
+                  textWrap="nowrap"
+                  overflow="hidden"
+                  textOverflow="ellipsis"
+                >
+                  {seq.memberName}
+                </Text>
+                <Text>残機：{seq.life ?? 0}</Text>
+              </VStack>
+            </HStack>
+          );
+        })}
+      </HStack>
     </Box>
-  )
+  );
 }
 
 function getColor (sequence: number) {
   switch (sequence) {
     case 0:
-      return '#ff0000'
+      return '#ff0000';
     case 1:
-      return '#0000ff'
+      return '#0000ff';
     case 2:
-      return '#00ff00'
+      return '#00ff00';
     case 3:
-      return '#ff00ff'
+      return '#aa00aa';
   }
 }
 
-export default Sequence
+export default Sequence;

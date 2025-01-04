@@ -8,6 +8,8 @@ import * as CANNON from 'cannon-es';
 import type * as THREE from 'three';
 import { type StageMap } from '@/game/logic/monos/stage/stage.maptip';
 import { type StageClasses } from 'physical-sugoroku-common/src/shared/stage';
+import { MainLogic } from '@/game/logic/monos/main/main.logic';
+import { WebsocketResolver } from '@/shared/function/websocket.resolver';
 
 export abstract class StageBase extends MonoBehaviour implements IOnline {
   public constructor (id?: string) {
@@ -40,27 +42,14 @@ export abstract class StageBase extends MonoBehaviour implements IOnline {
   }
 
   private rebornPiece (): void {
+    if (!MainLogic.get()?.isMyTurn()) return;
     GameScene.findByType(Piece).forEach((p) => {
       const obj = p.getObject3D();
       if (!obj) return;
       if (obj.position.y < -20) {
-        const getPosition = () => {
-          switch (p.getNumber()) {
-            case '1':
-              return this.getPiece1Position();
-            case '2':
-              return this.getPiece2Position();
-            case '3':
-              return this.getPiece3Position();
-            case '4':
-              return this.getPiece4Position();
-          }
-          throw Error();
-        };
-        const { x, y } = getPosition();
         const position = this.builder
           .getCommon()
-          .getPositionFromMapPoint(x, 10, y);
+          .getPiecePosition(p.getNumber());
         const quaternion = new CANNON.Quaternion().setFromAxisAngle(
           new CANNON.Vec3(0, 1, 0),
           Math.PI
@@ -74,20 +63,18 @@ export abstract class StageBase extends MonoBehaviour implements IOnline {
           quaternion.w
         );
         p.rigidBody().velocity.set(0, p.rigidBody().velocity.y, 0);
+        const roomId = MainLogic.get()?.getRoomId();
+        if (!roomId) throw Error();
+        p.damage();
+        WebsocketResolver.send('updateGameObject', {
+          roomId,
+          gameObject: p.online()
+        });
       }
     });
   }
 
   protected abstract mapInfo (): StageMap;
-
-  protected abstract rate (): number;
-
-  abstract getPiece1Position (): { x: number; y: number };
-  abstract getPiece2Position (): { x: number; y: number };
-  abstract getPiece3Position (): { x: number; y: number };
-  abstract getPiece4Position (): { x: number; y: number };
-
-  abstract getGoalPosition (): { x: number; y: number; height: number };
 
   public getObject3D (): THREE.Object3D | null {
     return null;

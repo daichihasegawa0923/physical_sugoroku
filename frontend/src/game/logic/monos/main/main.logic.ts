@@ -145,6 +145,9 @@ export class MainLogic extends MonoBehaviour {
     this.addWebsocket('fetchGameObjects', (data) => {
       this.gameObjectResolver.syncAll(data.objects);
     });
+    this.addWebsocket('updateGameObject', (data) => {
+      this.gameObjectResolver.sync(data.gameObject);
+    });
     this.addWebsocket('impulse', (data) => {
       this.smashById(data.id, data.direction);
       this.updateStats(data.status, data.activeMemberId);

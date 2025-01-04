@@ -25,7 +25,10 @@ export type ResultFromName<K extends string> = K extends keyof EventTypeMap
 export type EventTypeMap = {
   fetchGameObjects: {
     input: Input<'fetchGameObjects', { roomId: string }>;
-    result: Result<'fetchGameObjects', { objects: GameObject[] }>;
+    result: Result<
+      'fetchGameObjects',
+      { objects: GameObject[] } & GameSequenceInfo
+    >;
   };
   createRoom: {
     input: Input<
@@ -61,6 +64,18 @@ export type EventTypeMap = {
       }
     >;
     result: Result<'impulse', AddVelocityResult>;
+  };
+  updateGameObject: {
+    input: Input<
+      'updateGameObject',
+      { roomId: string; gameObject: GameObject }
+    >;
+    result: Result<
+      'updateGameObject',
+      {
+        gameObject: GameObject;
+      } & GameSequenceInfo
+    >;
   };
   updateGameObjects: {
     input: Input<
