@@ -72,9 +72,9 @@ export class Goal extends RigidBodyOnlineMonoBehaviour {
         return;
       }
       this.lastTouchMemberId = target.getMemberId();
-      WebsocketResolver.send('updateGameObject', {
+      WebsocketResolver.send('updateLastTouchMemberId', {
         roomId,
-        gameObject: this.online()
+        lastTouchMemberId: this.lastTouchMemberId
       });
     });
   }
