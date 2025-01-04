@@ -29,7 +29,7 @@ export const onConnect = async (event: APIGatewayProxyEvent) => {
     }
     return formatJSONResponse({});
   } catch (error) {
-    console.log('error has occurred: ', error);
+    console.error('error has occurred: ', error);
     return {
       statusCode: 500,
       body: JSON.stringify({

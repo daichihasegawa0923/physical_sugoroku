@@ -4,6 +4,7 @@ import Header from '@/shared/components/header';
 import { Box, Theme } from '@chakra-ui/react';
 import type { Metadata } from 'next';
 import font from '@/shared/font';
+import { MusicManagerProvider } from '@/shared/components/music.manager.provider';
 
 export const metadata: Metadata = {
   title: '将棋王 | オンライン ボードゲーム',
@@ -23,6 +24,7 @@ export default function RootLayout ({
             <CommandContextProvider>
               <Box minHeight="100svh" h="auto" backgroundColor="#f4ca81">
                 <Header />
+                <MusicManagerProvider />
                 {children}
               </Box>
             </CommandContextProvider>

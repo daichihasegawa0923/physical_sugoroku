@@ -31,6 +31,8 @@ const Home = () => {
                   onChange={(e) => {
                     setMemberName(e.target.value);
                   }}
+                  minLength={1}
+                  maxLength={10}
                 />
               </Field>
               <Center w="100%">

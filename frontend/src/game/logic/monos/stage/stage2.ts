@@ -26,25 +26,25 @@ export class Stage2 extends StageBase {
         { name: 'box', height: 1 },
         { name: 'box', height: 1 },
         { name: 'box', height: 1 },
-        { name: 'slope', direction: 'f', height: 2 },
+        { name: 'box', height: 1 },
         { name: 'box', height: 1 },
         { name: 'box', height: 1 },
         { name: 'box', height: 1 }
       ],
       [
-        { name: 'slope', direction: 'r', height: 2 },
         { name: 'box', height: 1 },
-        { name: 'slope', direction: 'l', height: 2 },
-        { name: 'box', height: 2 },
-        { name: 'slope', direction: 'r', height: 2 },
         { name: 'box', height: 1 },
-        { name: 'slope', direction: 'l', height: 2 }
+        { name: 'box', height: 1 },
+        { name: 'box', height: 1 },
+        { name: 'box', height: 1 },
+        { name: 'box', height: 1 },
+        { name: 'box', height: 1 }
       ],
       [
         { name: 'box', height: 1 },
         { name: 'box', height: 1 },
         { name: 'box', height: 1 },
-        { name: 'slope', direction: 'b', height: 2 },
+        { name: 'box', height: 1 },
         { name: 'box', height: 1 },
         { name: 'box', height: 1 },
         { name: 'box', height: 1 }
