@@ -52,11 +52,12 @@ export default function useMainLogic (roomId: string) {
         router.push(`/room/${roomId}/lobby`);
       });
       WebsocketResolver.add('turnEnd', (data) => {
-        const text =
-          data.activeMemberName +
-          'のターンです！画面をスワイプして飛ばす方向を決めてください！';
+        const text = data.activeMemberName + 'のターンです！';
         if (data.activeMemberId === getByRoomId(roomId)?.myMemberId) {
-          setCommandText(text, 'ALL');
+          setCommandText(
+            text + '画面をスワイプして飛ばす方向を決めてください！',
+            'ALL'
+          );
           return;
         }
         setCommandText(text);
