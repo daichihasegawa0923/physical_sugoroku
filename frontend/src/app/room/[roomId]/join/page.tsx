@@ -33,8 +33,8 @@ export default function Page ({
             disabled={!name}
             type="submit"
             w={32}
-            onClick={async () => {
-              await playTitleBGM();
+            onClick={() => {
+              playTitleBGM();
               onClick();
             }}
           >

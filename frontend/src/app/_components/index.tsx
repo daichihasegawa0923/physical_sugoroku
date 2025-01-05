@@ -4,16 +4,19 @@ import { Button } from '@/components/ui/button';
 import { Field } from '@/components/ui/field';
 import { Box, Center, Image, Input, Text, VStack } from '@chakra-ui/react';
 import useCreateRoom from '../_hooks/useCreateRoom';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Loading from '@/shared/components/loading';
 import Heading from '@/shared/components/heading';
 import ContentBox from '@/shared/components/content.box';
 import { playTitleBGM } from '@/game/logic/music/bgm.manager';
+import bgmManager from '@/shared/game/music/bgm.manager';
 
 const Home = () => {
   const { roomInput, setMemberName, submit } = useCreateRoom();
   const [loading, setLoading] = useState(false);
-
+  useEffect(() => {
+    bgmManager().stopAll();
+  }, []);
   return (
     <>
       <Center>
@@ -37,8 +40,8 @@ const Home = () => {
               </Field>
               <Center w="100%">
                 <Button
-                  onClick={async () => {
-                    await playTitleBGM();
+                  onClick={() => {
+                    playTitleBGM();
                     setLoading(true);
                     submit().then(() => {
                       setLoading(false);

@@ -27,9 +27,7 @@ function Index ({ roomId }: Props) {
   });
 
   useEffect(() => {
-    (async () => {
-      await playBattleBGM();
-    })();
+    playBattleBGM();
   }, []);
 
   return (

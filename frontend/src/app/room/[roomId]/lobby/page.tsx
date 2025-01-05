@@ -62,9 +62,7 @@ export default function Page ({ params }: { params: { roomId: string } }) {
   }, [status?.status]);
 
   useEffect(() => {
-    (async () => {
-      await playTitleBGM();
-    })();
+    playTitleBGM();
   }, []);
 
   if (isHost == null) {

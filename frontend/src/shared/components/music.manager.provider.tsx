@@ -9,7 +9,7 @@ import {
   DialogRoot,
   DialogTitle
 } from '@/components/ui/dialog';
-import { bgmManager } from '@/shared/game/music.manager';
+import musicManager from '@/shared/game/music/music.manager';
 import { Button } from '@chakra-ui/react';
 import { createContext, type ReactNode, useContext, useState } from 'react';
 
@@ -40,7 +40,7 @@ export function MusicManagerProvider ({ children }: { children?: ReactNode }) {
           <DialogFooter>
             <Button
               onClick={() => {
-                bgmManager().enableMusic();
+                musicManager().enableMusic();
                 setChecked(true);
               }}
             >
