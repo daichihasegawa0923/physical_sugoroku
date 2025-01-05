@@ -3,6 +3,7 @@
 import ContentBox from '@/shared/components/content.box';
 import { useStatusContext } from '@/shared/components/status.provider';
 import { WebsocketResolver } from '@/shared/function/websocket.resolver';
+import seManager from '@/shared/game/music/se.manager';
 import useLocalRoomInfo from '@/shared/hooks/useLocalRoomInfo';
 import { Box, Button, Text, VStack } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
@@ -24,6 +25,7 @@ function Goal ({ roomId }: Props) {
       id: 'onComponent',
       func: (data) => {
         setName(() => data.goalMemberName);
+        seManager().playSe('/resources/music/se/don.m4a', 0.5, false);
       }
     });
   }, []);

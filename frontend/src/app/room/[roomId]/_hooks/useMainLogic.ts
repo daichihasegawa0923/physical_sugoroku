@@ -11,6 +11,7 @@ import { type ResultFromName } from 'physical-sugoroku-common/src/event';
 import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { WebsocketResolver } from '@/shared/function/websocket.resolver';
+import seManager from '@/shared/game/music/se.manager';
 
 export default function useMainLogic (roomId: string) {
   const mainLogic = useRef<MainLogic | null>(null);
@@ -27,6 +28,7 @@ export default function useMainLogic (roomId: string) {
     }
     if (data.status === 'DIRECTION') {
       if (data.activeMemberId === getByRoomId(data.roomId)?.myMemberId) {
+        seManager().playSe('/resources/music/se/kokon.m4a', 0.5, false);
         setCommandText(
           data.activeMemberName +
             'のターンです!画面をスワイプして飛ばす方向を決めてください！',
@@ -54,6 +56,7 @@ export default function useMainLogic (roomId: string) {
       WebsocketResolver.add('turnEnd', (data) => {
         const text = data.activeMemberName + 'のターンです！';
         if (data.activeMemberId === getByRoomId(roomId)?.myMemberId) {
+          seManager().playSe('/resources/music/se/kokon.m4a', 0.5, false);
           setCommandText(
             text + '画面をスワイプして飛ばす方向を決めてください！',
             'ALL'

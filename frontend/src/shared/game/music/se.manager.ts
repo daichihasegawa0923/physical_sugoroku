@@ -4,35 +4,49 @@ import MusicPlayer from '@/shared/game/music/music.player';
 const players: Map<string, MusicPlayer> = new Map<string, MusicPlayer>();
 
 export default function seManager () {
-  async function playSe (path: string, volume: number, loop: boolean) {
+  function playSe (
+    path: string,
+    volume: number,
+    loop?: boolean,
+    durationSec?: number
+  ) {
     if (!musicManager().getCanPlayMusic()) {
       return;
     }
-    await addPlayer(path);
-    findPlayer(path)?.play(volume, loop);
-  }
-
-  async function addPlayer (path: string) {
-    if (findPlayer(path) != null) {
+    const alreadyAdded = players.get(path);
+    if (alreadyAdded) {
+      if (alreadyAdded.getIsPlaying()) return;
+      players.delete(path);
       return;
     }
-    const player = await MusicPlayer.create(path);
+    MusicPlayer.create(path).then((player) => {
+      if (loop) {
+        addPlayer(player).then(() => {});
+      }
+      player?.play(volume, loop ?? false).then(() => {
+        if (!loop) {
+          setTimeout(
+            () => {
+              player?.stop();
+            },
+            durationSec ? durationSec * 1000 : 5000
+          );
+        }
+      });
+    });
+  }
+
+  async function addPlayer (player: MusicPlayer | undefined) {
     if (!player) return;
-    players.set(path, player);
+    players.set(player.path, player);
+    return player;
   }
 
   function stopSe (path: string) {
-    try {
-      const player = findPlayer(path);
-      player?.stop();
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  function findPlayer (path: string): MusicPlayer | undefined {
-    return players.get(path);
+    players.entries().forEach(([_, player]) => {
+      if (player.path !== path) return;
+      player.stop();
+    });
   }
 
   return {

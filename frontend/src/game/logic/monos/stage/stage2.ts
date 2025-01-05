@@ -6,24 +6,6 @@ export class Stage2 extends StageBase {
     return [
       [
         { name: 'box', height: 1 },
-        { name: 'slope', direction: 'b', height: 2 },
-        { name: 'box', height: 1 },
-        { name: 'slope', direction: 'b', height: 2 },
-        { name: 'box', height: 1 },
-        { name: 'slope', direction: 'b', height: 2 },
-        { name: 'box', height: 1 }
-      ],
-      [
-        { name: 'slope', direction: 'r', height: 2 },
-        { name: 'box', height: 1 },
-        { name: 'box', height: 1 },
-        { name: 'box', height: 1 },
-        { name: 'box', height: 1 },
-        { name: 'box', height: 1 },
-        { name: 'slope', direction: 'l', height: 2 }
-      ],
-      [
-        { name: 'box', height: 1 },
         { name: 'box', height: 1 },
         { name: 'box', height: 1 },
         { name: 'box', height: 1 },
@@ -34,10 +16,19 @@ export class Stage2 extends StageBase {
       [
         { name: 'box', height: 1 },
         { name: 'box', height: 1 },
+        null,
+        { name: 'box', height: 1 },
+        null,
+        { name: 'box', height: 1 },
+        { name: 'box', height: 1 }
+      ],
+      [
+        { name: 'box', height: 1 },
+        null,
         { name: 'box', height: 1 },
         { name: 'box', height: 1 },
         { name: 'box', height: 1 },
-        { name: 'box', height: 1 },
+        null,
         { name: 'box', height: 1 }
       ],
       [
@@ -50,21 +41,30 @@ export class Stage2 extends StageBase {
         { name: 'box', height: 1 }
       ],
       [
-        { name: 'slope', direction: 'r', height: 2 },
+        { name: 'box', height: 1 },
+        null,
         { name: 'box', height: 1 },
         { name: 'box', height: 1 },
         { name: 'box', height: 1 },
-        { name: 'box', height: 1 },
-        { name: 'box', height: 1 },
-        { name: 'slope', direction: 'l', height: 2 }
+        null,
+        { name: 'box', height: 1 }
       ],
       [
         { name: 'box', height: 1 },
-        { name: 'slope', direction: 'f', height: 2 },
         { name: 'box', height: 1 },
-        { name: 'slope', direction: 'f', height: 2 },
+        null,
         { name: 'box', height: 1 },
-        { name: 'slope', direction: 'f', height: 2 },
+        null,
+        { name: 'box', height: 1 },
+        { name: 'box', height: 1 }
+      ],
+      [
+        { name: 'box', height: 1 },
+        { name: 'box', height: 1 },
+        { name: 'box', height: 1 },
+        { name: 'box', height: 1 },
+        { name: 'box', height: 1 },
+        { name: 'box', height: 1 },
         { name: 'box', height: 1 }
       ]
     ];

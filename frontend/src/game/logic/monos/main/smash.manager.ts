@@ -7,6 +7,7 @@ import {
   type GameStatus
 } from 'physical-sugoroku-common/src/shared';
 import * as THREE from 'three';
+import * as CANNON from 'cannon-es';
 
 export class SmashManager {
   public constructor (
@@ -79,10 +80,9 @@ export class SmashManager {
 
   public smashById (id: string, direction: Vector3) {
     const target = GameScene.findById(id);
-
     (target as RigidBodyMonoBehaviour)
       ?.rigidBody()
-      .velocity.set(direction.x, direction.y, direction.z);
+      .applyImpulse(new CANNON.Vec3(direction.x, direction.y, direction.z));
   }
 
   public isTooSmall () {
