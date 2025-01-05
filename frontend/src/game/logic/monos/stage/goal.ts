@@ -24,7 +24,7 @@ export class Goal extends RigidBodyOnlineMonoBehaviour {
 
     this.rb = new CANNON.Body({
       shape: shougi.getConvex(),
-      mass: 1
+      mass: 3
     });
 
     shougi.onLoad((data) => {

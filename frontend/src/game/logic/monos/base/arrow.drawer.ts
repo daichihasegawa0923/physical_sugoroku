@@ -1,58 +1,82 @@
-import { MonoBehaviour } from '@/shared/game/monobehaviour'
-import * as THREE from 'three'
+import { MonoBehaviour } from '@/shared/game/monobehaviour';
+import * as THREE from 'three';
 
 export class ArrowDrawer extends MonoBehaviour {
-  constructor (
-    private points: { from: THREE.Vector3, to: THREE.Vector3 },
-    color: THREE.ColorRepresentation,
-    id?: string
-  ) {
-    super(id)
-    const material = new THREE.LineBasicMaterial({ color })
-    const geometry = new THREE.BufferGeometry().setFromPoints(
-      this.calcPoints()
-    )
-    const line = new THREE.Line(geometry, material)
-    this.model = line
+  constructor (points: { from: THREE.Vector3; to: THREE.Vector3 }, id?: string) {
+    super(id);
+    this.model = ArrowDrawer.createArrow(points.from, points.to);
   }
 
-  private readonly model: THREE.Line
-
-  updatePoints (from: THREE.Vector3, to: THREE.Vector3) {
-    this.points = { from, to }
-  }
+  private readonly model: THREE.Object3D;
 
   override update (): void {
-    super.update()
-    this.model.geometry.setFromPoints(this.calcPoints())
+    super.update();
   }
 
   public getObject3D (): THREE.Object3D | null {
-    return this.model
+    return this.model;
   }
 
-  private calcPoints (): THREE.Vector3[] {
-    const { from, to } = this.points
-    const headLength2 = 0.4
-    const headLength1 = 0.2
-    const direction = new THREE.Vector3().subVectors(to, from).normalize()
-    const arrowBase = new THREE.Vector3()
-      .copy(to)
-      .addScaledVector(direction, -headLength2)
+  private static createArrow (from: THREE.Vector3, to: THREE.Vector3) {
+    const width = 0.2; // 矢印の幅
+    const headHeight = 0.6; // 矢じり部分の高さ
 
-    const perpVector2 = new THREE.Vector3(0, 1, 0)
-      .cross(direction)
-      .multiplyScalar(headLength2 / 2)
+    // 矢印の長さを計算
+    const direction = new THREE.Vector3().subVectors(to, from);
+    const length = direction.length();
 
-    const perpVector1 = new THREE.Vector3(0, 1, 0)
-      .cross(direction)
-      .multiplyScalar(headLength1 / 2)
+    // カスタムジオメトリの作成
+    const geometry = ArrowDrawer.createArrowGeometry(width, length, headHeight);
 
-    const corner1Pre = new THREE.Vector3().addVectors(arrowBase, perpVector1)
-    const corner1 = new THREE.Vector3().addVectors(arrowBase, perpVector2)
-    const corner2Pre = new THREE.Vector3().subVectors(arrowBase, perpVector1)
-    const corner2 = new THREE.Vector3().subVectors(arrowBase, perpVector2)
+    // 色を長さに基づいて変える
+    const material = new THREE.MeshStandardMaterial({
+      color: ArrowDrawer.getColor(length)
+    });
 
-    return [from, corner1Pre, corner1, to, corner2, corner2Pre, from]
+    const arrow = new THREE.Mesh(geometry, material);
+
+    // 矢印の向きを調整
+    arrow.position.copy(from);
+    arrow.lookAt(to);
+
+    return arrow;
+  }
+
+  private static getColor (length: number): THREE.ColorRepresentation {
+    const rate = length / 3;
+    if (rate < 0.25) return 0x0000ff;
+    if (rate < 0.5) return 0x00dddd;
+    if (rate < 0.75) return 0x00ff00;
+    return 0xff0000;
+  }
+
+  private static createArrowGeometry (
+    width: number,
+    height: number,
+    headHeight: number
+  ) {
+    const shape = new THREE.Shape();
+
+    // ベース部分
+    shape.moveTo(-width / 2, 0);
+    shape.lineTo(width / 2, 0);
+
+    // 矢じり部分
+    shape.lineTo((width * 2) / 2, height - headHeight);
+    shape.lineTo(width * 2, height - headHeight);
+    shape.lineTo(0, height);
+    shape.lineTo(-width * 2, height - headHeight);
+    shape.lineTo((-width * 2) / 2, height - headHeight);
+
+    shape.lineTo(-width / 2, 0);
+
+    // 押し出しで厚みを追加
+    const extrudeSettings = { depth: 0.1, bevelEnabled: false };
+    const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+
+    // 押し出し方向を Z 軸に合わせるために回転
+    geometry.rotateX(Math.PI / 2);
+
+    return geometry;
   }
 }

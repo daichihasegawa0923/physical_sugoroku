@@ -96,13 +96,10 @@ export class SmashManager {
   }
 
   private static generateArrow (from?: THREE.Vector3, to?: THREE.Vector3) {
-    const arrow = new ArrowDrawer(
-      {
-        from: from ?? new THREE.Vector3(0, 0, 0),
-        to: to ?? new THREE.Vector3(0, 0, 0)
-      },
-      0xff00cc
-    );
+    const arrow = new ArrowDrawer({
+      from: from ?? new THREE.Vector3(0, 0, 0),
+      to: to ?? new THREE.Vector3(0, 0, 0)
+    });
     return arrow;
   }
 }
