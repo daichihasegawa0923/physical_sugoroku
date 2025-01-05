@@ -9,6 +9,7 @@ import {
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
 
+const MAX_SPEED = 300;
 export class SmashManager {
   public constructor (
     private readonly myMemberId: string,
@@ -19,9 +20,9 @@ export class SmashManager {
     private arrowModel: ArrowDrawer = SmashManager.generateArrow()
   ) {}
 
-  public updateDirectionPower (x: number, y: number) {
-    this.directionPower.dX = x;
-    this.directionPower.dY = y;
+  public updateDirectionPower (x: number, y: number, max: number) {
+    this.directionPower.dX = MAX_SPEED * (x / max);
+    this.directionPower.dY = MAX_SPEED * (y / max);
   }
 
   public drawSmashDirection (status: GameStatus, isMyTurn: boolean): void {
@@ -43,7 +44,6 @@ export class SmashManager {
   }
 
   public calcSmashDirection (): Vector3 {
-    const MAX_SPEED = 25;
     const { dX, dY } = this.directionPower;
     const length = Math.sqrt(Math.pow(dX, 2) + Math.pow(dY, 2));
     if (length > 0) {
@@ -92,7 +92,7 @@ export class SmashManager {
 
   public reset () {
     GameScene.remove(this.arrowModel);
-    this.updateDirectionPower(0, 0);
+    this.updateDirectionPower(0, 0, 1);
   }
 
   private static generateArrow (from?: THREE.Vector3, to?: THREE.Vector3) {

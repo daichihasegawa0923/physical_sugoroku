@@ -103,9 +103,9 @@ export class MainLogic extends MonoBehaviour {
     }
   }
 
-  public updateSmashDirection (x: number, y: number) {
+  public updateSmashDirection (x: number, y: number, max: number) {
     if (this.status === 'DIRECTION' && this.isMyTurn()) {
-      this.smashManager.updateDirectionPower(x, y);
+      this.smashManager.updateDirectionPower(x, y, max);
     }
   }
 

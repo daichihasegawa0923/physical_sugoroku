@@ -31,7 +31,7 @@ export default function useMainLogic (roomId: string) {
         seManager().playSe('/resources/music/se/kokon.m4a', 0.5, false);
         setCommandText(
           data.activeMemberName +
-            'のターンです!画面をスワイプして飛ばす方向を決めてください！',
+            'のターンです!ジョイスティックを動かして飛ばす方向を決めてください！',
           'ALL'
         );
       } else {
@@ -58,7 +58,7 @@ export default function useMainLogic (roomId: string) {
         if (data.activeMemberId === getByRoomId(roomId)?.myMemberId) {
           seManager().playSe('/resources/music/se/kokon.m4a', 0.5, false);
           setCommandText(
-            text + '画面をスワイプして飛ばす方向を決めてください！',
+            text + 'ジョイスティックを動かして飛ばす方向を決めてください！',
             'ALL'
           );
           return;
