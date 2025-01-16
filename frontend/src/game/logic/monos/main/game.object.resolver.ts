@@ -2,6 +2,8 @@ import { Piece } from '@/game/logic/monos/player/piece';
 import { Goal } from '@/game/logic/monos/stage/goal';
 import { Stage1 } from '@/game/logic/monos/stage/stage1';
 import { Stage2 } from '@/game/logic/monos/stage/stage2';
+import { Stage3 } from '@/game/logic/monos/stage/stage3';
+import { Stage4 } from '@/game/logic/monos/stage/stage4';
 import { StageTest } from '@/game/logic/monos/stage/stageTest';
 import { GameScene } from '@/shared/game/game.scene';
 import type IOnline from '@/shared/game/i.online';
@@ -66,6 +68,22 @@ export class GameObjectResolver {
         return stage2;
       }
       const created = new Stage2(input.id);
+      return created;
+    });
+    MonoContainer.registerPrefab('Stage3', (input) => {
+      const stage3 = GameScene.findById(input.id);
+      if (stage3) {
+        return stage3;
+      }
+      const created = new Stage3(input.id);
+      return created;
+    });
+    MonoContainer.registerPrefab('Stage4', (input) => {
+      const stage4 = GameScene.findById(input.id);
+      if (stage4) {
+        return stage4;
+      }
+      const created = new Stage4(input.id);
       return created;
     });
 

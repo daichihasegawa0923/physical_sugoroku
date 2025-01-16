@@ -1,6 +1,11 @@
 import { Vector3 } from '..';
 
-export type StageClasses = 'Stage1' | 'Stage2' | 'StageTest';
+export type StageClasses =
+  | 'Stage1'
+  | 'Stage2'
+  | 'Stage3'
+  | 'Stage4'
+  | 'StageTest';
 
 export interface GameStageCommon {
   rate: number;
@@ -81,6 +86,22 @@ export const Commons: Record<StageClasses, StageCommon> = {
     { x: 5, y: 5 },
     { x: 1, y: 5 },
     { x: 5, y: 1 }
+  ),
+  Stage3: new StageCommon(
+    3,
+    { x: 3, y: 3, height: 5 },
+    { x: 1, y: 1 },
+    { x: 5, y: 5 },
+    { x: 1, y: 5 },
+    { x: 5, y: 1 }
+  ),
+  Stage4: new StageCommon(
+    3,
+    { x: 2, y: 2, height: 8 },
+    { x: 0, y: 0 },
+    { x: 4, y: 4 },
+    { x: 0, y: 4 },
+    { x: 4, y: 0 }
   ),
   StageTest: new StageCommon(
     2,

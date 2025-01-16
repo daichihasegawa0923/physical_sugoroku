@@ -138,11 +138,17 @@ export default function Page ({ params }: { params: { roomId: string } }) {
   );
 }
 
-const array = [
-  { label: 'Stage1|初心者向け', value: 'Stage1' },
-  { label: 'Stage2|中級者向け', value: 'Stage2' },
-  { label: '超ミニステージ', value: 'StageTest' }
+const prodStages = [
+  { label: 'Stage1', value: 'Stage1' },
+  { label: 'Stage2', value: 'Stage2' },
+  { label: 'Stage3', value: 'Stage3' },
+  { label: 'Stage4', value: 'Stage4' }
 ];
+
+const array =
+  process.env.NODE_ENV === 'development'
+    ? [...prodStages, { label: '超ミニステージ', value: 'StageTest' }]
+    : prodStages;
 
 const list = createListCollection({
   items: array
